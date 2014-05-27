@@ -1,0 +1,39 @@
+source/formatting/indent
+source/formatting/format
+source/cleanup/tidy (=cleanup)
+source/other/toggle comment
+source/generators/element doc comment
+
+quickfix
+
+refactor/{wrangler}
+
+search/find refs
+search/find defs
+search/call hierarchy
+
+show edoc
+open editor
+open include file
+show outline
+clear cache
+compile
+open
+send_to_console
+send_to_console_with result
+goto bracket
+
+?content assist org.eclipse.ui.edit.text.contentAssist.proposals
+
+console/terminate
+console/remove launch
+console/remove all terminated
+console/show when changed
+
+outline/sort
+
+open/declaration
+
++++
+
+code path/add or delete folder as source/include dir

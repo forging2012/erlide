@@ -568,6 +568,26 @@
              id="org.erlide.ui.category.source"
              name="Source">
        </category>
+       <command
+             categoryId="org.erlide.ui.erlangCategory"
+             id="org.erlide.ui.src_dir.add_folder"
+             name="Add folder to source directories">
+       </command>
+       <command
+             categoryId="org.erlide.ui.erlangCategory"
+             id="org.erlide.ui.src_dir.del_folder"
+             name="Remove folder from source directories">
+       </command>
+       <command
+             categoryId="org.erlide.ui.erlangCategory"
+             id="org.erlide.ui.inc_dir.add_folder"
+             name="Add folder to include directories">
+       </command>
+       <command
+             categoryId="org.erlide.ui.erlangCategory"
+             id="org.erlide.ui.inc_dir.del_folder"
+             name="Remove folder from source directories">
+       </command>
  </extension>
  <extension
        point="org.eclipse.ui.menus">
@@ -769,6 +789,15 @@
                 style="push">
           </command>
           <separator
+                name="cleanup"
+                visible="true">
+          </separator>
+          <!--command
+                commandId="org.erlide.ui.actions.tidy"
+                mnemonic="T"
+                style="push">
+          </command-->
+          <separator
                 name="generators"
                 visible="true">
           </separator>
@@ -780,12 +809,19 @@
           </command>
           <visibleWhen
                 checkEnabled="false">
+             <or>
              <with
                    variable="activePartId">
                 <equals
                       value="org.erlide.ui.editors.erl.ErlangEditor">
                 </equals>
              </with>
+                        <iterate>
+                            <adapt type="org.eclipse.core.resources.IResource">
+                                <test property="org.eclipse.core.resources.name" value="*.erl" />
+                            </adapt>
+                        </iterate>
+             </or>
           </visibleWhen>
        </menu>
        <menu
