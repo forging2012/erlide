@@ -711,20 +711,20 @@ public class ErlProject extends ErlElement implements IErlProject,
     }
 
     private ErlangProjectProperties loadProperties() {
-        final IProjectConfigurator builderConfig = getConfig();
+        final IProjectConfigurator builderConfig = getConfigurator();
         final ErlangProjectProperties config = builderConfig
                 .getConfiguration(getWorkspaceProject().getLocation());
         return config;
     }
 
-    private IProjectConfigurator getConfig() {
+    private IProjectConfigurator getConfigurator() {
         return ErlangEngine.getInstance().getProjectConfiguratorFactory()
                 .getConfig(getConfigType(), this);
     }
 
     private void storeProperties() {
         if (properties != null) {
-            final IProjectConfigurator builderConfig = getConfig();
+            final IProjectConfigurator builderConfig = getConfigurator();
             builderConfig.setConfiguration(properties);
         }
     }

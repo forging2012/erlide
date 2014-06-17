@@ -34,7 +34,7 @@ public class RebarProjectConfigurationTests extends AbstractProjectConfiguration
                 .getSerializer();
 
         final ErlangProjectProperties expected = new ErlangProjectProperties();
-        expected.setOutputDir(new Path("ebin"));
+        expected.copyFrom(ErlangProjectProperties.DEFAULT);
         final ErlangProjectProperties actual = configurator.decodeConfig("");
 
         assertThat(actual, is(ErlangProjectPropertiesMatcher.sameAs(expected)));

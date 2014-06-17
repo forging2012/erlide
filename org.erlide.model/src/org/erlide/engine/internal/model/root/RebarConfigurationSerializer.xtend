@@ -17,8 +17,7 @@ class RebarConfigurationSerializer implements ProjectConfigurationSerializer {
         // TODO do nothing at the moment, will be implemented in step 2
         null
 
-    // TODO we need to keep the original parsed config and only replace changed parts!
-    //        // TODO compiler options
+    // we need to keep the original parsed config and only replace changed parts!
     //        '''
     //            %% coding: utf-8
     //            {require_min_otp_vsn, "«info.runtimeVersion»"}.
@@ -37,7 +36,10 @@ class RebarConfigurationSerializer implements ProjectConfigurationSerializer {
         result.setOutputDir(new Path("ebin"))
 
         val content = ErlangEngine.instance.simpleParserService.parse(config)
-        if (content.empty) return result
+        if (content.empty) {
+            result.copyFrom(ErlangProjectProperties.DEFAULT)
+            return result
+        }
 
         content.forEach [ erl_opts |
             val bindings = ErlUtils.match("{erl_opts,Opts}", erl_opts)
@@ -52,20 +54,23 @@ class RebarConfigurationSerializer implements ProjectConfigurationSerializer {
             }
         ]
 
+        println("DECODE 0 " + result)
+        if (result.sourceDirs.empty && result.includeDirs.empty) {
+            println("DECODE 1")
+            result.copyFrom(ErlangProjectProperties.DEFAULT)
+        }
+        println("DECODE 2 " + result)
         result
     }
 
     def void parseOption(ErlangProjectProperties result, Bindings b) {
         switch b.getAtom("Tag") {
             case "i": {
+                val List<IPath> incs = newArrayList(result.getIncludeDirs)
                 val inc = new Path(b.getString("Arg"))
-                if (!result.getIncludeDirs.contains(inc)) {
-
-                    // this is not efficient, a new list is created for every "i" tag
-                    val List<IPath> incs = newArrayList(result.getIncludeDirs)
+                if (!incs.contains(inc))
                     incs.add(inc)
-                    result.setIncludeDirs(incs)
-                }
+                result.setIncludeDirs(incs)
             }
             case "src_dirs": {
                 result.setSourceDirs(

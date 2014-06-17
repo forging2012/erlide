@@ -6,7 +6,9 @@ public class OTPProjectConfigurator implements IProjectConfigurator {
 
     @Override
     public ErlangProjectProperties getConfiguration(final IPath baseDir) {
-        return ErlangProjectProperties.DEFAULT;
+        final ErlangProjectProperties result = new ErlangProjectProperties();
+        result.copyFrom(ErlangProjectProperties.DEFAULT);
+        return result;
     }
 
     @Override

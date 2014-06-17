@@ -11,6 +11,7 @@ import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
+import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.erlide.engine.ErlangEngine;
@@ -38,6 +39,7 @@ public class RebarConfigurationSerializer implements ProjectConfigurationSeriali
       final List<OtpErlangObject> content = _simpleParserService.parse(config);
       boolean _isEmpty = content.isEmpty();
       if (_isEmpty) {
+        result.copyFrom(ErlangProjectProperties.DEFAULT);
         return result;
       }
       final Procedure1<OtpErlangObject> _function = new Procedure1<OtpErlangObject>() {
@@ -71,6 +73,22 @@ public class RebarConfigurationSerializer implements ProjectConfigurationSeriali
         }
       };
       IterableExtensions.<OtpErlangObject>forEach(content, _function);
+      InputOutput.<String>println(("DECODE 0 " + result));
+      boolean _and = false;
+      Collection<IPath> _sourceDirs = result.getSourceDirs();
+      boolean _isEmpty_1 = _sourceDirs.isEmpty();
+      if (!_isEmpty_1) {
+        _and = false;
+      } else {
+        Collection<IPath> _includeDirs = result.getIncludeDirs();
+        boolean _isEmpty_2 = _includeDirs.isEmpty();
+        _and = _isEmpty_2;
+      }
+      if (_and) {
+        InputOutput.<String>println("DECODE 1");
+        result.copyFrom(ErlangProjectProperties.DEFAULT);
+      }
+      InputOutput.<String>println(("DECODE 2 " + result));
       _xblockexpression = result;
     }
     return _xblockexpression;
@@ -83,17 +101,16 @@ public class RebarConfigurationSerializer implements ProjectConfigurationSeriali
       if (!_matched) {
         if (Objects.equal(_atom, "i")) {
           _matched=true;
+          Collection<IPath> _includeDirs = result.getIncludeDirs();
+          final List<IPath> incs = CollectionLiterals.<IPath>newArrayList(((IPath[])Conversions.unwrapArray(_includeDirs, IPath.class)));
           String _string = b.getString("Arg");
           final Path inc = new Path(_string);
-          Collection<IPath> _includeDirs = result.getIncludeDirs();
-          boolean _contains = _includeDirs.contains(inc);
+          boolean _contains = incs.contains(inc);
           boolean _not = (!_contains);
           if (_not) {
-            Collection<IPath> _includeDirs_1 = result.getIncludeDirs();
-            final List<IPath> incs = CollectionLiterals.<IPath>newArrayList(((IPath[])Conversions.unwrapArray(_includeDirs_1, IPath.class)));
             incs.add(inc);
-            result.setIncludeDirs(incs);
           }
+          result.setIncludeDirs(incs);
         }
       }
       if (!_matched) {
