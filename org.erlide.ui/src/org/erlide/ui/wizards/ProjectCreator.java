@@ -118,6 +118,7 @@ public class ProjectCreator {
 
                     erlProject.setBuilderProperties(builderProperties);
                     erlProject.setProperties(info);
+                    erlProject.storeAllProperties();
 
                 } catch (final Exception e) {
                     throw new InvocationTargetException(e);
@@ -191,6 +192,7 @@ public class ProjectCreator {
             final ProjectConfigType configType) {
 
         // TODO get config content
+        // TODO don't include default values
         System.out.println("TO DO: get config content " + info2 + " " + configType);
 
         switch (configType) {
