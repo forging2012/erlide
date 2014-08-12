@@ -18,7 +18,7 @@
          point="org.eclipse.core.resources.builders">
       <builder >
          <run
-               class="org.erlide.core.internal.builder.InternalBuilder">
+               class="org.erlide.core.internal.builder.InternalBuilderRebar">
          </run>
       </builder>
    </extension>

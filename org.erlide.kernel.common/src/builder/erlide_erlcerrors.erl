@@ -14,11 +14,14 @@
 
 -define(SEVERITY_ERROR, 0).
 -define(SEVERITY_WARNING, 1).
-	
+
 %%
 %% Exported Functions
 %%
--export([convert_erlc_errors/1]).
+-export([
+         convert_erlc_errors/1,
+         convert_error/1
+        ]).
 
 %%
 %% API Functions
@@ -51,14 +54,14 @@ convert_errors([{_Offset, PossibleErrorLine} | Rest], Acc) ->
 
 convert_error(PossibleErrorLine) ->
     case string:tokens(PossibleErrorLine, ":") of
-        [File, LineNoS, ErrText] ->
-            convert_error(File, LineNoS, ErrText, ?SEVERITY_ERROR);
-        [File, LineNoS, " Warning", WarnText] ->
-            convert_error(File, LineNoS, WarnText, ?SEVERITY_WARNING);
+        [File, LineNoS, " Warning" | WarnText] ->
+            convert_error(File, LineNoS, string:join(WarnText, ":"), ?SEVERITY_WARNING);
+        [File, LineNoS | ErrText] ->
+            convert_error(File, LineNoS, string:join(ErrText, ":"), ?SEVERITY_ERROR);
         _ ->
             not_an_error_line
     end.
-        
+
 convert_error(File, [Digit | _] = LineNoS, Text, Severity) when $0 =< Digit, Digit =< $9 ->
     case lists:suffix(".erl", File) orelse lists:suffix(".hrl", File) of
         true ->
