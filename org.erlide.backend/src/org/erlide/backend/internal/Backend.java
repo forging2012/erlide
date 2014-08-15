@@ -103,7 +103,6 @@ public abstract class Backend implements IStreamListener, IBackend {
             // TODO should use extension point!
             switch (data.getContext()) {
             case IDE:
-                site.call("erlide_builder_app", "init", "");
                 site.call("erlide_ide_app", "init", "");
                 break;
             default:

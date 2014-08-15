@@ -16,6 +16,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,15 +35,17 @@ import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.runtime.rpc.RpcException;
 import org.erlide.util.ErlLogger;
-import org.erlide.util.erlang.ErlUtils;
 
-import com.ericsson.otp.erlang.OtpErlangList;
+import com.ericsson.otp.erlang.OtpErlangAtom;
 import com.ericsson.otp.erlang.OtpErlangObject;
 
 public class InternalBuilderRebar extends ErlangBuilder {
 
     BuildNotifier notifier;
     private final BuilderHelper helper = new BuilderHelper();
+    private final OtpErlangAtom FULL = new OtpErlangAtom("full");
+    private final OtpErlangAtom AUTO = new OtpErlangAtom("auto");
+    private final OtpErlangAtom INCREMENTAL = new OtpErlangAtom("incremental");
 
     @Override
     public IProject[] build(final int kind, final Map<String, String> args,
@@ -62,7 +65,7 @@ public class InternalBuilderRebar extends ErlangBuilder {
         // }
         final IErlProject erlProject = ErlangEngine.getInstance().getModel()
                 .getErlangProject(project);
-        MarkerUtils.removeProblemMarkersFor(project);
+
         try {
             initializeBuilder(monitor);
             do_build(kind, args, project, erlProject);
@@ -116,21 +119,43 @@ public class InternalBuilderRebar extends ErlangBuilder {
         }
 
         try {
+            final OtpErlangAtom akind = getBuildKindAtom(kind);
+
             final OtpErlangObject msgs0 = backend.getRpcSite().call(15000,
-                    "erlide_builder_rebar", "build", "s",
+                    "erlide_builder_rebar", "build", "as", akind,
                     project.getLocation().toPortableString());
 
-            final OtpErlangObject[] msgs = ((OtpErlangList) msgs0).elements();
-            final ErlcMessageParser parser = new ErlcMessageParser(project);
-            for (final OtpErlangObject msg : msgs) {
-                parser.createMarkers(ErlUtils.asString(msg));
-            }
+            System.out.println(msgs0);
+            // TODO first detect which files have been recompiled
+            // TODO clear markers for them
+            // TODO create new markers
+
+            // TODO reload beams!
 
         } catch (final RpcException e) {
             // TODO handle error
             e.printStackTrace();
         }
 
+    }
+
+    private OtpErlangAtom getBuildKindAtom(final int kind) {
+        OtpErlangAtom akind;
+        switch (kind) {
+        case IncrementalProjectBuilder.FULL_BUILD:
+            akind = FULL;
+            break;
+        case IncrementalProjectBuilder.AUTO_BUILD:
+            akind = AUTO;
+            break;
+        case IncrementalProjectBuilder.INCREMENTAL_BUILD:
+            akind = INCREMENTAL;
+            break;
+        default:
+            akind = FULL;
+            break;
+        }
+        return akind;
     }
 
     @Override
@@ -167,8 +192,7 @@ public class InternalBuilderRebar extends ErlangBuilder {
             try {
                 backend.getRpcSite().call("erlide_builder_rebar", "clean", "s",
                         project.getLocation().toPortableString());
-
-                // TODO reload beams!
+                project.refreshLocal(IResource.DEPTH_INFINITE, null);
 
             } catch (final RpcException e) {
                 // TODO handle error

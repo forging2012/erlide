@@ -5,13 +5,16 @@
 -define(SAVE_CALLS, erlang:process_flag(save_calls, 50)).
 
 -ifdef(DEBUG).
+
 -compile(export_all).
+
 -ifdef(IO_FORMAT_DEBUG).
 -define(D(T), io:format("~p\n", [{?MODULE, ?LINE, T}])).
 -else.
 -define(D(T), ?Debug(T)).
 -endif.
--else.
+
+-else. % DEBUG
 -define(D(T), ok).
 -endif.
 
