@@ -121,10 +121,12 @@ public class InternalBuilderRebar extends ErlangBuilder {
         try {
             final OtpErlangAtom akind = getBuildKindAtom(kind);
 
+            final ProjectInfo projectInfo = new ProjectInfo(erlProject);
             final OtpErlangObject msgs0 = backend.getRpcSite().call(15000,
-                    "erlide_builder_rebar", "build", "as", akind,
-                    project.getLocation().toPortableString());
+                    "erlide_builder_rebar", "build", "ax", akind,
+                    projectInfo.asErlangObject());
 
+            // TODO can we get async results for progress?
             System.out.println(msgs0);
             // TODO first detect which files have been recompiled
             // TODO clear markers for them
@@ -133,8 +135,7 @@ public class InternalBuilderRebar extends ErlangBuilder {
             // TODO reload beams!
 
         } catch (final RpcException e) {
-            // TODO handle error
-            e.printStackTrace();
+            ErlLogger.error(e);
         }
 
     }
@@ -190,13 +191,13 @@ public class InternalBuilderRebar extends ErlangBuilder {
             }
 
             try {
-                backend.getRpcSite().call("erlide_builder_rebar", "clean", "s",
-                        project.getLocation().toPortableString());
+                final ProjectInfo projectInfo = new ProjectInfo(erlProject);
+                backend.getRpcSite().call("erlide_builder_rebar", "clean", "x",
+                        projectInfo.asErlangObject());
                 project.refreshLocal(IResource.DEPTH_INFINITE, null);
 
             } catch (final RpcException e) {
-                // TODO handle error
-                e.printStackTrace();
+                ErlLogger.error(e);
             }
             project.refreshLocal(IResource.DEPTH_INFINITE, null);
 

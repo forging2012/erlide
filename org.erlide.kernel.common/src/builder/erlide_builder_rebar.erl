@@ -8,9 +8,11 @@
          doc/1
         ]).
 
+-record(project_info, {rootDir, sourceDirs=[], includeDirs=[], outDir="ebin", opts=[], min_otp_vsn=".*", libs=[]}).
+
 -spec build(atom(), list()) -> list() | error | timeout.
-build(Kind, Dir) when is_atom(Kind), is_list(Dir) ->
-    c:cd(Dir),
+build(Kind, ProjProps) when is_atom(Kind), is_record(ProjProps, project_info) ->
+    c:cd(ProjProps#project_info.rootDir),
     
     Cmds0 = ["compile", "eunit", "compile_only=true"],
     Cmds = case Kind of
@@ -19,35 +21,41 @@ build(Kind, Dir) when is_atom(Kind), is_list(Dir) ->
                _ ->
                    Cmds0
            end,
-    rebar(["-C", "rebar.config" | Cmds]).
+    
+    rebar(ProjProps, ["-C", "rebar.config" | Cmds]).
 
-clean(Dir) ->
-    c:cd(Dir),
-    rebar(["-C", "rebar.config", "clean"]).
+clean(ProjProps) when is_record(ProjProps, project_info) ->
+    c:cd(ProjProps#project_info.rootDir),
+    rebar(ProjProps, ["-C", "rebar.config", "clean"]).
 
-dialyze(Dir) ->
-    c:cd(Dir),
-    rebar(["-C", "rebar.config", "dialyze"]).
+dialyze(ProjProps) when is_record(ProjProps, project_info) ->
+    c:cd(ProjProps#project_info.rootDir),
+    rebar(ProjProps, ["-C", "rebar.config", "dialyze"]).
 
-eunit(Dir) ->
-    c:cd(Dir),
-    rebar(["-C", "rebar.config", "eunit"]).
+eunit(ProjProps) when is_record(ProjProps, project_info) ->
+    c:cd(ProjProps#project_info.rootDir),
+    rebar(ProjProps, ["-C", "rebar.config", "eunit"]).
 
-doc(Dir) ->
-    c:cd(Dir),
-    rebar(["-C", "rebar.config", "doc"]).
+doc(ProjProps) when is_record(ProjProps, project_info) ->
+    c:cd(ProjProps#project_info.rootDir),
+    rebar(ProjProps, ["-C", "rebar.config", "doc"]).
 
 
 %%%
 
-rebar(Ops) when is_list(Ops) ->
-    with_config_file(fun() ->
-                             with_app_file(fun()->
-                                                   call_rebar(Ops)
-                                           end)
-                     end);
-rebar(Op) ->
-    rebar([Op]).
+rebar(ProjProps=#project_info{sourceDirs=SrcDirs, outDir=OutDir}, Ops) ->
+    with_config_file(ProjProps,
+                     fun() ->
+                             do_rebar(SrcDirs, OutDir, Ops)
+                     end).
+
+
+do_rebar(Srcs, Out, Ops) when is_list(Ops) ->
+    with_app_file(Srcs, 
+                  Out, 
+                  fun()->
+                          call_rebar(Ops)
+                  end).
 
 call_rebar(Ops) ->
     application:unload(rebar),
@@ -114,32 +122,30 @@ handle(_Msg) ->
     erlide_log:log({unexpected, _Msg}),
     none.
 
-with_config_file(Fun) ->
+with_config_file(ProjProps, Fun) ->
     case filelib:is_regular("rebar.config") of
         true ->
             Fun();
         _ ->
-            file:write_file("rebar.config", ""),
+            file:write_file("rebar.config", create_rebar_config(ProjProps)),
             Result = Fun(),
             file:delete("rebar.config"),
             Result
     end.
 
-with_app_file(Fun) ->
+with_app_file(SrcDir, EbinDir, Fun) ->
     case filelib:wildcard("**/*.app.{src,src.script}") of
         [] ->
-            %% TODO which directory?
-            
             %% we try to use a file name not likely to exist
             App = get_dummy_app_name("./"),
-            File = "src/"++App++".app.src",
+            File = SrcDir++"/"++App++".app.src",
             
             file:write_file(File, "{application, '"++App++"', [{vsn,\"0\"}]}."),
             
             Result = Fun(),
             
             file:delete(File),
-            file:delete("ebin/"++App++".app"),
+            file:delete(EbinDir++"/"++App++".app"),
             
             Result;
         _ ->
@@ -154,3 +160,18 @@ get_dummy_app_name(Dir) ->
         false->
             "___dummy"
     end.
+
+create_rebar_config(#project_info{min_otp_vsn=MinOtpVsn, 
+                                  sourceDirs=Srcs, 
+                                  includeDirs=Incs, 
+                                  opts=Opts,
+                                  libs=Libs}) ->
+    IncOpts = [{i, I} || I<-Incs],
+    AllOpts = [{src_dirs, Srcs}]++IncOpts++Opts,
+    Config = io_lib:format("{require_min_otp_vsn, \"~s\"}.\n"
+                           "{erl_opts, ~p}.\n"
+                           "{lib_dirs, ~p}.\n"
+                           "", 
+                           [MinOtpVsn, AllOpts, Libs]),
+    erlide_log:log({generated_rebar_config, lists:flatten(Config)}),
+    Config.
