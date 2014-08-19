@@ -13,7 +13,7 @@
 -spec build(atom(), list()) -> list() | error | timeout.
 build(Kind, ProjProps) when is_atom(Kind), is_record(ProjProps, project_info) ->
     c:cd(ProjProps#project_info.rootDir),
-    
+
     Cmds0 = ["compile", "eunit", "compile_only=true"],
     Cmds = case Kind of
                full ->
@@ -21,7 +21,7 @@ build(Kind, ProjProps) when is_atom(Kind), is_record(ProjProps, project_info) ->
                _ ->
                    Cmds0
            end,
-    
+
     rebar(ProjProps, ["-C", "rebar.config" | Cmds]).
 
 clean(ProjProps) when is_record(ProjProps, project_info) ->
@@ -51,8 +51,8 @@ rebar(ProjProps=#project_info{sourceDirs=SrcDirs, outDir=OutDir}, Ops) ->
 
 
 do_rebar(Srcs, Out, Ops) when is_list(Ops) ->
-    with_app_file(Srcs, 
-                  Out, 
+    with_app_file(Srcs,
+                  Out,
                   fun()->
                           call_rebar(Ops)
                   end).
@@ -139,14 +139,14 @@ with_app_file(SrcDir, EbinDir, Fun) ->
             %% we try to use a file name not likely to exist
             App = get_dummy_app_name("./"),
             File = SrcDir++"/"++App++".app.src",
-            
+
             file:write_file(File, "{application, '"++App++"', [{vsn,\"0\"}]}."),
-            
+
             Result = Fun(),
-            
+
             file:delete(File),
             file:delete(EbinDir++"/"++App++".app"),
-            
+
             Result;
         _ ->
             Fun()
@@ -161,9 +161,10 @@ get_dummy_app_name(Dir) ->
             "___dummy"
     end.
 
-create_rebar_config(#project_info{min_otp_vsn=MinOtpVsn, 
-                                  sourceDirs=Srcs, 
-                                  includeDirs=Incs, 
+create_rebar_config(#project_info{rootDir = RootDir,
+                                  min_otp_vsn=MinOtpVsn,
+                                  sourceDirs=Srcs,
+                                  includeDirs=Incs,
                                   opts=Opts,
                                   libs=Libs}) ->
     IncOpts = [{i, I} || I<-Incs],
@@ -171,7 +172,7 @@ create_rebar_config(#project_info{min_otp_vsn=MinOtpVsn,
     Config = io_lib:format("{require_min_otp_vsn, \"~s\"}.\n"
                            "{erl_opts, ~p}.\n"
                            "{lib_dirs, ~p}.\n"
-                           "", 
+                           "",
                            [MinOtpVsn, AllOpts, Libs]),
-    erlide_log:log({generated_rebar_config, lists:flatten(Config)}),
+    erlide_log:log({generated_rebar_config, RootDir, lists:flatten(Config)}),
     Config.

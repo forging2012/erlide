@@ -121,23 +121,30 @@ public class InternalBuilderRebar extends ErlangBuilder {
         try {
             final OtpErlangAtom akind = getBuildKindAtom(kind);
 
-            final ProjectInfo projectInfo = new ProjectInfo(erlProject);
+            final OtpErlangObject projectInfo = BuilderUtils
+                    .createProjectInfo(erlProject);
             final OtpErlangObject msgs0 = backend.getRpcSite().call(15000,
-                    "erlide_builder_rebar", "build", "ax", akind,
-                    projectInfo.asErlangObject());
+                    "erlide_builder_rebar", "build", "ax", akind, projectInfo);
 
             // TODO can we get async results for progress?
+
             System.out.println(msgs0);
-            // TODO first detect which files have been recompiled
-            // TODO clear markers for them
-            // TODO create new markers
-
-            // TODO reload beams!
-
+            create_markers(erlProject, msgs0);
+            reload_beams(erlProject);
         } catch (final RpcException e) {
             ErlLogger.error(e);
         }
 
+    }
+
+    private void create_markers(final IErlProject erlProject, final OtpErlangObject msgs0) {
+        // TODO first detect which files have been recompiled
+        // TODO clear markers for them
+        // TODO create new markers
+    }
+
+    private void reload_beams(final IErlProject erlProject) {
+        // TODO reload beams!
     }
 
     private OtpErlangAtom getBuildKindAtom(final int kind) {
@@ -191,9 +198,10 @@ public class InternalBuilderRebar extends ErlangBuilder {
             }
 
             try {
-                final ProjectInfo projectInfo = new ProjectInfo(erlProject);
+                final OtpErlangObject projectInfo = BuilderUtils
+                        .createProjectInfo(erlProject);
                 backend.getRpcSite().call("erlide_builder_rebar", "clean", "x",
-                        projectInfo.asErlangObject());
+                        projectInfo);
                 project.refreshLocal(IResource.DEPTH_INFINITE, null);
 
             } catch (final RpcException e) {
