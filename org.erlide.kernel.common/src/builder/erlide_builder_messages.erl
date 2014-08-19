@@ -26,18 +26,14 @@
 %% API Functions
 %%
 parse(Text) ->
-    Errors = parse_errors(Text, []),
-    Rel = sofs:relation(Errors),
-    Fam = sofs:relation_to_family(Rel),
-    Result = sofs:to_external(Fam),
-    Result.
+    parse_errors(Text, []).
 
 %%
 %% Local Functions
 %%
 
 parse_errors([], Acc) ->
-    Acc;
+    lists:reverse(Acc);
 parse_errors([PossibleErrorLine | Rest], Acc) when is_list(PossibleErrorLine) ->
     case parse_error(PossibleErrorLine) of
         not_an_error_line ->
@@ -73,8 +69,7 @@ mk_error(File, LineNoS, Msg, Severity) ->
         -2 ->
             not_an_error_line;
         _ ->
-            Err = {File, {Line, Msg, Severity}},
-            Err
+            {File, Line, Msg, Severity}
     end.
 
 to_line("none") ->

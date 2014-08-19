@@ -214,6 +214,15 @@ public class ErlRuntime extends AbstractExecutionThreadService implements IErlRu
     }
 
     @Override
+    public void unregisterEventListener(final Object handler) {
+        try {
+            eventBus.unregister(handler);
+        } catch (final Exception e) {
+            ErlLogger.warn(e);
+        }
+    }
+
+    @Override
     protected String serviceName() {
         return getClass().getSimpleName() + " " + getNodeName();
     }

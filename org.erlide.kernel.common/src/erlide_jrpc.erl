@@ -32,6 +32,7 @@ init(JPid) ->
     add_service(log, JPid),
     add_service(erlang_log, JPid),
     add_service(io_server, JPid),
+    add_service(builder, JPid),
 
     %% catch_all handler
     add_service(generic_catchall, JPid),

@@ -84,6 +84,11 @@ public class NullErlRuntime implements IErlRuntime {
     }
 
     @Override
+    public void unregisterEventListener(final Object handler) {
+        reportNoBackend();
+    }
+
+    @Override
     public Process getProcess() {
         reportNoBackend();
         return null;

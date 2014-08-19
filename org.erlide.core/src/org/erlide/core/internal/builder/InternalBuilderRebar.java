@@ -33,6 +33,7 @@ import org.erlide.engine.model.builder.ErlangBuilder;
 import org.erlide.engine.model.builder.MarkerUtils;
 import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.runtime.events.ErlangEventHandler;
 import org.erlide.runtime.rpc.RpcException;
 import org.erlide.util.ErlLogger;
 
@@ -59,10 +60,10 @@ public class InternalBuilderRebar extends ErlangBuilder {
             return null;
         }
 
-        // if (BuilderHelper.isDebugging()) {
-        ErlLogger.trace("build",
-                "Start " + project.getName() + ": " + helper.buildKind(kind));
-        // }
+        if (BuilderHelper.isDebugging()) {
+            ErlLogger.trace("build",
+                    "Start " + project.getName() + ": " + helper.buildKind(kind));
+        }
         final IErlProject erlProject = ErlangEngine.getInstance().getModel()
                 .getErlangProject(project);
 
@@ -83,19 +84,19 @@ public class InternalBuilderRebar extends ErlangBuilder {
                     .createProblemMarker(project, null, msg, 0, IMarker.SEVERITY_ERROR);
         } finally {
             cleanup();
-            // if (BuilderHelper.isDebugging()) {
-            ErlLogger.trace(
-                    "build",
-                    " Done " + project.getName() + " took "
-                            + Long.toString(System.currentTimeMillis() - time));
-            // }
+            if (BuilderHelper.isDebugging()) {
+                ErlLogger.trace(
+                        "build",
+                        " Done " + project.getName() + " took "
+                                + Long.toString(System.currentTimeMillis() - time));
+            }
         }
         return null;
     }
 
     private void do_build(final int kind, final Map<String, String> args,
             final IProject project, final IErlProject erlProject) throws BackendException {
-        // TODO validate source and include directories
+
         final ErlangProjectProperties properties = erlProject.getProperties();
         final IPath out = properties.getOutputDir();
         final IResource outr = project.findMember(out);
@@ -118,33 +119,29 @@ public class InternalBuilderRebar extends ErlangBuilder {
             throw new BackendException(message);
         }
 
+        final ErlangEventHandler handler = new BuilderEventHandler(backend.getName(),
+                notifier);
+        backend.getRuntime().registerEventListener(handler);
         try {
-            final OtpErlangAtom akind = getBuildKindAtom(kind);
+            try {
 
-            final OtpErlangObject projectInfo = BuilderUtils
-                    .createProjectInfo(erlProject);
-            final OtpErlangObject msgs0 = backend.getRpcSite().call(15000,
-                    "erlide_builder_rebar", "build", "ax", akind, projectInfo);
+                final OtpErlangAtom akind = getBuildKindAtom(kind);
 
-            // TODO can we get async results for progress?
+                final OtpErlangObject projectInfo = BuilderUtils
+                        .createProjectInfo(erlProject);
+                // we only need the result if we're not retrieving the messages
+                // asynchronously, but we need to wait for the build to finish
+                backend.getRpcSite().call(30000, "erlide_builder_rebar", "build", "ax",
+                        akind, projectInfo);
 
-            System.out.println(msgs0);
-            create_markers(erlProject, msgs0);
-            reload_beams(erlProject);
-        } catch (final RpcException e) {
-            ErlLogger.error(e);
+                backend.getRpcSite().call(30000, "erlide_builder_rebar", "eunit", "x",
+                        projectInfo);
+            } catch (final RpcException e) {
+                ErlLogger.error(e);
+            }
+        } finally {
+            backend.getRuntime().unregisterEventListener(handler);
         }
-
-    }
-
-    private void create_markers(final IErlProject erlProject, final OtpErlangObject msgs0) {
-        // TODO first detect which files have been recompiled
-        // TODO clear markers for them
-        // TODO create new markers
-    }
-
-    private void reload_beams(final IErlProject erlProject) {
-        // TODO reload beams!
     }
 
     private OtpErlangAtom getBuildKindAtom(final int kind) {

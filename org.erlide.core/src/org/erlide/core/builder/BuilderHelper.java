@@ -34,12 +34,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.annotation.NonNull;
 import org.erlide.backend.BackendCore;
 import org.erlide.backend.api.IBackend;
 import org.erlide.backend.api.IBackendManager;
-import org.erlide.core.ErlangPlugin;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.builder.MarkerUtils;
@@ -75,9 +73,10 @@ public final class BuilderHelper {
     }
 
     public static boolean isDebugging() {
-        return ErlangPlugin.getDefault().isDebugging()
-                && "true".equalsIgnoreCase(Platform
-                        .getDebugOption("org.erlide.core/debug/builder"));
+        return true;
+        // ErlangPlugin.getDefault().isDebugging()
+        // && "true".equalsIgnoreCase(Platform
+        // .getDebugOption("org.erlide.core/debug/builder"));
     }
 
     public Collection<IPath> getAllIncludeDirs(final IProject project) {
@@ -271,7 +270,7 @@ public final class BuilderHelper {
 
     private boolean shouldCompileModule(final IProject project, final IResource source,
             final IResource beam, final boolean shouldCompile0, final IErlProject eprj)
-            throws ErlModelException {
+                    throws ErlModelException {
         boolean shouldCompile = shouldCompile0;
         final IErlModule m = eprj.getModule(source.getName());
         if (m != null) {
@@ -644,7 +643,7 @@ public final class BuilderHelper {
     }
 
     private static class BuilderVisitor implements IResourceDeltaVisitor,
-            IResourceVisitor {
+    IResourceVisitor {
 
         private final Set<BuildResource> result;
         private final IProgressMonitor monitor;
