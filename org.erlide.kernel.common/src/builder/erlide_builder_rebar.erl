@@ -110,6 +110,9 @@ handle_aux(["Compiled ~s\n", [File]]) ->
     {compiled, File};
 handle_aux(["INFO:  Skipped ~s\n", [File]]) ->
     {skipped, File};
+handle_aux(["INFO:  files to compile: "++Text, [Num]]) ->
+    Kind = hd(string:tokens(Text, " ")),
+    {total, Kind, Num};
 handle_aux(["==> ~s (~s)\n", [Project, Operation]]) ->
     {start, Operation, Project};
 handle_aux(_Msg) ->
