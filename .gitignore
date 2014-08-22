@@ -38,3 +38,4 @@ coverage.info
 coverage.xml
 junit.xml
 .rebar
+org.erlide.ui.tests/projects/main_prj/rebar.config

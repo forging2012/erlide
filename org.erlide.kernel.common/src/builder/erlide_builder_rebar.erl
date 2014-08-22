@@ -19,16 +19,16 @@ build(Kind, ProjProps) ->
                    Cmds0
            end,
 
-    rebar(ProjProps, ["-v" | Cmds]).
+    rebar(ProjProps, ["-vv" | Cmds]).
 
 clean(ProjProps) ->
-    rebar(ProjProps, ["-v", "clean"]).
+    rebar(ProjProps, ["-vv", "clean"]).
 
 eunit(ProjProps) ->
-    rebar(ProjProps, ["-v", "eunit"]).
+    rebar(ProjProps, ["-vv", "eunit"]).
 
 doc(ProjProps) ->
-    rebar(ProjProps, ["-v", "doc"]).
+    rebar(ProjProps, ["-vv", "doc"]).
 
 
 %%%
@@ -77,6 +77,7 @@ leader(Parent, Result) ->
         stop ->
             Text = lists:reverse(Result),
             Parent ! {done, erlide_builder_messages:parse(Text)},
+            erlide_jrpc:event(builder, done),
             ok;
         {io_request, From, ReplyAs, Msg}=_M ->
             From ! {io_reply, ReplyAs, ok},
@@ -110,13 +111,12 @@ handle_aux(["Compiled ~s\n", [File]]) ->
     {compiled, File};
 handle_aux(["INFO:  Skipped ~s\n", [File]]) ->
     {skipped, File};
-handle_aux(["INFO:  files to compile: "++Text, [Num]]) ->
-    Kind = hd(string:tokens(Text, " ")),
-    {total, Kind, Num};
+handle_aux(["DEBUG: files to compile: ~s ~p~n", [Tag, Num]]) ->
+    {total, Tag, Num};
 handle_aux(["==> ~s (~s)\n", [Project, Operation]]) ->
     {start, Operation, Project};
 handle_aux(_Msg) ->
-    erlide_log:log({unexpected, _Msg}),
+     erlide_log:log({unexpected, _Msg}),
     none.
 
 with_config_file(ProjProps, Fun) ->

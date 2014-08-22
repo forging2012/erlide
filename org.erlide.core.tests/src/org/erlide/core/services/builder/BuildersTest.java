@@ -127,7 +127,7 @@ public class BuildersTest {
     private void waitJobsToFinish(final Object family) {
         final IJobManager jobMan = Job.getJobManager();
         final Job[] build = jobMan.find(family);
-        if (build.length == 1) {
+        while (build.length == 1) {
             try {
                 build[0].join();
             } catch (final InterruptedException e) {

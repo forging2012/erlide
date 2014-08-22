@@ -120,7 +120,7 @@ public class InternalBuilderRebar extends ErlangBuilder {
         }
 
         final ErlangEventHandler handler = new BuilderEventHandler(backend.getName(),
-                notifier);
+                notifier, project.getLocation().lastSegment());
         backend.getRuntime().registerEventListener(handler);
         try {
             try {
@@ -134,8 +134,9 @@ public class InternalBuilderRebar extends ErlangBuilder {
                 backend.getRpcSite().call(30000, "erlide_builder_rebar", "build", "ax",
                         akind, projectInfo);
 
-                backend.getRpcSite().call(30000, "erlide_builder_rebar", "eunit", "x",
-                        projectInfo);
+                // backend.getRpcSite().call(30000, "erlide_builder_rebar",
+                // "eunit", "x",
+                // projectInfo);
             } catch (final RpcException e) {
                 ErlLogger.error(e);
             }
