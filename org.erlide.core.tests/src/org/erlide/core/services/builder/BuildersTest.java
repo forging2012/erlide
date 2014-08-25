@@ -13,6 +13,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.erlide.core.internal.builder.ErlangNature;
@@ -26,6 +27,22 @@ import org.junit.Test;
 
 @SuppressWarnings("deprecation")
 public class BuildersTest {
+
+    public class LocalProgressMonitor extends NullProgressMonitor {
+        private final boolean[] output;
+
+        public LocalProgressMonitor(final boolean[] output) {
+            this.output = output;
+            output[0] = false;
+        }
+
+        @Override
+        public void worked(final int work) {
+            System.out.println("WORKED!!");
+            output[0] = true;
+        }
+
+    }
 
     private IProject prj;
 
@@ -107,7 +124,10 @@ public class BuildersTest {
         final IResource beam0 = prj.findMember(targetBeamPath);
         assertThat("beam existed before test", beam0, nullValue());
 
-        prj.build(IncrementalProjectBuilder.FULL_BUILD, builderId, null, null);
+        final boolean[] worked = new boolean[] { false };
+        prj.build(IncrementalProjectBuilder.FULL_BUILD, builderId, null,
+                new LocalProgressMonitor(worked));
+        waitBuildToStart(worked);
         waitJobsToFinish(ResourcesPlugin.FAMILY_MANUAL_BUILD);
         prj.refreshLocal(IResource.DEPTH_INFINITE, null);
         waitJobsToFinish(ResourcesPlugin.FAMILY_MANUAL_REFRESH);
@@ -115,13 +135,26 @@ public class BuildersTest {
         final IResource beam = prj.findMember(targetBeamPath);
         assertThat("beam was not created", beam, notNullValue());
 
-        prj.build(IncrementalProjectBuilder.CLEAN_BUILD, builderId, null, null);
+        prj.build(IncrementalProjectBuilder.CLEAN_BUILD, builderId, null,
+                new LocalProgressMonitor(worked));
+        waitBuildToStart(worked);
         waitJobsToFinish(ResourcesPlugin.FAMILY_MANUAL_BUILD);
         prj.refreshLocal(IResource.DEPTH_INFINITE, null);
         waitJobsToFinish(ResourcesPlugin.FAMILY_MANUAL_REFRESH);
 
         final IResource beam2 = prj.findMember(targetBeamPath);
         assertThat("beam was not removed", beam2, nullValue());
+    }
+
+    private void waitBuildToStart(final boolean[] worked) {
+        while (!worked[0]) {
+            try {
+                System.out.println("SLEEP...");
+                Thread.sleep(100);
+            } catch (final InterruptedException e) {
+            }
+        }
+        System.out.println("---- worked -----");
     }
 
     private void waitJobsToFinish(final Object family) {

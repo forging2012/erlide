@@ -116,7 +116,7 @@ handle_aux(["DEBUG: files to compile: ~s ~p~n", [Tag, Num]]) ->
 handle_aux(["==> ~s (~s)\n", [Project, Operation]]) ->
     {start, Operation, Project};
 handle_aux(_Msg) ->
-     erlide_log:log({unexpected, _Msg}),
+    erlide_log:log({unexpected, _Msg}),
     none.
 
 with_config_file(ProjProps, Fun) ->
@@ -125,9 +125,12 @@ with_config_file(ProjProps, Fun) ->
             Fun();
         _ ->
             file:write_file("rebar.config", create_rebar_config(ProjProps)),
-            Result = Fun(),
-            file:delete("rebar.config"),
-            Result
+            try
+                Result = Fun(),
+                Result
+            after
+                file:delete("rebar.config")
+            end
     end.
 
 with_app_file(SrcDir, EbinDir, Fun) ->
@@ -136,15 +139,14 @@ with_app_file(SrcDir, EbinDir, Fun) ->
             %% we try to use a file name not likely to exist
             App = get_dummy_app_name("./"),
             File = SrcDir++"/"++App++".app.src",
-
             file:write_file(File, "{application, '"++App++"', [{vsn,\"0\"}]}."),
-
-            Result = Fun(),
-
-            file:delete(File),
-            file:delete(EbinDir++"/"++App++".app"),
-
-            Result;
+            try
+                Result = Fun(),
+                Result
+            after
+                file:delete(File),
+                file:delete(EbinDir++"/"++App++".app")
+            end;
         _ ->
             Fun()
     end.

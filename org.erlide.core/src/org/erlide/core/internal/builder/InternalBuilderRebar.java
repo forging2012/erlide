@@ -42,11 +42,12 @@ import com.ericsson.otp.erlang.OtpErlangObject;
 
 public class InternalBuilderRebar extends ErlangBuilder {
 
+    private final static OtpErlangAtom FULL = new OtpErlangAtom("full");
+    private final static OtpErlangAtom AUTO = new OtpErlangAtom("auto");
+    private final static OtpErlangAtom INCREMENTAL = new OtpErlangAtom("incremental");
+
     BuildNotifier notifier;
     private final BuilderHelper helper = new BuilderHelper();
-    private final OtpErlangAtom FULL = new OtpErlangAtom("full");
-    private final OtpErlangAtom AUTO = new OtpErlangAtom("auto");
-    private final OtpErlangAtom INCREMENTAL = new OtpErlangAtom("incremental");
 
     @Override
     public IProject[] build(final int kind, final Map<String, String> args,
@@ -71,7 +72,6 @@ public class InternalBuilderRebar extends ErlangBuilder {
             initializeBuilder(monitor);
             do_build(kind, args, project, erlProject);
             project.refreshLocal(IResource.DEPTH_INFINITE, null);
-
         } catch (final OperationCanceledException e) {
             if (BuilderHelper.isDebugging()) {
                 ErlLogger.debug("Build of " + project.getName() + " was canceled.");
