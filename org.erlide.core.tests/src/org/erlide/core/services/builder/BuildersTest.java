@@ -27,6 +27,7 @@ import org.erlide.engine.util.ErlideTestUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 @SuppressWarnings("deprecation")
@@ -68,6 +69,11 @@ public class BuildersTest {
         prj = null;
     }
 
+    @BeforeClass
+    public static void init() throws CoreException {
+        setAutoBuild(ResourcesPlugin.getWorkspace(), false);
+    }
+
     @AfterClass
     public static void finish() throws CoreException {
         final IErlProject p2 = ErlideTestUtils.getExistingProject("p2");
@@ -78,18 +84,19 @@ public class BuildersTest {
     @Test
     public void internalBuilderShouldWork() throws CoreException {
         testBuilder(BuilderTool.INTERNAL);
+        testClean(BuilderTool.INTERNAL);
     }
 
     @Test
     public void makeBuilderShouldWork() throws CoreException {
         final IFolder folder = (IFolder) prj.findMember("src");
-        final IFile app = folder.getFile("z.app.src");
-        app.create(new StringBufferInputStream(
-                "{application, builders,[{description, \"\"},{vsn, \"1\"},"
-                        + "{registered, []},{applications, [kernel,stdlib]},"
-                        + "{mod, { mod, []}},{env, []}]}."), true, null);
+        final IFile app = folder.getFile("builders.app.src");
+        app.create(
+                new StringBufferInputStream("{application, builders,[{vsn, \"1\"}]}."),
+                true, null);
         try {
             testBuilder(BuilderTool.MAKE);
+            testClean(BuilderTool.MAKE);
         } finally {
             app.delete(true, null);
         }
@@ -98,18 +105,24 @@ public class BuildersTest {
     @Test
     public void emakeBuilderShouldWork() throws CoreException {
         testBuilder(BuilderTool.EMAKE);
+        testClean(BuilderTool.EMAKE);
     }
 
     @Test
     public void rebarBuilderShouldWork() throws CoreException {
+        // TODO make sure no .app.src exists
         final IFolder folder = (IFolder) prj.findMember("src");
-        final IFile app = folder.getFile("z.app.src");
-        app.create(new StringBufferInputStream(
-                "{application, builders,[{description, \"\"},{vsn, \"1\"},"
-                        + "{registered, []},{applications, [kernel,stdlib]},"
-                        + "{mod, { mod, []}},{env, []}]}."), true, null);
+        final IFile app = folder.getFile("builders.app.src");
+        app.create(
+                new StringBufferInputStream("{application, builders,[{vsn, \"1\"}]}."),
+                true, null);
         try {
             testBuilder(BuilderTool.REBAR);
+
+            final IResource beam = prj.findMember("ebin/builders.app");
+            assertThat("app was not created", beam, notNullValue());
+
+            testClean(BuilderTool.REBAR);
         } finally {
             app.delete(true, null);
         }
@@ -117,6 +130,7 @@ public class BuildersTest {
 
     @Test(expected = AssertionError.class)
     public void rebarBuilderShouldNotWorkWithoutAppFile() throws CoreException {
+        // TODO make sure no .app.src exists
         testBuilder(BuilderTool.REBAR);
     }
 
@@ -138,11 +152,19 @@ public class BuildersTest {
 
         final IResource beam = prj.findMember(targetBeamPath);
         assertThat("beam was not created", beam, notNullValue());
+    }
+
+    private void testClean(final BuilderTool builderTool) throws CoreException {
+        final ErlangBuilder builder = ErlangBuilderFactory.get(builderTool);
+        final BuildNotifier notifier = new BuildNotifier(null, prj);
+        final IErlProject erlProject = ErlangEngine.getInstance().getModel()
+                .getErlangProject(prj);
 
         builder.clean(erlProject, notifier);
         prj.refreshLocal(IResource.DEPTH_INFINITE, null);
         waitJobsToFinish(ResourcesPlugin.FAMILY_MANUAL_REFRESH);
 
+        final String targetBeamPath = "ebin/mod.beam";
         final IResource beam2 = prj.findMember(targetBeamPath);
         assertThat("beam was not removed", beam2, nullValue());
     }

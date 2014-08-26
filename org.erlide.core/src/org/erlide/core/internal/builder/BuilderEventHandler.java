@@ -239,7 +239,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
             return;
         }
         final OtpErlangObject data = event.getEvent();
-        // System.out.println(" --> " + data);
+        System.out.println(" --> " + data);
         try {
             final State newState = state.process(data, context);
             if (state != newState) {

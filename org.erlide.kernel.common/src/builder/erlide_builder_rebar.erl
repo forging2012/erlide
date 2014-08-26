@@ -19,7 +19,7 @@ build(Kind, ProjProps) ->
                    Cmds0
            end,
 
-    rebar(ProjProps, ["-vv" | Cmds]).
+    rebar(ProjProps, ["-vvv" | Cmds]).
 
 clean(ProjProps) ->
     rebar(ProjProps, ["-vv", "clean"]).
@@ -34,21 +34,21 @@ doc(ProjProps) ->
 %%%
 
 rebar(ProjProps=#project_info{rootDir=RootDir, sourceDirs=SrcDirs, outDir=OutDir}, Ops) ->
+    c:cd(RootDir),
     with_config_file(ProjProps,
                      fun() ->
-                             rebar(RootDir, SrcDirs, OutDir, Ops)
+                             rebar(SrcDirs, OutDir, Ops)
                      end).
 
 
-rebar(RootDir, Srcs, Out, Ops) when is_list(Ops) ->
+rebar(Srcs, Out, Ops) when is_list(Ops) ->
     with_app_file(Srcs,
                   Out,
                   fun()->
-                          call_rebar(RootDir, Ops)
+                          call_rebar(Ops)
                   end).
 
-call_rebar(RootDir, Ops) ->
-    c:cd(RootDir),
+call_rebar(Ops) ->
     application:unload(rebar),
     Leader = group_leader(),
     Self = self(),
@@ -58,6 +58,7 @@ call_rebar(RootDir, Ops) ->
         rebar:run(Ops)
     catch
         throw:rebar_abort ->
+            erlide_log:log("rebar aborted"),
             ok;
         K:E ->
             erlide_log:logp("ERROR: rebar crashed with ~p", [{K, E}]),
@@ -124,10 +125,14 @@ with_config_file(ProjProps, Fun) ->
         true ->
             Fun();
         _ ->
-            file:write_file("rebar.config", create_rebar_config(ProjProps)),
             try
-                Result = Fun(),
-                Result
+                ok = file:write_file("rebar.config", create_rebar_config(ProjProps))
+            catch
+                K:E ->
+                      erlide_log:log({"ERROR: could not create rebar.config", {K,E}})
+            end,
+            try
+                Fun()
             after
                 file:delete("rebar.config")
             end
@@ -137,12 +142,16 @@ with_app_file(SrcDir, EbinDir, Fun) ->
     case filelib:wildcard("**/*.app.{src,src.script}") of
         [] ->
             %% we try to use a file name not likely to exist
-            App = get_dummy_app_name("./"),
-            File = SrcDir++"/"++App++".app.src",
-            file:write_file(File, "{application, '"++App++"', [{vsn,\"0\"}]}."),
+            App = get_dummy_app_name("."),
+            File = lists:flatten(SrcDir++"/"++App++".app.src"),
             try
-                Result = Fun(),
-                Result
+                ok = file:write_file(File, "{application, '"++App++"', [{vsn,\"0\"}]}.")
+            catch
+                K:E ->
+                      erlide_log:log({"ERROR: could not create rebar.config", {K,E}})
+            end,
+            try
+                Fun()
             after
                 file:delete(File),
                 file:delete(EbinDir++"/"++App++".app")
@@ -152,8 +161,8 @@ with_app_file(SrcDir, EbinDir, Fun) ->
     end.
 
 get_dummy_app_name(Dir) ->
-    case filelib:is_regular(Dir++"src/___dummy.app.src") orelse
-             filelib:is_regular(Dir++"src/___dummy.app.src.script") of
+    case filelib:is_regular(Dir++"/src/___dummy.app.src") orelse
+             filelib:is_regular(Dir++"/src/___dummy.app.src.script") of
         true ->
             "___dummy___";
         false->
