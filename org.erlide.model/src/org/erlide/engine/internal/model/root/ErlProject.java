@@ -526,7 +526,7 @@ public class ErlProject extends Openable implements IErlProject,
         }
         if ((delta.getFlags() & ~IResourceDelta.MARKERS) != 0) {
             super.resourceChanged(delta);
-            // FIXME when should we call getModelCache().removeProject(this); ?
+            // TODO when should we call getModelCache().removeProject(this); ?
         }
     }
 

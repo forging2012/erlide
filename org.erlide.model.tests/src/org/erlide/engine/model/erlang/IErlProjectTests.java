@@ -40,7 +40,7 @@ public class IErlProjectTests extends ErlModelTestBase {
         assertEquals(expected, modules);
     }
 
-    // FIXME write tests that gives exceptions!
+    // TODO write tests that gives exceptions!
 
     // Collection<IErlModule> getIncludes() throws ErlModelException;
     @Test

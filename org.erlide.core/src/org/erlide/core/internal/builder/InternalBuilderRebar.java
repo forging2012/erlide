@@ -47,6 +47,9 @@ public class InternalBuilderRebar extends ErlangBuilder {
     public IProject[] build(final BuildKind kind, final IErlProject erlProject,
             final BuildNotifier notifier) throws CoreException {
 
+        if (erlProject == null) {
+            return null;
+        }
         final long time = System.currentTimeMillis();
         final IProject project = erlProject.getWorkspaceProject();
         if (project == null || !project.isAccessible()) {

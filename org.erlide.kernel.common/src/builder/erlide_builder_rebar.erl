@@ -7,7 +7,7 @@
          doc/1
         ]).
 
--record(project_info, {rootDir, sourceDirs=[], includeDirs=[], outDir="ebin", opts=[], min_otp_vsn=".*", libs=[]}).
+-include("erlide_builder_rebar.hrl").
 
 -spec build(atom(), list()) -> list() | error | timeout.
 build(Kind, ProjProps) ->
@@ -34,11 +34,16 @@ doc(ProjProps) ->
 %%%
 
 rebar(ProjProps=#project_info{rootDir=RootDir, sourceDirs=SrcDirs, outDir=OutDir}, Ops) ->
-    c:cd(RootDir),
-    with_config_file(ProjProps,
-                     fun() ->
-                             rebar(SrcDirs, OutDir, Ops)
-                     end).
+    {ok, OldCwd} = file:get_cwd(),
+    try
+        c:cd(RootDir),
+        with_config_file(ProjProps,
+                         fun() ->
+                                 rebar(SrcDirs, OutDir, Ops)
+                         end)
+    after
+        c:cd(OldCwd)
+    end.
 
 
 rebar(Srcs, Out, Ops) when is_list(Ops) ->
@@ -129,7 +134,7 @@ with_config_file(ProjProps, Fun) ->
                 ok = file:write_file("rebar.config", create_rebar_config(ProjProps))
             catch
                 K:E ->
-                      erlide_log:log({"ERROR: could not create rebar.config", {K,E}})
+                    erlide_log:log({"ERROR: could not create rebar.config", {K,E}})
             end,
             try
                 Fun()
@@ -148,7 +153,7 @@ with_app_file(SrcDir, EbinDir, Fun) ->
                 ok = file:write_file(File, "{application, '"++App++"', [{vsn,\"0\"}]}.")
             catch
                 K:E ->
-                      erlide_log:log({"ERROR: could not create rebar.config", {K,E}})
+                    erlide_log:log({"ERROR: could not create rebar.config", {K,E}})
             end,
             try
                 Fun()

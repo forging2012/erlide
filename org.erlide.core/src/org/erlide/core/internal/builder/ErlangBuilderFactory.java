@@ -10,7 +10,7 @@ public class ErlangBuilderFactory {
     public static ErlangBuilder get(final BuilderTool tool) {
         switch (tool) {
         case INTERNAL:
-            return new InternalBuilder();
+            return new InternalBuilderRebar();
         case REBAR:
             return new RebarBuilder();
         case EMAKE:

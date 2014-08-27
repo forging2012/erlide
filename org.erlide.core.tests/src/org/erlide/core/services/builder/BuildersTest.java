@@ -10,6 +10,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -33,6 +35,8 @@ import org.junit.Test;
 @SuppressWarnings("deprecation")
 public class BuildersTest {
 
+    private IProject prj;
+
     public class LocalProgressMonitor extends NullProgressMonitor {
         private final boolean[] output;
 
@@ -48,8 +52,6 @@ public class BuildersTest {
         }
 
     }
-
-    private IProject prj;
 
     @Before
     public void initialClean() throws CoreException {
@@ -89,6 +91,7 @@ public class BuildersTest {
 
     @Test
     public void makeBuilderShouldWork() throws CoreException {
+        ensureNoAppSrcExists();
         final IFolder folder = (IFolder) prj.findMember("src");
         final IFile app = folder.getFile("builders.app.src");
         app.create(
@@ -104,13 +107,14 @@ public class BuildersTest {
 
     @Test
     public void emakeBuilderShouldWork() throws CoreException {
+        ensureNoAppSrcExists();
         testBuilder(BuilderTool.EMAKE);
         testClean(BuilderTool.EMAKE);
     }
 
     @Test
     public void rebarBuilderShouldWork() throws CoreException {
-        // TODO make sure no .app.src exists
+        ensureNoAppSrcExists();
         final IFolder folder = (IFolder) prj.findMember("src");
         final IFile app = folder.getFile("builders.app.src");
         app.create(
@@ -128,14 +132,32 @@ public class BuildersTest {
         }
     }
 
+    private void ensureNoAppSrcExists() {
+        final IFolder folder = (IFolder) prj.findMember("src");
+        try {
+            final IResource[] srcs = folder.members();
+            for (final IResource f : srcs) {
+                assertThat("An .app.src exists: " + f.getName(),
+                        !f.getName().endsWith(".app.src"));
+            }
+        } catch (final CoreException e) {
+        }
+    }
+
     @Test(expected = AssertionError.class)
     public void rebarBuilderShouldNotWorkWithoutAppFile() throws CoreException {
-        // TODO make sure no .app.src exists
+        ensureNoAppSrcExists();
         testBuilder(BuilderTool.REBAR);
     }
 
+    private static void setAutoBuild(final IWorkspace workspace, final boolean enabled)
+            throws CoreException {
+        final IWorkspaceDescription def = workspace.getDescription();
+        def.setAutoBuilding(enabled);
+        workspace.setDescription(def);
+    }
+
     private void testBuilder(final BuilderTool builderTool) throws CoreException {
-        ErlangNature.setErlangProjectBuilder(prj, builderTool);
         final String targetBeamPath = "ebin/mod.beam";
 
         final IResource beam0 = prj.findMember(targetBeamPath);

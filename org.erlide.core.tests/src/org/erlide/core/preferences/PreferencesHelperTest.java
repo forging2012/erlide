@@ -16,7 +16,7 @@ import org.osgi.service.prefs.BackingStoreException;
 public class PreferencesHelperTest {
 
     private static final IScopeContext[] ALL_SCOPE_CONTEXTS = new IScopeContext[] {
-            InstanceScope.INSTANCE, ConfigurationScope.INSTANCE, DefaultScope.INSTANCE };
+        InstanceScope.INSTANCE, ConfigurationScope.INSTANCE, DefaultScope.INSTANCE };
     private static final String QUALIFIER = "org.erlide.testing";
     private static final String KEY = "key";
 
