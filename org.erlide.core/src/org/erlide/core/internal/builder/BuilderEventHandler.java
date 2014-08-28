@@ -2,6 +2,12 @@ package org.erlide.core.internal.builder;
 
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.erlide.engine.model.builder.MarkerUtils;
 import org.erlide.runtime.events.ErlEvent;
 import org.erlide.runtime.events.ErlangEventHandler;
 import org.erlide.util.ErlLogger;
@@ -109,6 +115,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
                 final Bindings b = ErlUtils.match("{start,Operation,Project}", data);
                 if (b != null) {
                     final String operation = b.getAtom("Operation");
+                    context.operation = operation;
                     return State.valueOf(operation.toUpperCase());
                 }
                 if (handleTotal(data, context)) {
@@ -154,6 +161,12 @@ public class BuilderEventHandler extends ErlangEventHandler {
                     final String operation = b1.getAtom("Operation");
                     return State.valueOf(operation.toUpperCase());
                 }
+                if (handleTotal(data, context)) {
+                    return EUNIT;
+                }
+                if (handleCompileMessages(data, context)) {
+                    return EUNIT;
+                }
                 System.out.println("> UNHANDLED: " + data + " in " + this);
                 return EUNIT;
             }
@@ -191,8 +204,8 @@ public class BuilderEventHandler extends ErlangEventHandler {
                 final String tag = b.getAtom("Tag");
                 if ("compiled".equals(tag)) {
                     final String fileName = b.getString("File");
-                    createMarkers(fileName, context.crtItems, context.operation);
-                    reloadBeam(fileName);
+                    createMarkers(fileName, context);
+                    reloadBeam(fileName, context);
                 }
                 context.notifier.updateProgressDelta(1.0f / context.num);
                 // context.notifier.compiled(unit);
@@ -239,7 +252,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
             return;
         }
         final OtpErlangObject data = event.getEvent();
-        System.out.println(" --> " + data);
+        // System.out.println(" --> " + data);
         try {
             final State newState = state.process(data, context);
             if (state != newState) {
@@ -252,17 +265,48 @@ public class BuilderEventHandler extends ErlangEventHandler {
         }
     }
 
-    private static void createMarkers(final String fileName,
-            final List<OtpErlangObject> items, final String operation) {
-        System.out.println("MARK " + fileName + " " + items + " @" + operation);
-        // TODO find resource
-        // TODO clear markers for resource (not if building for eunit!)
-        // TODO add markers from items
+    private static void createMarkers(final String filePath, final Context context) {
+        if ("compile".equals(context.operation) || "eunit".equals(context.operation)
+                && filePath.startsWith("test/")) {
+
+            final IProject project = findProjectAtDir(context.project);
+            if (project == null) {
+                return;
+            }
+            final IResource srcFile = project.findMember(filePath);
+
+            System.out.println("MARK " + srcFile + " " + context.crtItems + " @"
+                    + context.operation);
+
+            MarkerUtils.deleteMarkers(srcFile);
+            MarkerUtils.addErrorMarkers(srcFile, context.crtItems);
+            // TODO add markers from items
+
+        }
     }
 
-    private static void reloadBeam(final String asString) {
-        // TODO find beam resource
-        // TODO reload it
+    private static void reloadBeam(final String filePath, final Context context) {
+        if ("compile".equals(context.operation)) {
+            final IProject project = findProjectAtDir(context.project);
+            final IResource srcFile = project.findMember(filePath);
+
+            System.out.println("RELOAD " + srcFile);
+            // TODO find beam resource
+            // TODO reload it
+        }
+    }
+
+    private static IProject findProjectAtDir(final String projectDir) {
+        final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        try {
+            for (final IResource prj : root.members()) {
+                if (prj.getLocation().lastSegment().equals(projectDir)) {
+                    return (IProject) prj;
+                }
+            }
+        } catch (final CoreException e) {
+        }
+        return null;
     }
 
 }

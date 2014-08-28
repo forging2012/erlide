@@ -26,6 +26,7 @@ import org.erlide.util.ErlLogger;
 import org.erlide.util.SystemConfiguration;
 import org.erlide.util.erlang.ErlUtils;
 
+import com.ericsson.otp.erlang.OtpErlangAtom;
 import com.ericsson.otp.erlang.OtpErlangList;
 import com.ericsson.otp.erlang.OtpErlangLong;
 import com.ericsson.otp.erlang.OtpErlangObject;
@@ -67,6 +68,18 @@ public final class MarkerUtils {
     public static void addErrorMarkers(final IResource resource,
             final OtpErlangList errorList) {
         final OtpErlangObject[] messages = errorList.elements();
+        addErrorMarkers(resource, messages);
+    }
+
+    public static void addErrorMarkers(final IResource resource,
+            final List<OtpErlangObject> errors) {
+        final OtpErlangObject[] messages = errors.toArray(new OtpErlangObject[errors
+                .size()]);
+        addErrorMarkers(resource, messages);
+    }
+
+    public static void addErrorMarkers(final IResource resource,
+            final OtpErlangObject[] messages) {
         final Map<String, List<OtpErlangTuple>> groupedMessages = groupMessagesByFile(messages);
 
         for (final Entry<String, List<OtpErlangTuple>> entry : groupedMessages.entrySet()) {
@@ -74,7 +87,7 @@ public final class MarkerUtils {
             final IResource res = findResourceForFileName(resource, entry, fileName);
 
             for (final OtpErlangTuple data : entry.getValue()) {
-                addAnnotationForMessage(resource, fileName, res, data);
+                addAnnotationForMessage(resource, null, res, data);
             }
         }
     }
@@ -117,31 +130,7 @@ public final class MarkerUtils {
 
     private static void addAnnotationForMessage(final IResource resource,
             final String fileName, final IResource res, final OtpErlangTuple data) {
-        int line = 0;
-        if (data.elementAt(0) instanceof OtpErlangLong) {
-            try {
-                line = ((OtpErlangLong) data.elementAt(0)).intValue();
-            } catch (final OtpErlangRangeException e) {
-            }
-        }
-        int sev = IMarker.SEVERITY_INFO;
-        try {
-            switch (((OtpErlangLong) data.elementAt(3)).intValue()) {
-            case 0:
-                sev = IMarker.SEVERITY_ERROR;
-                break;
-            case 1:
-                sev = IMarker.SEVERITY_WARNING;
-                break;
-            default:
-                sev = IMarker.SEVERITY_INFO;
-                break;
-            }
-        } catch (final OtpErlangRangeException e) {
-        }
-
-        final String msg = ErlUtils.asString(data.elementAt(2));
-        final IMarker marker = createMarker(res, fileName, msg, line, sev, PROBLEM_MARKER);
+        final IMarker marker = AnnotationBuilder.get(resource, fileName, data);
         if (marker != null) {
             try {
                 marker.setAttribute(IMarker.SOURCE_ID, resource.getLocation().toString());
@@ -155,7 +144,7 @@ public final class MarkerUtils {
         final Map<String, List<OtpErlangTuple>> result = Maps.newHashMap();
         for (final OtpErlangObject msg : messages) {
             final OtpErlangTuple tuple = (OtpErlangTuple) msg;
-            final String fileName = ErlUtils.asString(tuple.elementAt(1));
+            final String fileName = ErlUtils.asString(tuple.elementAt(0));
             addMessage(result, fileName, tuple);
         }
         return result;
@@ -290,12 +279,13 @@ public final class MarkerUtils {
             marker.setAttribute(IMarker.MESSAGE, message);
             marker.setAttribute(IMarker.SEVERITY, severity);
             marker.setAttribute(IMarker.LINE_NUMBER, lineNumber >= 0 ? lineNumber : 1);
-            marker.setAttribute(PATH_ATTRIBUTE, path);
-            if (path != null) {
-                marker.setAttribute(IMarker.SOURCE_ID, path);
-            } else {
-                marker.setAttribute(IMarker.SOURCE_ID, resource.getLocation().toString());
+            String myPath = path;
+            if (path == null) {
+                myPath = "/" + resource.getProject().getName() + "/"
+                        + resource.getParent().getProjectRelativePath().toString();
             }
+            marker.setAttribute(PATH_ATTRIBUTE, myPath);
+            marker.setAttribute(IMarker.SOURCE_ID, myPath);
             final ProblemData problem = ErlProblems.parse(message);
             if (problem != null) {
                 marker.setAttribute(ProblemData.TAG, problem.getTag());
@@ -359,6 +349,50 @@ public final class MarkerUtils {
             }
             addTaskMarker(resource, msg, line + 1 + dl, prio);
         }
+    }
+
+    private static class AnnotationBuilder {
+
+        private static final Object ERROR = new OtpErlangAtom("error");
+        private static final Object WARNING = new OtpErlangAtom("warning");
+
+        public static IMarker get(final IResource res, final String fileName,
+                final OtpErlangTuple data) {
+
+            final int line = getLine(data);
+            final int sev = getSeverity(data);
+            final String msg = getMessage(data);
+
+            return createMarker(res, fileName, msg, line, sev, PROBLEM_MARKER);
+        }
+
+        private static String getMessage(final OtpErlangTuple data) {
+            return ErlUtils.asString(data.elementAt(2));
+        }
+
+        private static int getSeverity(final OtpErlangTuple data) {
+            int sev = IMarker.SEVERITY_INFO;
+            final OtpErlangAtom tag = (OtpErlangAtom) data.elementAt(3);
+            if (tag.equals(ERROR)) {
+                sev = IMarker.SEVERITY_ERROR;
+            } else if (tag.equals(WARNING)) {
+                sev = IMarker.SEVERITY_WARNING;
+            }
+            return sev;
+        }
+
+        private static int getLine(final OtpErlangTuple data) {
+            int line = 0;
+            final OtpErlangObject elem = data.elementAt(1);
+            if (elem instanceof OtpErlangLong) {
+                try {
+                    line = ((OtpErlangLong) elem).intValue();
+                } catch (final OtpErlangRangeException e) {
+                }
+            }
+            return line;
+        }
+
     }
 
 }

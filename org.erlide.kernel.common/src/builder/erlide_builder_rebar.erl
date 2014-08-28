@@ -122,7 +122,7 @@ handle_aux(["DEBUG: files to compile: ~s ~p~n", [Tag, Num]]) ->
 handle_aux(["==> ~s (~s)\n", [Project, Operation]]) ->
     {start, Operation, Project};
 handle_aux(_Msg) ->
-    erlide_log:log({unexpected, _Msg}),
+    %% erlide_log:log({unexpected, _Msg}),
     none.
 
 with_config_file(ProjProps, Fun) ->

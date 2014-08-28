@@ -136,10 +136,10 @@ public class BuildNotifier {
                 if (monitor != null) {
                     monitor.worked(work - workDone);
                 }
-                if (BuilderHelper.isDebugging()) {
-                    ErlLogger.debug(java.text.NumberFormat.getPercentInstance().format(
-                            percentComplete));
-                }
+                // if (BuilderHelper.isDebugging()) {
+                ErlLogger.debug(java.text.NumberFormat.getPercentInstance().format(
+                        percentComplete));
+                // }
                 workDone = work;
             }
         }
