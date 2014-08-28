@@ -11,15 +11,12 @@
 package org.erlide.core.internal.builder;
 
 import java.util.Date;
-import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.osgi.util.NLS;
 import org.erlide.backend.BackendCore;
@@ -27,9 +24,7 @@ import org.erlide.backend.api.BackendException;
 import org.erlide.backend.api.IBackend;
 import org.erlide.core.builder.BuilderHelper;
 import org.erlide.core.builder.BuilderHelper.SearchVisitor;
-import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.builder.BuilderProperties;
-import org.erlide.engine.model.builder.ErlangBuilder;
 import org.erlide.engine.model.builder.MarkerUtils;
 import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.model.root.IErlProject;
@@ -46,31 +41,25 @@ public class InternalBuilderRebar extends ErlangBuilder {
     private final static OtpErlangAtom AUTO = new OtpErlangAtom("auto");
     private final static OtpErlangAtom INCREMENTAL = new OtpErlangAtom("incremental");
 
-    BuildNotifier notifier;
     private final BuilderHelper helper = new BuilderHelper();
 
     @Override
-    public IProject[] build(final int kind, final Map<String, String> args,
-            final IProgressMonitor monitor) throws CoreException {
-
-        super.build(kind, args, monitor);
+    public IProject[] build(final BuildKind kind, final IErlProject erlProject,
+            final BuildNotifier notifier) throws CoreException {
 
         final long time = System.currentTimeMillis();
-        final IProject project = getProject();
+        final IProject project = erlProject.getWorkspaceProject();
         if (project == null || !project.isAccessible()) {
             return null;
         }
 
         if (BuilderHelper.isDebugging()) {
-            ErlLogger.trace("build",
-                    "Start " + project.getName() + ": " + helper.buildKind(kind));
+            ErlLogger.trace("build", "Start " + project.getName() + ": " + kind);
         }
-        final IErlProject erlProject = ErlangEngine.getInstance().getModel()
-                .getErlangProject(project);
 
         try {
-            initializeBuilder(monitor);
-            do_build(kind, args, project, erlProject);
+            initializeBuilder(notifier);
+            do_build(kind, project, erlProject, notifier);
             project.refreshLocal(IResource.DEPTH_INFINITE, null);
         } catch (final OperationCanceledException e) {
             if (BuilderHelper.isDebugging()) {
@@ -83,7 +72,7 @@ public class InternalBuilderRebar extends ErlangBuilder {
             MarkerUtils
                     .createProblemMarker(project, null, msg, 0, IMarker.SEVERITY_ERROR);
         } finally {
-            cleanup();
+            cleanup(notifier);
             if (BuilderHelper.isDebugging()) {
                 ErlLogger.trace(
                         "build",
@@ -94,8 +83,9 @@ public class InternalBuilderRebar extends ErlangBuilder {
         return null;
     }
 
-    private void do_build(final int kind, final Map<String, String> args,
-            final IProject project, final IErlProject erlProject) throws BackendException {
+    private void do_build(final BuildKind kind, final IProject project,
+            final IErlProject erlProject, final BuildNotifier notifier)
+            throws BackendException {
 
         final ErlangProjectProperties properties = erlProject.getProperties();
         final IPath out = properties.getOutputDir();
@@ -145,16 +135,16 @@ public class InternalBuilderRebar extends ErlangBuilder {
         }
     }
 
-    private OtpErlangAtom getBuildKindAtom(final int kind) {
+    private OtpErlangAtom getBuildKindAtom(final BuildKind kind) {
         OtpErlangAtom akind;
         switch (kind) {
-        case IncrementalProjectBuilder.FULL_BUILD:
+        case FULL:
             akind = FULL;
             break;
-        case IncrementalProjectBuilder.AUTO_BUILD:
+        case AUTO:
             akind = AUTO;
             break;
-        case IncrementalProjectBuilder.INCREMENTAL_BUILD:
+        case INCREMENTAL:
             akind = INCREMENTAL;
             break;
         default:
@@ -165,8 +155,11 @@ public class InternalBuilderRebar extends ErlangBuilder {
     }
 
     @Override
-    public void clean(final IProgressMonitor monitor) {
-        final IProject project = getProject();
+    public void clean(final IErlProject erlProject, final BuildNotifier notifier) {
+        if (erlProject == null) {
+            return;
+        }
+        final IProject project = erlProject.getWorkspaceProject();
         if (project == null || !project.isAccessible()) {
             return;
         }
@@ -177,14 +170,9 @@ public class InternalBuilderRebar extends ErlangBuilder {
         }
 
         try {
-            initializeBuilder(monitor);
+            initializeBuilder(notifier);
             MarkerUtils.removeProblemMarkersFor(project);
 
-            final IErlProject erlProject = ErlangEngine.getInstance().getModel()
-                    .getErlangProject(project);
-            if (erlProject == null) {
-                return;
-            }
             final IBackend backend = BackendCore.getBackendManager().getBuildBackend(
                     erlProject);
             if (backend == null) {
@@ -214,7 +202,7 @@ public class InternalBuilderRebar extends ErlangBuilder {
             MarkerUtils
                     .createProblemMarker(project, null, msg, 0, IMarker.SEVERITY_ERROR);
         } finally {
-            cleanup();
+            cleanup(notifier);
             if (BuilderHelper.isDebugging()) {
                 ErlLogger.debug("Finished cleaning " + project.getName() //$NON-NLS-1$
                         + " @ " + new Date(System.currentTimeMillis()));
@@ -222,15 +210,12 @@ public class InternalBuilderRebar extends ErlangBuilder {
         }
     }
 
-    private void initializeBuilder(final IProgressMonitor monitor) {
-        final IProject currentProject = getProject();
-        notifier = new BuildNotifier(monitor, currentProject);
+    private void initializeBuilder(final BuildNotifier notifier) {
         notifier.begin();
     }
 
-    private void cleanup() {
+    private void cleanup(final BuildNotifier notifier) {
         notifier.done();
-        notifier = null;
     }
 
     public IResource findCorrespondingSource(final IResource beam) throws CoreException {
