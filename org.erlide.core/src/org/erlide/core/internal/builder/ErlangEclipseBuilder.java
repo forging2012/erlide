@@ -38,10 +38,6 @@ public class ErlangEclipseBuilder extends IncrementalProjectBuilder {
         if (builder != null) {
             final BuildNotifier notifier = new BuildNotifier(monitor, project);
 
-            if (builder instanceof InternalBuilder) {
-                // temporary hack; rebar builder will not need this
-                ((InternalBuilder) builder).setDelta(getDelta(project));
-            }
             builder.build(ErlangBuilder.BuildKind.get(kind), erlProject, notifier);
         }
 
