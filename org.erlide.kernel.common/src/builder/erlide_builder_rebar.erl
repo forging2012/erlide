@@ -121,8 +121,12 @@ handle_aux(["DEBUG: files to compile: ~s ~p~n", [Tag, Num]]) ->
     {total, Tag, Num};
 handle_aux(["==> ~s (~s)\n", [Project, Operation]]) ->
     {start, Operation, Project};
+handle_aux(["DEBUG: ~s: ~p~n", ["Dependencies of "++File, Deps]]) ->
+    {dependencies, File, Deps};
+handle_aux(["DEBUG: ~s: ~p~n",["Files dependent on "++File, Deps]]) ->
+    {dependents, File, Deps};
 handle_aux(_Msg) ->
-    %% erlide_log:log({unexpected, _Msg}),
+    erlide_log:log({unexpected, _Msg}),
     none.
 
 with_config_file(ProjProps, Fun) ->
