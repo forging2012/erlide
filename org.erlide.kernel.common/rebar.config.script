@@ -5,6 +5,7 @@ ErlOpts = [].
 
 {erl_opts, ErlOpts},
 {edoc_opts,[{todo,true}]},
+{xref_checks, [undefined_function_calls]},
 
 {eunit_opts, [verbose, {report,{eunit_surefire,[{dir,"."}]}}]},
 

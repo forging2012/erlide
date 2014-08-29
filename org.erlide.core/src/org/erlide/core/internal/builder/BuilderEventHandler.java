@@ -271,12 +271,13 @@ public class BuilderEventHandler extends ErlangEventHandler {
     private static void createMarkers(final String filePath, final Context context) {
         if ("eunit".equals(context.operation) && filePath.startsWith("test/")
                 || "compile".equals(context.operation)) {
-
+            System.out.println("MARK " + filePath);
             final IProject project = findProjectAtDir(context.project);
             if (project == null) {
                 return;
             }
             final IResource srcFile = project.findMember(filePath);
+            System.out.println("MARK " + srcFile);
             MarkerUtils.deleteMarkers(srcFile);
             MarkerUtils.addErrorMarkers(srcFile, context.crtItems);
         }

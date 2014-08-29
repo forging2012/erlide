@@ -36,13 +36,13 @@ doc(ProjProps) ->
 rebar(ProjProps=#project_info{rootDir=RootDir, sourceDirs=SrcDirs, outDir=OutDir}, Ops) ->
     {ok, OldCwd} = file:get_cwd(),
     try
-        c:cd(RootDir),
+        file:set_cwd(RootDir),
         with_config_file(ProjProps,
                          fun() ->
                                  rebar(SrcDirs, OutDir, Ops)
                          end)
     after
-        c:cd(OldCwd)
+        file:set_cwd(OldCwd)
     end.
 
 
@@ -121,10 +121,14 @@ handle_aux(["DEBUG: files to compile: ~s ~p~n", [Tag, Num]]) ->
     {total, Tag, Num};
 handle_aux(["==> ~s (~s)\n", [Project, Operation]]) ->
     {start, Operation, Project};
-handle_aux(["DEBUG: ~s: ~p~n", ["Dependencies of "++File, Deps]]) ->
+handle_aux(["DEBUG: ~s:~n~p~n", ["Dependencies of "++File, Deps]]) ->
     {dependencies, File, Deps};
-handle_aux(["DEBUG: ~s: ~p~n",["Files dependent on "++File, Deps]]) ->
+handle_aux(["DEBUG: ~s: ~p~n", ["Dependencies of "++_, []]]) ->
+    none;
+handle_aux(["DEBUG: ~s:~n~p~n",["Files dependent on "++File, Deps]]) ->
     {dependents, File, Deps};
+handle_aux(["DEBUG: ~s: ~p~n",["Files dependent on "++_, []]]) ->
+    none;
 handle_aux(_Msg) ->
     erlide_log:log({unexpected, _Msg}),
     none.
