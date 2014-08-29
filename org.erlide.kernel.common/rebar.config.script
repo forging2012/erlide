@@ -5,7 +5,11 @@ ErlOpts = [].
 
 {erl_opts, ErlOpts},
 {edoc_opts,[{todo,true}]},
-{xref_checks, [undefined_function_calls]},
+
+{xref_warnings, true},
+{xref_checks, [undefined_function_calls, undefined_functions,
+               locals_not_used, exports_not_used,
+               deprecated_function_calls, deprecated_functions]},
 
 {eunit_opts, [verbose, {report,{eunit_surefire,[{dir,"."}]}}]},
 

@@ -30,6 +30,9 @@ eunit(ProjProps) ->
 doc(ProjProps) ->
     rebar(ProjProps, ["-vv", "doc"]).
 
+xref(ProjProps) ->
+    rebar(ProjProps, ["-vv", "xref"]).
+
 
 %%%
 
@@ -129,6 +132,14 @@ handle_aux(["DEBUG: ~s:~n~p~n",["Files dependent on "++File, Deps]]) ->
     {dependents, File, Deps};
 handle_aux(["DEBUG: ~s: ~p~n",["Files dependent on "++_, []]]) ->
     none;
+handle_aux(["~sWarning: ~s is undefined function (Xref)\n",[Loc, MFA]]) ->
+    {undefined_function, Loc, MFA};
+handle_aux(["~sWarning: ~s calls undefined function ~s (Xref)\n",[Loc, SrcMFA, TargetMFA]]) ->
+    {undefined_function_call, Loc, SrcMFA, TargetMFA};
+handle_aux(["~sWarning: ~s is unused export (Xref)\n",[Loc, MFA]]) ->
+    {unused_export, Loc, MFA};
+handle_aux(["~sWarning: ~s is unused local function (Xref)\n",[Loc, MFA]]) ->
+    {unused_local_function, Loc, MFA};
 handle_aux(_Msg) ->
     erlide_log:log({unexpected, _Msg}),
     none.

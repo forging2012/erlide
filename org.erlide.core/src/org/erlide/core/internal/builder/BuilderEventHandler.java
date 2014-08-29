@@ -150,6 +150,28 @@ public class BuilderEventHandler extends ErlangEventHandler {
                 return COMPILE_1;
             }
         },
+        XREF {
+            @Override
+            State process(final OtpErlangObject data, final Context context)
+                    throws TermParserException, OtpErlangException {
+                if (data instanceof OtpErlangAtom) {
+                    if ("done".equals(((OtpErlangAtom) data).atomValue())) {
+                        return INIT;
+                    }
+                }
+                final Bindings b = ErlUtils.match("{start,Operation,Project}", data);
+                if (b != null) {
+                    final String operation = b.getAtom("Operation");
+                    context.operation = operation;
+                    return State.valueOf(operation.toUpperCase());
+                }
+                if (handleCompileMessages(data, context)) {
+                    return XREF;
+                }
+                System.out.println("> UNHANDLED: " + data + " in " + this);
+                return XREF;
+            }
+        },
         EUNIT {
             @Override
             State process(final OtpErlangObject data, final Context context)
