@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.erlide.core.internal.builder;
 
+import java.text.NumberFormat;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -136,10 +138,10 @@ public class BuildNotifier {
                 if (monitor != null) {
                     monitor.worked(work - workDone);
                 }
-                // if (BuilderHelper.isDebugging()) {
-                ErlLogger.debug(java.text.NumberFormat.getPercentInstance().format(
-                        percentComplete));
-                // }
+                if (BuilderHelper.isDebugging()) {
+                    ErlLogger.debug(NumberFormat.getPercentInstance().format(
+                            percentComplete));
+                }
                 workDone = work;
             }
         }
