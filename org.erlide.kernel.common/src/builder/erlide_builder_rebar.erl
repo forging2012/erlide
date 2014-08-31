@@ -4,14 +4,15 @@
          build/2,
          clean/1,
          eunit/1,
-         doc/1
+         doc/1,
+         xref/1
         ]).
 
 -include("erlide_builder_rebar.hrl").
 
 -spec build(atom(), list()) -> list() | error | timeout.
 build(Kind, ProjProps) ->
-    Cmds0 = ["compile", "eunit", "compile_only=true"],
+    Cmds0 = ["-k", "compile", "eunit", "compile_only=true"],
     Cmds = case Kind of
                full ->
                    ["clean" | Cmds0];
@@ -25,7 +26,7 @@ clean(ProjProps) ->
     rebar(ProjProps, ["-vv", "clean"]).
 
 eunit(ProjProps) ->
-    rebar(ProjProps, ["-vv", "eunit"]).
+    rebar(ProjProps, ["-k", "-vv", "eunit"]).
 
 doc(ProjProps) ->
     rebar(ProjProps, ["-vv", "doc"]).
@@ -118,20 +119,22 @@ handle_aux(["~s", Args]) ->
     lists:append(Args);
 handle_aux(["Compiled ~s\n", [File]]) ->
     {compiled, File};
+handle_aux(["Compiling ~s failed:\n", [File]]) ->
+    {compiled, File};
 handle_aux(["INFO:  Skipped ~s\n", [File]]) ->
     {skipped, File};
 handle_aux(["DEBUG: files to compile: ~s ~p~n", [Tag, Num]]) ->
     {total, Tag, Num};
 handle_aux(["==> ~s (~s)\n", [Project, Operation]]) ->
     {start, Operation, Project};
-handle_aux(["DEBUG: ~s:~n~p~n", ["Dependencies of "++File, Deps]]) ->
-    {dependencies, File, Deps};
-handle_aux(["DEBUG: ~s: ~p~n", ["Dependencies of "++_, []]]) ->
-    none;
-handle_aux(["DEBUG: ~s:~n~p~n",["Files dependent on "++File, Deps]]) ->
-    {dependents, File, Deps};
-handle_aux(["DEBUG: ~s: ~p~n",["Files dependent on "++_, []]]) ->
-    none;
+%% handle_aux(["DEBUG: ~s:~n~p~n", ["Dependencies of "++File, Deps]]) ->
+%%     {dependencies, File, Deps};
+%% handle_aux(["DEBUG: ~s: ~p~n", ["Dependencies of "++_, []]]) ->
+%%     none;
+%% handle_aux(["DEBUG: ~s:~n~p~n",["Files dependent on "++File, Deps]]) ->
+%%     {dependents, File, Deps};
+%% handle_aux(["DEBUG: ~s: ~p~n",["Files dependent on "++_, []]]) ->
+%%     none;
 handle_aux(["~sWarning: ~s is undefined function (Xref)\n",[Loc, MFA]]) ->
     {undefined_function, Loc, MFA};
 handle_aux(["~sWarning: ~s calls undefined function ~s (Xref)\n",[Loc, SrcMFA, TargetMFA]]) ->
@@ -141,15 +144,24 @@ handle_aux(["~sWarning: ~s is unused export (Xref)\n",[Loc, MFA]]) ->
 handle_aux(["~sWarning: ~s is unused local function (Xref)\n",[Loc, MFA]]) ->
     {unused_local_function, Loc, MFA};
 handle_aux(_Msg) ->
-    erlide_log:log({unexpected, _Msg}),
+    %%     erlide_log:log({unexpected, _Msg}),
     none.
 
 with_config_file(ProjProps, Fun) ->
+    case filelib:is_regular(".erlide.rebar.config") of
+        true ->
+            file:delete("rebar.config"),
+            file:delete(".erlide.rebar.config");
+        false ->
+            ok
+    end,
+
     case filelib:is_regular("rebar.config") of
         true ->
             Fun();
         _ ->
             try
+                file:write_file(".erlide.rebar.config", ""),
                 ok = file:write_file("rebar.config", create_rebar_config(ProjProps))
             catch
                 K:E ->
@@ -158,18 +170,28 @@ with_config_file(ProjProps, Fun) ->
             try
                 Fun()
             after
-                file:delete("rebar.config")
+                file:delete("rebar.config"),
+                file:delete(".erlide.rebar.config")
             end
     end.
 
 with_app_file(SrcDir, EbinDir, Fun) ->
+    case filelib:is_regular(".erlide.rebar.app") of
+        true ->
+            file:delete("___dummy___.app.src"),
+            file:delete("___dummy___.app.src.script"),
+            file:delete(".erlide.rebar.app");
+        false ->
+            ok
+    end,
+
     case filelib:wildcard("**/*.app.{src,src.script}") of
         [] ->
             %% we try to use a file name not likely to exist
-            App = get_dummy_app_name("."),
-            File = lists:flatten(SrcDir++"/"++App++".app.src"),
+            File = lists:flatten(SrcDir++"/___dummy___.app.src"),
             try
-                ok = file:write_file(File, "{application, '"++App++"', [{vsn,\"0\"}]}.")
+                file:write(".erlide.rebar.app", ""),
+                ok = file:write_file(File, "{application, '___dummy___', [{vsn,\"0\"}]}.")
             catch
                 K:E ->
                     erlide_log:log({"ERROR: could not create rebar.config", {K,E}})
@@ -178,19 +200,11 @@ with_app_file(SrcDir, EbinDir, Fun) ->
                 Fun()
             after
                 file:delete(File),
-                file:delete(EbinDir++"/"++App++".app")
+                file:delete(EbinDir++"/___dummy___.app"),
+                file:delete(".erlide.rebar.app")
             end;
         _ ->
             Fun()
-    end.
-
-get_dummy_app_name(Dir) ->
-    case filelib:is_regular(Dir++"/src/___dummy.app.src") orelse
-             filelib:is_regular(Dir++"/src/___dummy.app.src.script") of
-        true ->
-            "___dummy___";
-        false->
-            "___dummy"
     end.
 
 create_rebar_config(#project_info{rootDir=RootDir,

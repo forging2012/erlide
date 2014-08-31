@@ -47,15 +47,9 @@ public class BuilderEventHandler extends ErlangEventHandler {
             @Override
             State process(final OtpErlangObject data, final Context context)
                     throws TermParserException, OtpErlangException {
-                final Bindings b = ErlUtils.match("{start,Operation,Project}", data);
-                if (b != null) {
-                    final String operation = b.getAtom("Operation");
-                    final String project = b.getString("Project");
-                    if (Objects.equal(project, context.project)) {
-                        context.operation = operation;
-                        return State.valueOf(operation.toUpperCase());
-                    }
-                    return IGNORING;
+                final State state1 = handleStartOperation(data, context);
+                if (state1 != null) {
+                    return state1;
                 }
                 System.out.println("> UNHANDLED: " + data + " in " + this);
                 return INIT;
@@ -88,15 +82,9 @@ public class BuilderEventHandler extends ErlangEventHandler {
                         return INIT;
                     }
                 }
-                final Bindings b = ErlUtils.match("{start,Operation,Project}", data);
-                if (b != null) {
-                    final String operation = b.getAtom("Operation");
-                    final String project = b.getString("Project");
-                    if (Objects.equal(project, context.project)) {
-                        context.operation = operation;
-                        return State.valueOf(operation.toUpperCase());
-                    }
-                    return IGNORING;
+                final State state1 = handleStartOperation(data, context);
+                if (state1 != null) {
+                    return state1;
                 }
                 if (handleTotal(data, context)) {
                     return COMPILE_1;
@@ -200,6 +188,10 @@ public class BuilderEventHandler extends ErlangEventHandler {
             @Override
             State process(final OtpErlangObject data, final Context context)
                     throws TermParserException, OtpErlangException {
+                final State state1 = handleStartOperation(data, context);
+                if (state1 != null) {
+                    return state1;
+                }
                 if (data instanceof OtpErlangAtom) {
                     if ("done".equals(((OtpErlangAtom) data).atomValue())) {
                         return INIT;
@@ -213,37 +205,58 @@ public class BuilderEventHandler extends ErlangEventHandler {
                 System.out.println("> UNHANDLED: " + data + " in " + this);
                 return CLEAN;
             }
+
         };
 
         abstract State process(OtpErlangObject data, final Context context)
                 throws TermParserException, OtpErlangException;
 
-        private static boolean handleCompileMessages(final OtpErlangObject data,
+        private static State handleStartOperation(final OtpErlangObject data,
                 final Context context) throws TermParserException, OtpErlangException {
+            final Bindings b = ErlUtils.match("{start,Operation,Project}", data);
+            if (b != null) {
+                final String operation = b.getAtom("Operation");
+                final String project = b.getString("Project");
+                if (Objects.equal(project, context.project)) {
+                    context.operation = operation;
+                    return State.valueOf(operation.toUpperCase());
+                }
+                return IGNORING;
+            }
+            return null; // the same as before
+        }
+
+        private static boolean handleCompileMessages(final OtpErlangObject data,
+                final Context context) {
             if (!context.tag.equals(".erl")) {
                 return false;
             }
 
-            final Bindings b = ErlUtils.match("{Tag,File}", data);
-            if (b != null) {
-                final String tag = b.getAtom("Tag");
-                if ("compiled".equals(tag)) {
-                    final String fileName = b.getString("File");
-                    createMarkers(fileName, context);
-                    reloadBeam(fileName, context);
+            try {
+                final Bindings b = ErlUtils.match("{Tag,File}", data);
+                if (b != null) {
+                    final String tag = b.getAtom("Tag");
+                    if ("compiled".equals(tag)) {
+                        final String fileName = b.getString("File");
+                        createMarkers(fileName, context);
+                        reloadBeam(fileName, context);
+                    }
+                    context.notifier.updateProgressDelta(1.0f / context.num);
+                    // context.notifier.compiled(unit);
+                    context.crtItems.clear();
+                    return true;
                 }
-                context.notifier.updateProgressDelta(1.0f / context.num);
-                // context.notifier.compiled(unit);
-                context.crtItems.clear();
-                return true;
-            }
 
-            if (data instanceof OtpErlangList) {
-                final OtpErlangList list = (OtpErlangList) data;
-                for (final OtpErlangObject item : list.elements()) {
-                    context.crtItems.add(item);
+                if (data instanceof OtpErlangList) {
+                    final OtpErlangList list = (OtpErlangList) data;
+                    for (final OtpErlangObject item : list.elements()) {
+                        context.crtItems.add(item);
+                    }
+                    return true;
                 }
-                return true;
+            } catch (final Exception e) {
+                System.out.println("?? " + e);
+                return false;
             }
             return false;
         }
@@ -277,11 +290,11 @@ public class BuilderEventHandler extends ErlangEventHandler {
             return;
         }
         final OtpErlangObject data = event.getEvent();
-        // System.out.println(" --> " + data);
+        // System.out.println(" --> " + data + " @" + state);
         try {
             final State newState = state.process(data, context);
             if (state != newState) {
-                // System.out.println("   # " + state + " -> " + newState);
+                System.out.println(" # " + state + " -> " + newState + "     " + data);
             }
             state = newState;
         } catch (final Exception e) {
@@ -293,13 +306,11 @@ public class BuilderEventHandler extends ErlangEventHandler {
     private static void createMarkers(final String filePath, final Context context) {
         if ("eunit".equals(context.operation) && filePath.startsWith("test/")
                 || "compile".equals(context.operation)) {
-            System.out.println("MARK " + filePath);
             final IProject project = findProjectAtDir(context.project);
             if (project == null) {
                 return;
             }
             final IResource srcFile = project.findMember(filePath);
-            System.out.println("MARK " + srcFile);
             MarkerUtils.deleteMarkers(srcFile);
             MarkerUtils.addErrorMarkers(srcFile, context.crtItems);
         }
