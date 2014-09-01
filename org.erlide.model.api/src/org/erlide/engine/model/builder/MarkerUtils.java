@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -72,7 +73,7 @@ public final class MarkerUtils {
     }
 
     public static void addErrorMarkers(final IResource resource,
-            final List<OtpErlangObject> errors) {
+            final Collection<OtpErlangObject> errors) {
         final OtpErlangObject[] messages = errors.toArray(new OtpErlangObject[errors
                 .size()]);
         addErrorMarkers(resource, messages);

@@ -1,7 +1,8 @@
 -module(erlide_builder_rebar).
 
 -export([
-         build/2,
+         build/1,
+         build_eunit/1,
          clean/1,
          eunit/1,
          doc/1,
@@ -10,34 +11,31 @@
 
 -include("erlide_builder_rebar.hrl").
 
--spec build(atom(), list()) -> list() | error | timeout.
-build(Kind, ProjProps) ->
-    Cmds0 = ["-k", "compile", "eunit", "compile_only=true"],
-    Cmds = case Kind of
-               full ->
-                   ["clean" | Cmds0];
-               _ ->
-                   Cmds0
-           end,
+build(ProjProps) ->
+    rebar(ProjProps, ["-vvv", "-k", "compile"]).
 
-    rebar(ProjProps, ["-vvv" | Cmds]).
+build_eunit(ProjProps) ->
+    rebar(ProjProps, ["-vvv", "-k", "eunit", "compile_only=true"]).
 
 clean(ProjProps) ->
     rebar(ProjProps, ["-vv", "clean"]).
 
 eunit(ProjProps) ->
-    rebar(ProjProps, ["-k", "-vv", "eunit"]).
+    rebar(ProjProps, ["-vv", "-k", "eunit"]).
 
 doc(ProjProps) ->
-    rebar(ProjProps, ["-vv", "doc"]).
+    rebar(ProjProps, ["-vv", "-k", "doc"]).
 
 xref(ProjProps) ->
-    rebar(ProjProps, ["-vv", "xref"]).
+    rebar(ProjProps, ["-vv", "-k", "xref"]).
 
 
 %%%
 
 rebar(ProjProps=#project_info{rootDir=RootDir, sourceDirs=SrcDirs, outDir=OutDir}, Ops) ->
+    erlide_builder_rebar_server:start(fun(Event)->
+                                              erlide_jrpc:event(builder, Event)
+                                      end),
     {ok, OldCwd} = file:get_cwd(),
     try
         file:set_cwd(RootDir),
@@ -46,7 +44,8 @@ rebar(ProjProps=#project_info{rootDir=RootDir, sourceDirs=SrcDirs, outDir=OutDir
                                  rebar(SrcDirs, OutDir, Ops)
                          end)
     after
-        file:set_cwd(OldCwd)
+        file:set_cwd(OldCwd),
+        erlide_builder_rebar_server:stop()
     end.
 
 
@@ -70,7 +69,7 @@ call_rebar(Ops) ->
             erlide_log:log("rebar aborted"),
             ok;
         K:E ->
-            erlide_log:logp("ERROR: rebar crashed with ~p", [{K, E}]),
+            erlide_log:logp("ERROR: rebar crashed with ~p", [{K, E, erlang:get_stacktrace()}]),
             error
     end,
     group_leader(Leader, Self),
@@ -85,9 +84,9 @@ call_rebar(Ops) ->
 leader(Parent, Result) ->
     receive
         stop ->
-            Text = lists:reverse(Result),
-            Parent ! {done, erlide_builder_messages:parse(Text)},
-            erlide_jrpc:event(builder, done),
+            Return = lists:reverse(Result),
+            Parent ! {done, Return},
+            %% erlide_jrpc:event(builder, done),
             ok;
         {io_request, From, ReplyAs, Msg}=_M ->
             From ! {io_reply, ReplyAs, ok},
@@ -95,12 +94,14 @@ leader(Parent, Result) ->
             case Msg1 of
                 none ->
                     leader(Parent, Result);
-                M when is_tuple(M) ->
-                    erlide_jrpc:event(builder, Msg1),
-                    leader(Parent, Result);
+                {messages, Msgs} ->
+                    %% erlide_jrpc:event(builder, erlide_builder_messages:parse(Msgs)),
+                    erlide_builder_rebar_server:event({messages, erlide_builder_messages:parse(Msgs)}),
+                    leader(Parent, Result ++ Msgs);
                 _ ->
-                    erlide_jrpc:event(builder, erlide_builder_messages:parse(Msg1)),
-                    leader(Parent, Result ++ Msg1)
+                    %% erlide_jrpc:event(builder, Msg1),
+                    erlide_builder_rebar_server:event(Msg1),
+                    leader(Parent, Result)
             end;
         _M ->
             leader(Parent, Result)
@@ -114,9 +115,9 @@ handle(_Msg) ->
     none.
 
 handle_aux(["ERROR: "++_, _]=Args) ->
-    [erlang:apply(io_lib, format, Args)];
+    {messages, [erlang:apply(io_lib, format, Args)]};
 handle_aux(["~s", Args]) ->
-    lists:append(Args);
+    {messages, lists:append(Args)};
 handle_aux(["Compiled ~s\n", [File]]) ->
     {compiled, File};
 handle_aux(["Compiling ~s failed:\n", [File]]) ->
@@ -127,14 +128,15 @@ handle_aux(["DEBUG: files to compile: ~s ~p~n", [Tag, Num]]) ->
     {total, Tag, Num};
 handle_aux(["==> ~s (~s)\n", [Project, Operation]]) ->
     {start, Operation, Project};
-%% handle_aux(["DEBUG: ~s:~n~p~n", ["Dependencies of "++File, Deps]]) ->
-%%     {dependencies, File, Deps};
-%% handle_aux(["DEBUG: ~s: ~p~n", ["Dependencies of "++_, []]]) ->
-%%     none;
-%% handle_aux(["DEBUG: ~s:~n~p~n",["Files dependent on "++File, Deps]]) ->
-%%     {dependents, File, Deps};
-%% handle_aux(["DEBUG: ~s: ~p~n",["Files dependent on "++_, []]]) ->
-%%     none;
+handle_aux(["DEBUG: ~s:~n~p~n", ["Dependencies of "++File, Deps]]) ->
+    {dependencies, File, Deps};
+handle_aux(["DEBUG: ~s: ~p~n", ["Dependencies of "++_, []]]) ->
+    none;
+handle_aux(["DEBUG: ~s:~n~p~n",["Files dependent on "++File, Deps]]) ->
+    {dependents, File, Deps};
+handle_aux(["DEBUG: ~s: ~p~n",["Files dependent on "++_, []]]) ->
+    none;
+
 handle_aux(["~sWarning: ~s is undefined function (Xref)\n",[Loc, MFA]]) ->
     {undefined_function, Loc, MFA};
 handle_aux(["~sWarning: ~s calls undefined function ~s (Xref)\n",[Loc, SrcMFA, TargetMFA]]) ->
@@ -143,8 +145,21 @@ handle_aux(["~sWarning: ~s is unused export (Xref)\n",[Loc, MFA]]) ->
     {unused_export, Loc, MFA};
 handle_aux(["~sWarning: ~s is unused local function (Xref)\n",[Loc, MFA]]) ->
     {unused_local_function, Loc, MFA};
+
+handle_aux(["======================== EUnit ========================\n",[]]) ->
+    eunit_tests;
+handle_aux(["~s\n",[Bin]]) when is_binary(Bin) ->
+    "module '"++Module = binary_to_list(Bin),
+    {eunit, list_to_atom(lists:reverse(tl(lists:reverse(Module))))};
+handle_aux(["~s:~s ~s~s...", [A, B, C, D]]) ->
+    {eunit_msg, A, lists:flatten(B), C, D};
+handle_aux(["  Failed: ~w.  Skipped: ~w.  Passed: ~w.\n", [Failed, Skipped, Passed]]) ->
+    {eunit_result, Failed, Skipped, Passed};
+handle_aux(["*failed*\n~s", Text]) ->
+    {failed, lists:flatten(Text)};
+
 handle_aux(_Msg) ->
-    %%     erlide_log:log({unexpected, _Msg}),
+    %% erlide_log:log({unexpected, _Msg}),
     none.
 
 with_config_file(ProjProps, Fun) ->
@@ -207,7 +222,7 @@ with_app_file(SrcDir, EbinDir, Fun) ->
             Fun()
     end.
 
-create_rebar_config(#project_info{rootDir=RootDir,
+create_rebar_config(#project_info{%% rootDir=RootDir,
                                   min_otp_vsn=MinOtpVsn,
                                   sourceDirs=Srcs,
                                   includeDirs=Incs,
@@ -222,5 +237,5 @@ create_rebar_config(#project_info{rootDir=RootDir,
                            "{eunit_opts, [verbose]}.\n"
                            "",
                            [MinOtpVsn, AllOpts, Libs]),
-    erlide_log:log({generated_rebar_config, RootDir, lists:flatten(Config)}),
+    %% erlide_log:log({generated_rebar_config, RootDir, lists:flatten(Config)}),
     Config.

@@ -7,9 +7,9 @@ ok() ->
  	ok.
 
 foo() ->
-	Z=[],
+	Z=[],   
+	33, 
 	[X || X<-Z, 
 		  begin true 
 		  end],
 	"ok".
-

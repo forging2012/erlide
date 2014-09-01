@@ -38,4 +38,6 @@ public interface Bindings {
 
     Map<String, OtpErlangObject> getAll();
 
+    double getDouble(String string) throws OtpErlangException;
+
 }
