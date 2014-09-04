@@ -11,60 +11,70 @@
  *******************************************************************************/
 package org.erlide.core.internal.builder
 
-import java.text.NumberFormat
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IResource
-import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.IProgressMonitor
-import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.OperationCanceledException
+import org.eclipse.core.runtime.SubMonitor
 import org.eclipse.osgi.util.NLS
 import org.erlide.core.builder.BuilderHelper
 import org.erlide.util.ErlLogger
 
+/**
+ * Wrapper for a progress monitor.
+ *
+ * We this is matching the return from the rebar builder, assuming the following:
+ * - 5 phases: clean, compile, eunit_compile*, eunit*, xref* (the last three are optional)
+ * - phases work: clean 5%, compile 65%, eunit_compile 5%, eunit 20%, xref 5%
+ * - compile phase has 10 steps
+ * - '.erl' step takes 91% of the progress, the rest 1% each
+ */
 class BuildNotifier {
 
-    val IProgressMonitor monitor
-    boolean cancelling
-    float percentComplete
-    float progressPerCompilationUnit
-    int workDone
-    int totalWork
-    String previousSubtask
+    val static ERL_STEP_WORK = 91
+    val static OTHER_STEP_WORK = 1
 
+    boolean cancelling
+    val SubMonitor monitor
+    SubMonitor phaseMonitor
+    SubMonitor stepMonitor
+
+    /**
+     * @param monitor the progress monitor to use for reporting progress to the user.
+     *  It is the caller's responsibility to call done() on the given monitor.
+     *  Accepts null, indicating that no progress should be reported and that the
+     *  operation cannot be cancelled.
+     */
     new(IProgressMonitor monitor, IProject project) {
-        this.monitor = monitor ?: new NullProgressMonitor()
+        this.monitor = SubMonitor.convert(monitor, 100)
         cancelling = false
     }
 
     def void begin() {
-        workDone = 0
-        totalWork = 100000
-        monitor.beginTask("building", totalWork)
-        previousSubtask = null
     }
 
-    def void newPhase(String string) {
+    def void newPhase(String name) {
+        val phase = BuildPhase.valueOf(name.toUpperCase)
+        phaseMonitor = monitor.newChild(phase.work)
+        phaseMonitor.workRemaining = 100
     }
 
-    def void newStep(String string, int i) {
+    def void newStep(String name, int items) {
+        val work = if (name == ".erl") ERL_STEP_WORK else OTHER_STEP_WORK
+        println('''?? «phaseMonitor»''')
+        stepMonitor = phaseMonitor.newChild(work)
+        stepMonitor.workRemaining = items
     }
 
-    /**
-     * Notification before a compile that a unit is about to be compiled.
-     */
-    def void aboutToCompile(IResource unit) {
-        checkCancel()
-        val message = NLS.bind(BuilderMessages.build_compiling, unit.getFullPath())
-        subTask(message)
+    def void compiled(String path) {
+        val message = NLS.bind(BuilderMessages.build_compiled, path)
+        stepMonitor.subTask(message)
         if (BuilderHelper.isDebugging()) {
-            ErlLogger.debug(">>" + message)
+            ErlLogger.debug("<< " + message)
         }
+        stepMonitor.worked(1)
+        checkCancelWithinCompiler()
     }
 
-    /**
-     * Check whether the build has been canceled.
-     */
     def void checkCancel() {
         if (monitor.isCanceled()) {
             throw new OperationCanceledException()
@@ -77,82 +87,29 @@ class BuildNotifier {
      */
     def void checkCancelWithinCompiler() {
         if (monitor.isCanceled() && !cancelling) {
+
             // Once the compiler has been canceled, don't check again.
             setCancelling(true)
-        // stop compiler
+
+        // TODO stop compiler
         }
-    }
-
-    def void compiled(IResource unit) {
-        compiled(unit.getFullPath())
-    }
-
-    def void compiled(IPath path) {
-        compiled(path.toPortableString())
-    }
-
-    def void compiled(String path) {
-        val message = NLS.bind(BuilderMessages.build_compiled, path)
-        subTask(message)
-        if (BuilderHelper.isDebugging()) {
-            ErlLogger.debug("<< " + message)
-        }
-        updateProgressDelta(progressPerCompilationUnit)
-        checkCancelWithinCompiler()
     }
 
     def void done() {
-        updateProgress(1.0f)
-        subTask(BuilderMessages.build_done)
         monitor.done()
-        previousSubtask = null
     }
 
     def void setCancelling(boolean cancelling) {
         this.cancelling = cancelling
     }
 
-    def void subTask(String message) {
-        if (message.equals(previousSubtask)) {
-            return // avoid refreshing with same one
-        }
-        monitor.subTask(message)
-        previousSubtask = message
-    }
-
-    def void updateProgress(float newPercentComplete) {
-        if (newPercentComplete > percentComplete) {
-            percentComplete = Math.min(newPercentComplete, 1.0f)
-            val work = Math.round(percentComplete * totalWork)
-            if (work > workDone) {
-                monitor.worked(work - workDone)
-                if (BuilderHelper.isDebugging()) {
-                    ErlLogger.debug(NumberFormat.getPercentInstance().format(percentComplete))
-                }
-                workDone = work
-            }
-        }
-    }
-
-    def void updateProgressDelta(float percentWorked) {
-        updateProgress(percentComplete + percentWorked)
-    }
-
     def boolean isCanceled() {
         monitor.isCanceled()
-        return false
     }
 
-    def void worked(int i) {
-        monitor.worked(i)
-    }
-
-    def void beginTask(String name, int length) {
-        monitor.beginTask(name, length)
-    }
-
-    def void doneTask() {
-        monitor.done()
+    // FIXME
+    def worked(int work) {
+        monitor.worked(work)
     }
 
 }

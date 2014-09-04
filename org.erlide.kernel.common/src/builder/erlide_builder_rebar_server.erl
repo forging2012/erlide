@@ -115,7 +115,7 @@ ignoring(Event, StateData) ->
     unhandled(Event, ignoring),
     {next_state, ignoring, StateData}.
 
-xref({unused_export, Loc, MFA}, StateData=#state{notifier=_Notifier}) ->
+xref({unused_export, _Loc, _MFA}, StateData=#state{notifier=_Notifier}) ->
     {next_state, xref, StateData};
 xref(Event, StateData) ->
     unhandled(Event, xref),

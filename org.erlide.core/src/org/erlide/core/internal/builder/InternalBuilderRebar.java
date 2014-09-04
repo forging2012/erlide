@@ -43,6 +43,12 @@ public class InternalBuilderRebar extends ErlangBuilder {
 
     private final BuilderHelper helper = new BuilderHelper();
     private BuilderState state;
+    // TODO user configurable
+    final boolean compileEunit = false;
+    // TODO user configurable
+    final boolean runXref = false;
+    // TODO user configurable
+    final boolean runEunit = false;
 
     @Override
     public IProject[] build(final BuildKind kind, final IErlProject erlProject,
@@ -128,21 +134,15 @@ public class InternalBuilderRebar extends ErlangBuilder {
                 backend.getRpcSite().call(30000, "erlide_builder_rebar", "build", "x",
                         projectInfo);
 
-                // TODO user configurable
-                final boolean compileEunit = false;
                 if (compileEunit) {
                     backend.getRpcSite().call(30000, "erlide_builder_rebar",
                             "build_eunit", "x", projectInfo);
                 }
 
-                // TODO user configurable
-                final boolean runXref = false;
                 if (runXref) {
                     backend.getRpcSite().call(30000, "erlide_builder_rebar", "xref", "x",
                             projectInfo);
                 }
-                // TODO user configurable
-                final boolean runEunit = false;
                 if (runEunit) {
                     backend.getRpcSite().call(30000, "erlide_builder_rebar", "eunit",
                             "x", projectInfo);

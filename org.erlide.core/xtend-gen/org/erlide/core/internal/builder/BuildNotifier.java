@@ -11,76 +11,95 @@
  */
 package org.erlide.core.internal.builder;
 
-import java.text.NumberFormat;
+import com.google.common.base.Objects;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.xtend2.lib.StringConcatenation;
+import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.erlide.core.builder.BuilderHelper;
+import org.erlide.core.internal.builder.BuildPhase;
 import org.erlide.core.internal.builder.BuilderMessages;
 import org.erlide.util.ErlLogger;
 
+/**
+ * Wrapper for a progress monitor.
+ * 
+ * We this is matching the return from the rebar builder, assuming the following:
+ * - 5 phases: clean, compile, eunit_compile*, eunit*, xref* (the last three are optional)
+ * - phases work: clean 5%, compile 65%, eunit_compile 5%, eunit 20%, xref 5%
+ * - compile phase has 10 steps
+ * - '.erl' step takes 91% of the progress, the rest 1% each
+ */
 @SuppressWarnings("all")
 public class BuildNotifier {
-  private final IProgressMonitor monitor;
+  private final static int ERL_STEP_WORK = 91;
+  
+  private final static int OTHER_STEP_WORK = 1;
   
   private boolean cancelling;
   
-  private float percentComplete;
+  private final SubMonitor monitor;
   
-  private float progressPerCompilationUnit;
+  private SubMonitor phaseMonitor;
   
-  private int workDone;
+  private SubMonitor stepMonitor;
   
-  private int totalWork;
-  
-  private String previousSubtask;
-  
+  /**
+   * @param monitor the progress monitor to use for reporting progress to the user.
+   *  It is the caller's responsibility to call done() on the given monitor.
+   *  Accepts null, indicating that no progress should be reported and that the
+   *  operation cannot be cancelled.
+   */
   public BuildNotifier(final IProgressMonitor monitor, final IProject project) {
-    IProgressMonitor _elvis = null;
-    if (monitor != null) {
-      _elvis = monitor;
-    } else {
-      NullProgressMonitor _nullProgressMonitor = new NullProgressMonitor();
-      _elvis = _nullProgressMonitor;
-    }
-    this.monitor = _elvis;
+    SubMonitor _convert = SubMonitor.convert(monitor, 100);
+    this.monitor = _convert;
     this.cancelling = false;
   }
   
   public void begin() {
-    this.workDone = 0;
-    this.totalWork = 100000;
-    this.monitor.beginTask("building", this.totalWork);
-    this.previousSubtask = null;
   }
   
-  public void newPhase(final String string) {
+  public void newPhase(final String name) {
+    String _upperCase = name.toUpperCase();
+    final BuildPhase phase = BuildPhase.valueOf(_upperCase);
+    int _work = phase.getWork();
+    SubMonitor _newChild = this.monitor.newChild(_work);
+    this.phaseMonitor = _newChild;
+    this.phaseMonitor.setWorkRemaining(100);
   }
   
-  public void newStep(final String string, final int i) {
+  public void newStep(final String name, final int items) {
+    int _xifexpression = (int) 0;
+    boolean _equals = Objects.equal(name, ".erl");
+    if (_equals) {
+      _xifexpression = BuildNotifier.ERL_STEP_WORK;
+    } else {
+      _xifexpression = BuildNotifier.OTHER_STEP_WORK;
+    }
+    final int work = _xifexpression;
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("?? ");
+    _builder.append(this.phaseMonitor, "");
+    InputOutput.<String>println(_builder.toString());
+    SubMonitor _newChild = this.phaseMonitor.newChild(work);
+    this.stepMonitor = _newChild;
+    this.stepMonitor.setWorkRemaining(items);
   }
   
-  /**
-   * Notification before a compile that a unit is about to be compiled.
-   */
-  public void aboutToCompile(final IResource unit) {
-    this.checkCancel();
-    IPath _fullPath = unit.getFullPath();
-    final String message = NLS.bind(BuilderMessages.build_compiling, _fullPath);
-    this.subTask(message);
+  public void compiled(final String path) {
+    final String message = NLS.bind(BuilderMessages.build_compiled, path);
+    this.stepMonitor.subTask(message);
     boolean _isDebugging = BuilderHelper.isDebugging();
     if (_isDebugging) {
-      ErlLogger.debug((">>" + message));
+      ErlLogger.debug(("<< " + message));
     }
+    this.stepMonitor.worked(1);
+    this.checkCancelWithinCompiler();
   }
   
-  /**
-   * Check whether the build has been canceled.
-   */
   public void checkCancel() {
     boolean _isCanceled = this.monitor.isCanceled();
     if (_isCanceled) {
@@ -105,83 +124,19 @@ public class BuildNotifier {
     }
   }
   
-  public void compiled(final IResource unit) {
-    IPath _fullPath = unit.getFullPath();
-    this.compiled(_fullPath);
-  }
-  
-  public void compiled(final IPath path) {
-    String _portableString = path.toPortableString();
-    this.compiled(_portableString);
-  }
-  
-  public void compiled(final String path) {
-    final String message = NLS.bind(BuilderMessages.build_compiled, path);
-    this.subTask(message);
-    boolean _isDebugging = BuilderHelper.isDebugging();
-    if (_isDebugging) {
-      ErlLogger.debug(("<< " + message));
-    }
-    this.updateProgressDelta(this.progressPerCompilationUnit);
-    this.checkCancelWithinCompiler();
-  }
-  
   public void done() {
-    this.updateProgress(1.0f);
-    this.subTask(BuilderMessages.build_done);
     this.monitor.done();
-    this.previousSubtask = null;
   }
   
   public void setCancelling(final boolean cancelling) {
     this.cancelling = cancelling;
   }
   
-  public void subTask(final String message) {
-    boolean _equals = message.equals(this.previousSubtask);
-    if (_equals) {
-      return;
-    }
-    this.monitor.subTask(message);
-    this.previousSubtask = message;
-  }
-  
-  public void updateProgress(final float newPercentComplete) {
-    if ((newPercentComplete > this.percentComplete)) {
-      float _min = Math.min(newPercentComplete, 1.0f);
-      this.percentComplete = _min;
-      final int work = Math.round((this.percentComplete * this.totalWork));
-      if ((work > this.workDone)) {
-        this.monitor.worked((work - this.workDone));
-        boolean _isDebugging = BuilderHelper.isDebugging();
-        if (_isDebugging) {
-          NumberFormat _percentInstance = NumberFormat.getPercentInstance();
-          String _format = _percentInstance.format(this.percentComplete);
-          ErlLogger.debug(_format);
-        }
-        this.workDone = work;
-      }
-    }
-  }
-  
-  public void updateProgressDelta(final float percentWorked) {
-    this.updateProgress((this.percentComplete + percentWorked));
-  }
-  
   public boolean isCanceled() {
-    this.monitor.isCanceled();
-    return false;
+    return this.monitor.isCanceled();
   }
   
-  public void worked(final int i) {
-    this.monitor.worked(i);
-  }
-  
-  public void beginTask(final String name, final int length) {
-    this.monitor.beginTask(name, length);
-  }
-  
-  public void doneTask() {
-    this.monitor.done();
+  public void worked(final int work) {
+    this.monitor.worked(work);
   }
 }
