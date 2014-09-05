@@ -3,26 +3,26 @@ ErlOpts = [].
 
 [
 
-{lib_dirs, ["../releng.tools/ebin"]},
+    {lib_dirs, [".."]},
 
-{erl_opts, ErlOpts},
-{edoc_opts,[{todo,true}]},
+    {erl_opts, ErlOpts},
+    {edoc_opts,[{todo,true}]},
 
-{xref_warnings, true},
-{xref_checks, [undefined_function_calls, undefined_functions,
-               locals_not_used, exports_not_used,
-               deprecated_function_calls, deprecated_functions]},
+    {xref_warnings, true},
+    {xref_checks, [undefined_function_calls, undefined_functions,
+                   locals_not_used, exports_not_used,
+                   deprecated_function_calls, deprecated_functions]},
 
-{eunit_opts, [verbose, {report,{eunit_surefire,[{dir,"."}]}}]},
+    {eunit_opts, [verbose, {report,{eunit_surefire,[{dir,"."}]}}]},
 
-{cover_export_enabled, true},
-{cover_enabled, true},
-{cover_print_enable, true},
+    {cover_export_enabled, true},
+    {cover_enabled, true},
+    {cover_print_enable, true},
 
-{plugins, [rebar_covertool]},
+    {plugins, [rebar_covertool]},
 
-{covertool_eunit, {".eunit/cover.coverdata", "eunit.coverage.xml"}},
-{covertool_prefix_len, 0}
+    {covertool_eunit, {".eunit/cover.coverdata", "eunit.coverage.xml"}},
+    {covertool_prefix_len, 0}
 
 ].
 

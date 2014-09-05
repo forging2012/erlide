@@ -146,7 +146,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
             if (newFile === null) {
                 return it
             }
-            val newMessage = HDR + newFile + ": "+last.substring(ix + 1)
+            val newMessage = HDR + newFile + ": " + last.substring(ix + 1)
             ErlUtils.format("{project,~i,~s,error}", n, newMessage)
         ]
     }

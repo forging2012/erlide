@@ -48,7 +48,7 @@ parse_error(" "++_) ->
     not_an_error_line;
 parse_error("ERROR: "++Msg) ->
     Msg1 = extract_message(Msg),
-    mk_error(project, none, Msg1, error);
+    mk_error(project, "-1", Msg1, error);
 parse_error(PossibleErrorLine) ->
     case string:tokens(PossibleErrorLine, ":") of
         [File, LineNoS, " Warning" | WarnText] ->
@@ -68,12 +68,12 @@ mk_error(File, LineNoS, Msg, Severity) ->
     Line = to_line(LineNoS),
     case Line of
         -2 ->
-            not_an_error_line;
+             not_an_error_line;
         _ ->
             {File, Line, Msg, Severity}
     end.
 
-to_line(none) ->
+to_line("none") ->
     -1;
 to_line(LineS) ->
     try
@@ -101,7 +101,7 @@ extract_message_aux(Msg) ->
     Ix = string:str(Hdr0, ": "),
     {Hdr, Hdr1} = lists:split(Ix+1, Hdr0),
     CleanLines = string:join([Hdr1 | [string:strip(Line) || Line<-Rest]], " "),
-    Hdr++" "++extract_stacktrace_top(CleanLines).
+    Hdr++extract_stacktrace_top(CleanLines).
 
 extract_stacktrace_top(Text) ->
     {ok, Tokens, _} = erl_scan:string(Text++"."),

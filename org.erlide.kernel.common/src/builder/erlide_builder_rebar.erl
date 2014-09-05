@@ -120,7 +120,7 @@ handle(_Msg) ->
 
 handle_aux(["ERROR: "++_, _]=Args) ->
     {messages, [erlang:apply(io_lib, format, Args)]};
-handle_aux(["~s", Args]) ->
+handle_aux(["~s", _]=Args) ->
     {messages, [erlang:apply(io_lib, format, Args)]};
 handle_aux(["Compiled ~s\n", [File]]) ->
     {compiled, File};
