@@ -1,6 +1,7 @@
 package org.erlide.core.internal.builder;
 
 import com.ericsson.otp.erlang.OtpErlangObject;
+import com.ericsson.otp.erlang.OtpErlangString;
 import com.google.common.base.Objects;
 import com.google.common.eventbus.Subscribe;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Pair;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.erlide.core.builder.BuilderHelper;
 import org.erlide.core.internal.builder.BuildNotifier;
 import org.erlide.core.internal.builder.BuilderState;
@@ -182,7 +184,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
   }
   
   public boolean processCompiled(final String file, final Collection<OtpErlangObject> messages, final Collection<OtpErlangObject> dependencies) {
-    BuilderEventHandler.createMarkers(this.project, file, messages);
+    BuilderEventHandler.createMarkers(this.project, file, messages, dependencies);
     BuilderEventHandler.reloadBeam(this.project, file);
     this.notifier.compiled(file);
     return true;
@@ -193,13 +195,21 @@ public class BuilderEventHandler extends ErlangEventHandler {
     return true;
   }
   
-  private static void createMarkers(final IProject project, final String filePath, final Collection<OtpErlangObject> messages) {
+  private static void createMarkers(final IProject project, final String filePath, final Collection<OtpErlangObject> messages, final Collection<OtpErlangObject> dependencies) {
     boolean _tripleEquals = (project == null);
     if (_tripleEquals) {
       return;
     }
     final IResource srcFile = project.findMember(filePath);
     MarkerUtils.deleteMarkers(srcFile);
+    final Procedure1<OtpErlangObject> _function = new Procedure1<OtpErlangObject>() {
+      public void apply(final OtpErlangObject dep) {
+        final String depstr = ((OtpErlangString) dep).stringValue();
+        final IResource file = project.findMember(depstr);
+        MarkerUtils.deleteMarkers(file);
+      }
+    };
+    IterableExtensions.<OtpErlangObject>forEach(dependencies, _function);
     MarkerUtils.addErrorMarkers(srcFile, messages);
   }
   

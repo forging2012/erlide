@@ -13,6 +13,7 @@ import org.erlide.util.erlang.Bindings
 import org.erlide.util.erlang.ErlUtils
 import org.erlide.util.ErlLogger
 import com.google.common.base.Objects
+import com.ericsson.otp.erlang.OtpErlangString
 
 public class BuilderEventHandler extends ErlangEventHandler {
 
@@ -33,8 +34,8 @@ public class BuilderEventHandler extends ErlangEventHandler {
             return
         }
         val data = event.getEvent()
-        //println('''>> «data»''')
 
+        //println('''>> «data»''')
         val processed = process(data)
         if (!processed) {
             ErlLogger.warn('''??? unhandled build«data»''')
@@ -97,7 +98,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
 
     def boolean processCompiled(String file, Collection<OtpErlangObject> messages,
         Collection<OtpErlangObject> dependencies) {
-        createMarkers(project, file, messages)
+        createMarkers(project, file, messages, dependencies)
         reloadBeam(project, file)
         notifier.compiled(file)
         return true
@@ -109,12 +110,17 @@ public class BuilderEventHandler extends ErlangEventHandler {
     }
 
     def private static void createMarkers(IProject project, String filePath,
-        Collection<OtpErlangObject> messages) {
+        Collection<OtpErlangObject> messages, Collection<OtpErlangObject> dependencies) {
         if (project === null) {
             return
         }
         val srcFile = project.findMember(filePath)
         MarkerUtils.deleteMarkers(srcFile)
+        dependencies.forEach [ dep |
+            val depstr = (dep as OtpErlangString).stringValue
+            val file = project.findMember(depstr)
+            MarkerUtils.deleteMarkers(file)
+        ]
         MarkerUtils.addErrorMarkers(srcFile, messages)
     }
 

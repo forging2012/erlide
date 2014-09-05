@@ -17,8 +17,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.xtend2.lib.StringConcatenation;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.erlide.core.builder.BuilderHelper;
 import org.erlide.core.internal.builder.BuildPhase;
 import org.erlide.core.internal.builder.BuilderMessages;
@@ -80,10 +78,6 @@ public class BuildNotifier {
       _xifexpression = BuildNotifier.OTHER_STEP_WORK;
     }
     final int work = _xifexpression;
-    StringConcatenation _builder = new StringConcatenation();
-    _builder.append("?? ");
-    _builder.append(this.phaseMonitor, "");
-    InputOutput.<String>println(_builder.toString());
     SubMonitor _newChild = this.phaseMonitor.newChild(work);
     this.stepMonitor = _newChild;
     this.stepMonitor.setWorkRemaining(items);

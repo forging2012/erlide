@@ -60,7 +60,6 @@ class BuildNotifier {
 
     def void newStep(String name, int items) {
         val work = if (name == ".erl") ERL_STEP_WORK else OTHER_STEP_WORK
-        println('''?? «phaseMonitor»''')
         stepMonitor = phaseMonitor.newChild(work)
         stepMonitor.workRemaining = items
     }
