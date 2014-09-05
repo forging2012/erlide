@@ -47,7 +47,8 @@ parse_errors([_ | Rest], Acc) ->
 parse_error(" "++_) ->
     not_an_error_line;
 parse_error("ERROR: "++Msg) ->
-    mk_error(project, "none", lists:flatten(Msg), error);
+    Msg1 = extract_message(Msg),
+    mk_error(project, none, Msg1, error);
 parse_error(PossibleErrorLine) ->
     case string:tokens(PossibleErrorLine, ":") of
         [File, LineNoS, " Warning" | WarnText] ->
@@ -72,7 +73,7 @@ mk_error(File, LineNoS, Msg, Severity) ->
             {File, Line, Msg, Severity}
     end.
 
-to_line("none") ->
+to_line(none) ->
     -1;
 to_line(LineS) ->
     try
@@ -81,3 +82,35 @@ to_line(LineS) ->
         _:_ ->
             -2
     end.
+
+extract_message(Msg) ->
+    try
+        extract_message_aux(Msg)
+    catch
+        _:_ ->
+            Msg0 = lists:flatten(Msg),
+            Lines = string:tokens(Msg0, "\n"),
+            CleanLines = [string:strip(Line) || Line<-Lines],
+            string:join(CleanLines, " ")
+    end.
+
+extract_message_aux(Msg) ->
+    Msg0 = lists:flatten(Msg),
+    Lines = string:tokens(Msg0, "\n"),
+    [Hdr0 | Rest] = Lines,
+    Ix = string:str(Hdr0, ": "),
+    {Hdr, Hdr1} = lists:split(Ix+1, Hdr0),
+    CleanLines = string:join([Hdr1 | [string:strip(Line) || Line<-Rest]], " "),
+    Hdr++" "++extract_stacktrace_top(CleanLines).
+
+extract_stacktrace_top(Text) ->
+    {ok, Tokens, _} = erl_scan:string(Text++"."),
+    {ok, Expr} = erl_parse:parse_term(Tokens),
+    case Expr of
+        {_, _, {error, Cause, Stack}} ->
+            [{M,F,A,_}|_] = Stack,
+            lists:flatten(io_lib:format("~s ~s:~s/~w", [Cause, M, F, length(A)]));
+        _ ->
+            Text
+    end.
+

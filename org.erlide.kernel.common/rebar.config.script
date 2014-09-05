@@ -3,6 +3,8 @@ ErlOpts = [].
 
 [
 
+{lib_dirs, ["../releng.tools/ebin"]},
+
 {erl_opts, ErlOpts},
 {edoc_opts,[{todo,true}]},
 

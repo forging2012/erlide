@@ -107,6 +107,11 @@ eunit(Event, StateData) ->
     unhandled(Event, eunit),
     {next_state, init, StateData}.
 
+clean({messages,[{project,-1,"clean failed while processing "++_,error}]}, StateData) ->
+    {next_state, clean, StateData};
+clean({messages,_}=Event, StateData=#state{notifier=Notifier}) ->
+    Notifier(Event),
+    {next_state, clean, StateData};
 clean(Event, StateData) ->
     unhandled(Event, clean),
     {next_state, init, StateData}.

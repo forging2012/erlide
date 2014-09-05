@@ -4,6 +4,7 @@ import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangString;
 import com.google.common.base.Objects;
 import com.google.common.eventbus.Subscribe;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
+import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.InputOutput;
@@ -23,6 +25,7 @@ import org.erlide.core.builder.BuilderHelper;
 import org.erlide.core.internal.builder.BuildNotifier;
 import org.erlide.core.internal.builder.BuilderState;
 import org.erlide.engine.model.builder.MarkerUtils;
+import org.erlide.engine.util.ResourceUtil;
 import org.erlide.runtime.events.ErlEvent;
 import org.erlide.runtime.events.ErlangEventHandler;
 import org.erlide.util.ErlLogger;
@@ -171,6 +174,19 @@ public class BuilderEventHandler extends ErlangEventHandler {
         throw Exceptions.sneakyThrow(_e);
       }
     }
+  }), Pair.<String, Function1<Bindings, Boolean>>of("{messages,Msgs}", new Function1<Bindings, Boolean>() {
+    public Boolean apply(final Bindings b) {
+      try {
+        boolean _xblockexpression = false;
+        {
+          final Collection<OtpErlangObject> msgs = b.getList("Msgs");
+          _xblockexpression = BuilderEventHandler.this.processMessages(msgs);
+        }
+        return Boolean.valueOf(_xblockexpression);
+      } catch (Throwable _e) {
+        throw Exceptions.sneakyThrow(_e);
+      }
+    }
   })));
   
   public boolean processStep(final String step, final int num) {
@@ -180,6 +196,10 @@ public class BuilderEventHandler extends ErlangEventHandler {
   
   public boolean processPhase(final String phase) {
     this.notifier.newPhase(phase);
+    boolean _equals = Objects.equal(phase, "clean");
+    if (_equals) {
+      MarkerUtils.deleteMarkers(this.project);
+    }
     return true;
   }
   
@@ -195,13 +215,85 @@ public class BuilderEventHandler extends ErlangEventHandler {
     return true;
   }
   
-  private static void createMarkers(final IProject project, final String filePath, final Collection<OtpErlangObject> messages, final Collection<OtpErlangObject> dependencies) {
+  public boolean processMessages(final Collection<OtpErlangObject> messages) {
+    Iterable<OtpErlangObject> _cleanup = this.cleanup(messages);
+    ArrayList<OtpErlangObject> _newArrayList = CollectionLiterals.<OtpErlangObject>newArrayList();
+    BuilderEventHandler.createMarkers(this.project, null, _cleanup, _newArrayList);
+    return true;
+  }
+  
+  public Iterable<OtpErlangObject> cleanup(final Collection<OtpErlangObject> objects) {
+    Iterable<OtpErlangObject> _xblockexpression = null;
+    {
+      InputOutput.<String>println("cleanup");
+      final Function1<OtpErlangObject, OtpErlangObject> _function = new Function1<OtpErlangObject, OtpErlangObject>() {
+        public OtpErlangObject apply(final OtpErlangObject it) {
+          try {
+            OtpErlangObject _xblockexpression = null;
+            {
+              final Bindings b = ErlUtils.match("{project,N,Msg,error}", it);
+              boolean _tripleEquals = (b == null);
+              if (_tripleEquals) {
+                return it;
+              }
+              final long n = b.getLong("N");
+              final String msg = b.getString("Msg");
+              final String HDR = "Failed to extract name from ";
+              boolean _startsWith = msg.startsWith(HDR);
+              boolean _not = (!_startsWith);
+              if (_not) {
+                return it;
+              }
+              int _length = HDR.length();
+              final String last = msg.substring(_length);
+              final int ix = last.indexOf(": ");
+              if ((ix <= 0)) {
+                return it;
+              }
+              final String file = last.substring(0, ix);
+              String _trim = file.trim();
+              final IResource res = ResourceUtil.findResourceByLocation(BuilderEventHandler.this.project, _trim);
+              IPath _projectRelativePath = null;
+              if (res!=null) {
+                _projectRelativePath=res.getProjectRelativePath();
+              }
+              final IPath newFile = _projectRelativePath;
+              boolean _tripleEquals_1 = (newFile == null);
+              if (_tripleEquals_1) {
+                return it;
+              }
+              String _substring = last.substring((ix + 1));
+              final String newMessage = (((HDR + newFile) + ": ") + _substring);
+              _xblockexpression = ErlUtils.format("{project,~i,~s,error}", Long.valueOf(n), newMessage);
+            }
+            return _xblockexpression;
+          } catch (Throwable _e) {
+            throw Exceptions.sneakyThrow(_e);
+          }
+        }
+      };
+      _xblockexpression = IterableExtensions.<OtpErlangObject, OtpErlangObject>map(objects, _function);
+    }
+    return _xblockexpression;
+  }
+  
+  private static void createMarkers(final IProject project, final String filePath, final Iterable<OtpErlangObject> messages, final Collection<OtpErlangObject> dependencies) {
     boolean _tripleEquals = (project == null);
     if (_tripleEquals) {
       return;
     }
-    final IResource srcFile = project.findMember(filePath);
-    MarkerUtils.deleteMarkers(srcFile);
+    IResource _xifexpression = null;
+    boolean _tripleEquals_1 = (filePath == null);
+    if (_tripleEquals_1) {
+      _xifexpression = project;
+    } else {
+      _xifexpression = project.findMember(filePath);
+    }
+    final IResource srcFile = _xifexpression;
+    boolean _notEquals = (!Objects.equal(srcFile, project));
+    if (_notEquals) {
+      MarkerUtils.deleteMarkers(srcFile);
+    }
     final Procedure1<OtpErlangObject> _function = new Procedure1<OtpErlangObject>() {
       public void apply(final OtpErlangObject dep) {
         final String depstr = ((OtpErlangString) dep).stringValue();
@@ -210,7 +302,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
       }
     };
     IterableExtensions.<OtpErlangObject>forEach(dependencies, _function);
-    MarkerUtils.addErrorMarkers(srcFile, messages);
+    MarkerUtils.addErrorMarkers(srcFile, ((OtpErlangObject[])Conversions.unwrapArray(messages, OtpErlangObject.class)));
   }
   
   private static void reloadBeam(final IProject project, final String filePath) {

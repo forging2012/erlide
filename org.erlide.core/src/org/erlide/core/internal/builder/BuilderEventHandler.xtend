@@ -14,6 +14,7 @@ import org.erlide.util.erlang.ErlUtils
 import org.erlide.util.ErlLogger
 import com.google.common.base.Objects
 import com.ericsson.otp.erlang.OtpErlangString
+import org.erlide.engine.util.ResourceUtil
 
 public class BuilderEventHandler extends ErlangEventHandler {
 
@@ -83,6 +84,10 @@ public class BuilderEventHandler extends ErlangEventHandler {
         "{skipped,File}" -> [ Bindings b |
             val file = b.getString("File")
             processSkipped(file)
+        ],
+        "{messages,Msgs}" -> [ Bindings b |
+            val msgs = b.getList("Msgs")
+            processMessages(msgs)
         ]
     ]
 
@@ -93,6 +98,9 @@ public class BuilderEventHandler extends ErlangEventHandler {
 
     def boolean processPhase(String phase) {
         notifier.newPhase(phase)
+        if (phase == "clean") {
+            MarkerUtils.deleteMarkers(project)
+        }
         return true
     }
 
@@ -109,13 +117,47 @@ public class BuilderEventHandler extends ErlangEventHandler {
         return true
     }
 
-    def private static void createMarkers(IProject project, String filePath,
-        Collection<OtpErlangObject> messages, Collection<OtpErlangObject> dependencies) {
+    def boolean processMessages(Collection<OtpErlangObject> messages) {
+        createMarkers(project, null, messages.cleanup, newArrayList())
+        return true
+    }
+
+    def Iterable<OtpErlangObject> cleanup(Collection<OtpErlangObject> objects) {
+        println("cleanup")
+        objects.map [
+            val b = ErlUtils.match("{project,N,Msg,error}", it)
+            if (b === null) {
+                return it
+            }
+            val n = b.getLong("N")
+            val msg = b.getString("Msg")
+            val HDR = "Failed to extract name from "
+            if (!msg.startsWith(HDR)) {
+                return it
+            }
+            val last = msg.substring(HDR.length)
+            val ix = last.indexOf(": ")
+            if (ix <= 0) {
+                return it
+            }
+            val file = last.substring(0, ix)
+            val res = ResourceUtil.findResourceByLocation(project, file.trim)
+            val newFile = res?.projectRelativePath
+            if (newFile === null) {
+                return it
+            }
+            val newMessage = HDR + newFile + ": "+last.substring(ix + 1)
+            ErlUtils.format("{project,~i,~s,error}", n, newMessage)
+        ]
+    }
+
+    def private static void createMarkers(IProject project, String filePath, Iterable<OtpErlangObject> messages,
+        Collection<OtpErlangObject> dependencies) {
         if (project === null) {
             return
         }
-        val srcFile = project.findMember(filePath)
-        MarkerUtils.deleteMarkers(srcFile)
+        val srcFile = if (filePath === null) project else project.findMember(filePath)
+        if (srcFile != project) MarkerUtils.deleteMarkers(srcFile)
         dependencies.forEach [ dep |
             val depstr = (dep as OtpErlangString).stringValue
             val file = project.findMember(depstr)

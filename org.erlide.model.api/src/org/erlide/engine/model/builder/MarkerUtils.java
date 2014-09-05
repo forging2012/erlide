@@ -30,7 +30,6 @@ import com.ericsson.otp.erlang.OtpErlangList;
 import com.ericsson.otp.erlang.OtpErlangLong;
 import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangRangeException;
-import com.ericsson.otp.erlang.OtpErlangString;
 import com.ericsson.otp.erlang.OtpErlangTuple;
 import com.google.common.base.Joiner;
 
@@ -81,8 +80,7 @@ public final class MarkerUtils {
         for (final OtpErlangObject entry : messages) {
             final OtpErlangTuple message = (OtpErlangTuple) entry;
 
-            final String fileName = ((OtpErlangString) message.elementAt(0))
-                    .stringValue();
+            final String fileName = ErlUtils.asString(message.elementAt(0));
             final IResource res = findResourceForFileName(fileName, resource);
             addAnnotationForMessage(fileName, res, message);
         }
@@ -91,6 +89,9 @@ public final class MarkerUtils {
     private static IResource findResourceForFileName(final String fileName,
             final IResource resource) {
         IResource result = resource;
+        if (fileName == null || "project".equals(fileName)) {
+            return resource;
+        }
         if (!ResourceUtil.samePath(resource.getLocation().toString(), fileName)) {
             final IProject project = resource.getProject();
             result = ResourceUtil.findResourceByLocation(project, fileName);
@@ -178,7 +179,6 @@ public final class MarkerUtils {
         removeProblemMarkersFor(resource);
         if (resource instanceof IFile) {
             deleteMarkersWithCompiledFile(resource.getProject(), (IFile) resource);
-            // should we delete markers for dependent hrl files?
         }
     }
 

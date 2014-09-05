@@ -6,7 +6,8 @@
          clean/1,
          eunit/1,
          doc/1,
-         xref/1
+         xref/1,
+         common_test/1
         ]).
 
 -include("erlide_builder_rebar.hrl").
@@ -28,6 +29,9 @@ doc(ProjProps) ->
 
 xref(ProjProps) ->
     rebar(ProjProps, ["-vv", "-k", "xref"]).
+
+common_test(ProjProps) ->
+    rebar(ProjProps, ["-vv", "-k", "ct"]).
 
 
 %%%
@@ -117,7 +121,7 @@ handle(_Msg) ->
 handle_aux(["ERROR: "++_, _]=Args) ->
     {messages, [erlang:apply(io_lib, format, Args)]};
 handle_aux(["~s", Args]) ->
-    {messages, lists:append(Args)};
+    {messages, [erlang:apply(io_lib, format, Args)]};
 handle_aux(["Compiled ~s\n", [File]]) ->
     {compiled, File};
 handle_aux(["Compiling ~s failed:\n", [File]]) ->
