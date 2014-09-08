@@ -94,7 +94,7 @@ import org.eclipse.core.resources.IResourceDelta;
  * of the notification.
  * </p>
  * <p>
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  *              </p>
  */
@@ -143,7 +143,7 @@ public interface IErlElementDelta {
     /**
      * Change flag indicating that the element was moved from another location.
      * The location of the old element can be retrieved using
-     * <code>getMovedFromElement</code>.
+     * <code>getMovedFromElement</code> .
      */
     int F_MOVED_FROM = 0x00010;
 

@@ -117,8 +117,8 @@ public class FunctionGroup implements SelectionListener {
         editFunctionBtn.addSelectionListener(this);
 
         /*
-         * addState = new Button(container,SWT.PUSH); addState.setText(" Toggle
-         * State "); // addState.setLayoutData(new
+         * addState = new Button(container,SWT.PUSH);
+         * addState.setText(" Toggle State "); // addState.setLayoutData(new
          * GridData(SWT.FILL,SWT.CENTER,true,false));
          * addState.addSelectionListener(this);
          */

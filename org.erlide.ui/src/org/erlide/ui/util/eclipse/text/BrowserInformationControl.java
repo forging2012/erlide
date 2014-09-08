@@ -344,7 +344,7 @@ public class BrowserInformationControl extends AbstractInformationControl implem
             // in non-broken words :-(see e.g. Javadoc of String).
             // Re-check whether we really still need this now that the Javadoc
             // Hover header already sets this style.
-            styles = new String[] { "overflow:hidden;"/*, "word-wrap: break-word;"*/}; //$NON-NLS-1$
+            styles = new String[] { "overflow:hidden;"/* , "word-wrap: break-word;" */}; //$NON-NLS-1$
         } else {
             styles = new String[] { "overflow:scroll;" }; //$NON-NLS-1$
         }

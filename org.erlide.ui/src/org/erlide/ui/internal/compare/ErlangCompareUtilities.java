@@ -159,8 +159,8 @@ class ErlangCompareUtilities {
     /**
      * Breaks the contents of the given input stream into an array of strings.
      * The function assumes that the input stream uses the platform's default
-     * encoding (<code>ResourcesPlugin.getEncoding()</code>). Returns null if an
-     * error occurred.
+     * encoding ( <code>ResourcesPlugin.getEncoding()</code>). Returns null if
+     * an error occurred.
      */
     static String[] readLines(final InputStream is2, final String encoding) {
 
