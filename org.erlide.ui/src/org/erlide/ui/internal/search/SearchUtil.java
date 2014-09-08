@@ -37,17 +37,24 @@ import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.services.search.ErlSearchScope;
 import org.erlide.engine.services.search.ErlangSearchPattern;
+import org.erlide.engine.services.search.ExternalCallOpenResult;
+import org.erlide.engine.services.search.FieldOpenResult;
 import org.erlide.engine.services.search.FunctionPattern;
+import org.erlide.engine.services.search.IncludeOpenResult;
 import org.erlide.engine.services.search.IncludePattern;
 import org.erlide.engine.services.search.LimitTo;
+import org.erlide.engine.services.search.LocalCallOpenResult;
+import org.erlide.engine.services.search.MacroOpenResult;
 import org.erlide.engine.services.search.MacroPattern;
 import org.erlide.engine.services.search.ModuleLineFunctionArityRef;
 import org.erlide.engine.services.search.OpenResult;
 import org.erlide.engine.services.search.RecordFieldPattern;
+import org.erlide.engine.services.search.RecordOpenResult;
 import org.erlide.engine.services.search.RecordPattern;
 import org.erlide.engine.services.search.SearchFor;
 import org.erlide.engine.services.search.SearchPatternFactory;
 import org.erlide.engine.services.search.TypeRefPattern;
+import org.erlide.engine.services.search.VariableOpenResult;
 import org.erlide.engine.services.search.VariablePattern;
 import org.erlide.ui.actions.OpenUtils;
 import org.erlide.ui.internal.ErlideUIPlugin;
@@ -156,33 +163,33 @@ public class SearchUtil {
         if (res == null) {
             return null;
         }
-        if (res.isLocalCall()) {
-            String moduleName;
+        if (res instanceof LocalCallOpenResult) {
+            final LocalCallOpenResult lres = (LocalCallOpenResult) res;
+            String moduleName = null;
             if (module != null) {
                 moduleName = module.getModuleName();
                 if (offset != -1) {
                     final IErlElement e = module.getElementAt(offset);
-                    if (new OpenUtils().isTypeDefOrRecordDef(e, res)) {
-                        return new TypeRefPattern(moduleName, res.getFun(), limitTo);
+                    if (new OpenUtils().isTypeDefOrRecordDef(e, lres)) {
+                        return new TypeRefPattern(moduleName, lres.getFun(), limitTo);
                     }
                 }
-            } else {
-                moduleName = res.getName();
             }
-            return new FunctionPattern(moduleName, res.getFun(), res.getArity(), limitTo,
-                    matchAnyFunctionDefinition, module, true);
+            return new FunctionPattern(moduleName, lres.getFun(), lres.getArity(),
+                    limitTo, matchAnyFunctionDefinition, module, true);
         }
-        String moduleName = res.getName();
-        if (moduleName == null) {
-            return null;
-        }
-        final String unquoted = StringUtils.unquote(moduleName);
-        if (res.isExternalCall()) {
+        if (res instanceof ExternalCallOpenResult) {
+            final ExternalCallOpenResult eres = (ExternalCallOpenResult) res;
+            String moduleName = eres.getMod();
+            if (moduleName == null) {
+                return null;
+            }
+            final String unquoted = StringUtils.unquote(moduleName);
             if (module != null && offset != -1) {
                 final IErlElement e = module.getElementAt(offset);
                 if (e != null
                         && (e.getKind() == ErlElementKind.TYPESPEC || e.getKind() == ErlElementKind.RECORD_DEF)) {
-                    return new TypeRefPattern(moduleName, res.getFun(), limitTo);
+                    return new TypeRefPattern(moduleName, eres.getFun(), limitTo);
                 }
             }
             String oldName;
@@ -192,27 +199,34 @@ public class SearchUtil {
                 moduleName = ErlangEngine.getInstance().getModelFindService()
                         .resolveMacroValue(moduleName, module);
             } while (!moduleName.equals(oldName));
-            return new FunctionPattern(moduleName, res.getFun(), res.getArity(), limitTo,
-                    matchAnyFunctionDefinition, module, false);
-        } else if (res.isMacro()) {
+            return new FunctionPattern(moduleName, eres.getFun(), eres.getArity(),
+                    limitTo, matchAnyFunctionDefinition, module, false);
+        } else if (res instanceof MacroOpenResult) {
+            final String unquoted = StringUtils
+                    .unquote(((MacroOpenResult) res).getName());
             return new MacroPattern(unquoted, limitTo);
-        } else if (res.isRecord()) {
+        } else if (res instanceof RecordOpenResult) {
+            final String unquoted = StringUtils.unquote(((RecordOpenResult) res)
+                    .getName());
             return new RecordPattern(unquoted, limitTo);
-        } else if (res.isInclude()) {
-            return new IncludePattern(moduleName, limitTo);
-        } else if (res.isVariable()) {
+        } else if (res instanceof IncludeOpenResult) {
+            return new IncludePattern(((IncludeOpenResult) res).getName(), limitTo);
+        } else if (res instanceof VariableOpenResult) {
+            final VariableOpenResult vres = (VariableOpenResult) res;
             if (module != null) {
                 if (offset != -1) {
                     final IErlElement e = module.getElementAt(offset);
                     if (e instanceof IErlFunctionClause) {
                         final IErlFunctionClause c = (IErlFunctionClause) e;
                         return new VariablePattern(c.getFunctionName(), c.getArity(),
-                                c.getHead(), res.getName(), limitTo, module);
+                                c.getHead(), vres.getName(), limitTo, module);
                     }
                 }
             }
-        } else if (res.isField()) {
-            return new RecordFieldPattern(res.getFun(), unquoted, limitTo);
+        } else if (res instanceof FieldOpenResult) {
+            final FieldOpenResult fres = (FieldOpenResult) res;
+            final String unquoted = StringUtils.unquote(fres.getName());
+            return new RecordFieldPattern(fres.getRecord(), unquoted, limitTo);
         }
         return null;
     }

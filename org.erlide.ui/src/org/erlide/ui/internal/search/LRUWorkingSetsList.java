@@ -65,7 +65,7 @@ public class LRUWorkingSetsList {
         return sortedList;
     }
 
-    public Collection<IWorkingSet[]> get() {
+    public Iterable<IWorkingSet[]> get() {
         return new ArrayList<IWorkingSet[]>(fLRUList);
     }
 

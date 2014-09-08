@@ -55,7 +55,7 @@ public class ErlideOpen implements OpenService {
         final OtpErlangObject res = ideBackend.call(ERLIDE_OPEN, "open", "aix",
                 scannerName, offset,
                 mkContext(externalModules, null, pathVars, extra, imports));
-        return new OpenResult(res);
+        return OpenResult.build(res);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class ErlideOpen implements OpenService {
     public OpenResult openText(final String text, final int offset) throws RpcException {
         final OtpErlangObject res = ideBackend.call(ERLIDE_OPEN, "open_text", "si", text,
                 offset);
-        return new OpenResult(res);
+        return OpenResult.build(res);
     }
 
     @Override

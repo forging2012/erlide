@@ -5,7 +5,9 @@
 
 -include("inc.hrl").
 
-ok() ->   
+-include_lib("kernel/include/file.hrl").
+ 
+ok() ->  
  	ok.
 
 foo() ->

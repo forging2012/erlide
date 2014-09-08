@@ -302,7 +302,7 @@ public class ErlTextHover implements ITextHover, IInformationProviderExtension2,
                                     .getCorrespondingResource()));
             ErlLogger.debug("otp doc %s", t);
             if (Util.isOk(t)) {
-                element = new OpenResult(t.elementAt(2));
+                element = OpenResult.build(t.elementAt(2));
                 final String docStr = Util.stringValue(t.elementAt(1));
                 result.append(docStr);
                 if (t.arity() > 4) {
@@ -310,7 +310,7 @@ public class ErlTextHover implements ITextHover, IInformationProviderExtension2,
                     anchor = Util.stringValue(t.elementAt(4));
                 }
             } else {
-                element = new OpenResult(t);
+                element = OpenResult.build(t);
                 final Object found = new OpenUtils().findOpenResult(editor,
                         editor.getModule(), erlProject, element,
                         editor.getElementAt(offset, false));

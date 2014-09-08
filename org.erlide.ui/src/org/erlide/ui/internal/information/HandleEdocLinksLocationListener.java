@@ -5,6 +5,7 @@ import org.eclipse.swt.browser.LocationListener;
 import org.erlide.backend.BackendCore;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.engine.services.search.ExternalCallOpenResult;
 import org.erlide.engine.services.search.OpenResult;
 import org.erlide.engine.services.search.OtpDocService;
 import org.erlide.runtime.api.IOtpRpc;
@@ -51,9 +52,9 @@ public class HandleEdocLinksLocationListener implements LocationListener {
             final AbstractErlangEditor editor = input.getEditor();
             String moduleName = "";
             final Object inputElement = input.getInputElement();
-            if (inputElement instanceof OpenResult) {
-                final OpenResult or = (OpenResult) inputElement;
-                moduleName = or.getName();
+            if (inputElement instanceof ExternalCallOpenResult) {
+                final ExternalCallOpenResult or = (ExternalCallOpenResult) inputElement;
+                moduleName = or.getMod();
             }
             final ErlangFunctionCall functionCall = HoverUtil.eventToErlangFunctionCall(
                     moduleName, event);
@@ -81,7 +82,7 @@ public class HandleEdocLinksLocationListener implements LocationListener {
                     }
                     if (result.length() > 0) {
                         final String html = HoverUtil.getHTMLAndReplaceJSLinks(result);
-                        final Object element = new OpenResult(otpDoc.elementAt(2));
+                        final Object element = OpenResult.build(otpDoc.elementAt(2));
                         input = new ErlBrowserInformationControlInput(input, editor,
                                 element, html, 20, HoverUtil.getDocumentationURL(docPath,
                                         anchor));

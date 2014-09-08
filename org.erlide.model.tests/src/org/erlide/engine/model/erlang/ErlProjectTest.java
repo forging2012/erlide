@@ -16,6 +16,7 @@ import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.services.parsing.ScannerService;
+import org.erlide.engine.services.search.ExternalCallOpenResult;
 import org.erlide.engine.services.search.OpenResult;
 import org.erlide.engine.services.search.OpenService;
 import org.erlide.engine.util.ResourceUtil;
@@ -172,16 +173,19 @@ public class ErlProjectTest extends WorkspaceTest {
                             ErlangEngine.getInstance().getModelUtilService()
                                     .getImportsAsList(moduleE),
                             project.getProperties().getExternalModules(),
-                            model.getPathVars(project.getWorkspaceProject()));
+                            model.getPathVars(project.getWorkspaceProject())); 
+            assertTrue(res instanceof ExternalCallOpenResult);
+            final ExternalCallOpenResult eres = (ExternalCallOpenResult) res;
             final IErlFunction function = ErlangEngine
                     .getInstance()
                     .getModelFindService()
-                    .findFunction(model, project, moduleE, res.getName(), res.getPath(),
-                            res.getFunction(), IErlElementLocator.Scope.PROJECT_ONLY);
+                    .findFunction(model, project, moduleE, eres.getMod(), eres.getPath(),
+                            new ErlangFunction(eres.getFun(), eres.getArity()),
+                            IErlElementLocator.Scope.PROJECT_ONLY);
             assertNotNull(function);
 
             final IErlElement module = model.findModuleFromProject(project,
-                    function.getModuleName(), res.getPath(),
+                    function.getModuleName(), eres.getPath(),
                     IErlElementLocator.Scope.PROJECT_ONLY);
             // then
             // the function should be returned and the module, in External Files
