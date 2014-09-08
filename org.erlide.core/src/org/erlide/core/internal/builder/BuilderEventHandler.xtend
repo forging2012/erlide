@@ -1,20 +1,20 @@
 package org.erlide.core.internal.builder
 
 import com.ericsson.otp.erlang.OtpErlangObject
+import com.ericsson.otp.erlang.OtpErlangString
+import com.google.common.base.Objects
 import com.google.common.eventbus.Subscribe
 import java.util.Collection
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.Path
 import org.erlide.core.builder.BuilderHelper
 import org.erlide.engine.model.builder.MarkerUtils
+import org.erlide.engine.util.ResourceUtil
 import org.erlide.runtime.events.ErlEvent
 import org.erlide.runtime.events.ErlangEventHandler
+import org.erlide.util.ErlLogger
 import org.erlide.util.erlang.Bindings
 import org.erlide.util.erlang.ErlUtils
-import org.erlide.util.ErlLogger
-import com.google.common.base.Objects
-import com.ericsson.otp.erlang.OtpErlangString
-import org.erlide.engine.util.ResourceUtil
 
 public class BuilderEventHandler extends ErlangEventHandler {
 

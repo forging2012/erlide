@@ -4,9 +4,9 @@ import com.google.common.collect.Lists
 import java.util.Collection
 import java.util.Collections
 import java.util.List
+import org.eclipse.core.filesystem.URIUtil
 import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.IPath
-import org.eclipse.core.filesystem.URIUtil
 
 class PathResolver {
 

@@ -67,11 +67,6 @@ package org.fishwife.jrugged;
  *    }
  * }
  * 
- * 
- * 
- *
- *
- *
  *
  * </pre>
  */
