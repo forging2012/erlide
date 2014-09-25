@@ -38,7 +38,7 @@ import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.erlang.SourceKind;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.util.ResourceUtil;
-import org.erlide.runtime.api.IRpcSite;
+import org.erlide.runtime.api.IOtpRpc;
 import org.erlide.runtime.rpc.RpcException;
 import org.erlide.util.ErlLogger;
 
@@ -143,11 +143,11 @@ public final class BuilderHelper {
         }
     }
 
-    public void checkForClashes(final IRpcSite backend, final IProject project) {
+    public void checkForClashes(final IOtpRpc backend, final IProject project) {
         createMarkersForDuplicateModuleNames(backend, project);
     }
 
-    private void createMarkersForDuplicateModuleNames(final IRpcSite backend,
+    private void createMarkersForDuplicateModuleNames(final IOtpRpc backend,
             final IProject project) {
         try {
             final IErlProject erlProject = ErlangEngine.getInstance().getModel()
@@ -205,7 +205,7 @@ public final class BuilderHelper {
             final IBackendManager backendManager = BackendCore.getBackendManager();
             for (final IBackend b : backendManager.getExecutionBackends(project)) {
                 ErlLogger.debug(":: loading %s in %s", module, b.getName());
-                b.getRpcSite().call("erlide_util", "load", "ao", module,
+                b.getOtpRpc().call("erlide_util", "load", "ao", module,
                         b.getData().shouldLoadOnAllNodes());
                 backendManager.moduleLoaded(b, project, module);
             }
@@ -214,7 +214,7 @@ public final class BuilderHelper {
         }
     }
 
-    public static OtpErlangList getSourceClashes(final IRpcSite backend,
+    public static OtpErlangList getSourceClashes(final IOtpRpc backend,
             final String[] dirList) throws RpcException {
         final OtpErlangObject res = backend.call(ERLIDE_BUILDER, "source_clash", "ls",
                 (Object) dirList);
@@ -224,7 +224,7 @@ public final class BuilderHelper {
         throw new RpcException("bad result from erlide_builder:source_clash: " + res);
     }
 
-    public static OtpErlangList getCodeClashes(final IRpcSite b) throws RpcException {
+    public static OtpErlangList getCodeClashes(final IOtpRpc b) throws RpcException {
         final OtpErlangList res = (OtpErlangList) b.call(ERLIDE_BUILDER, "code_clash",
                 null);
         return res;

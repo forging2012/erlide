@@ -127,25 +127,25 @@ public class InternalBuilderRebar extends ErlangBuilder {
                 final OtpErlangObject projectInfo = BuilderUtils
                         .createProjectInfo(erlProject);
                 if (kind == BuildKind.FULL) {
-                    backend.getRpcSite().call(30000, "erlide_builder_rebar", "clean",
-                            "x", projectInfo);
+                    backend.getOtpRpc().call(30000, "erlide_builder_rebar", "clean", "x",
+                            projectInfo);
                 }
 
-                backend.getRpcSite().call(30000, "erlide_builder_rebar", "build", "x",
+                backend.getOtpRpc().call(30000, "erlide_builder_rebar", "build", "x",
                         projectInfo);
 
                 if (compileEunit) {
-                    backend.getRpcSite().call(30000, "erlide_builder_rebar",
+                    backend.getOtpRpc().call(30000, "erlide_builder_rebar",
                             "build_eunit", "x", projectInfo);
                 }
 
                 if (runXref) {
-                    backend.getRpcSite().call(30000, "erlide_builder_rebar", "xref", "x",
+                    backend.getOtpRpc().call(30000, "erlide_builder_rebar", "xref", "x",
                             projectInfo);
                 }
                 if (runEunit) {
-                    backend.getRpcSite().call(30000, "erlide_builder_rebar", "eunit",
-                            "x", projectInfo);
+                    backend.getOtpRpc().call(30000, "erlide_builder_rebar", "eunit", "x",
+                            projectInfo);
                 }
 
             } catch (final RpcException e) {
@@ -188,7 +188,7 @@ public class InternalBuilderRebar extends ErlangBuilder {
             try {
                 final OtpErlangObject projectInfo = BuilderUtils
                         .createProjectInfo(erlProject);
-                backend.getRpcSite().call("erlide_builder_rebar", "clean", "x",
+                backend.getOtpRpc().call("erlide_builder_rebar", "clean", "x",
                         projectInfo);
                 project.refreshLocal(IResource.DEPTH_INFINITE, null);
 
