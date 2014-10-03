@@ -20,7 +20,7 @@
     <property name="WORKSPACE" location="${ant.file}/../../" />
     <property name="build.root" location="${WORKSPACE}/buildroot" />
     <property name="projects.location" location="${WORKSPACE}" />
-    <property name="target.platform" value="target.platform" />
+    <property name="target.platform" value="target.platform.42" />
     <property name="eclipse.download" value="http://download.eclipse.org" />
 
     <!-- tools.home must match what is in setup_tools.sh -->

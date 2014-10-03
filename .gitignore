@@ -45,3 +45,4 @@ junit.xml
 .rebar
 .eunit
 org.erlide.ui.tests/projects/main_prj/rebar.config
+*.pmd
