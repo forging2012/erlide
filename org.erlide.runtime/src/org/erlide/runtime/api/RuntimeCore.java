@@ -19,9 +19,10 @@ public class RuntimeCore {
             runtimeInfoCatalog = new RuntimeInfoCatalog();
             runtimeInfoCatalog.setRuntimes(data.runtimes, data.defaultRuntimeName,
                     data.erlideRuntimeName);
-            final RuntimeInfo erlideRuntime = runtimeInfoCatalog.erlideRuntime;
-            if (erlideRuntime != null) {
-                HostnameUtils.detectHostNames(erlideRuntime.getOtpHome());
+            for (final RuntimeInfo info : runtimeInfoCatalog.getRuntimes()) {
+                if (HostnameUtils.detectHostNames(info.getOtpHome())) {
+                    break;
+                }
             }
         }
         return runtimeInfoCatalog;

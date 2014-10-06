@@ -150,7 +150,7 @@ public final class RuntimeInfo {
 
     public static boolean validateLocation(final String path) {
         final String v = getRuntimeVersion(path);
-        return v != null;
+        return v != null && isValidOtpHome(path);
     }
 
     public static boolean isValidOtpHome(final String otpHome) {

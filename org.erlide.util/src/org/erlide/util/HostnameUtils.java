@@ -51,29 +51,36 @@ public class HostnameUtils {
      * Start erlang nodes and find out how they resolve the long/short host
      * names.
      */
-    public static void detectHostNames(final String otpHome) {
+    public static boolean detectHostNames(final String otpHome) {
         final ErlangHostnameRetriever retriever = new ErlangHostnameRetriever(otpHome);
-        final String forcedLongName = System.getProperty("erlide.long.name");
-        if (!Strings.isNullOrEmpty(forcedLongName)) {
-            erlangLongName = forcedLongName;
-        } else {
-            erlangLongName = retriever.checkHostName(true);
-            if (erlangLongName == null) {
-                erlangLongName = retriever.checkHostName(true, getJavaLongHostName());
+        try {
+            final String forcedLongName = System.getProperty("erlide.long.name");
+            if (!Strings.isNullOrEmpty(forcedLongName)) {
+                erlangLongName = forcedLongName;
+            } else {
+                erlangLongName = retriever.checkHostName(true);
+                if (erlangLongName == null) {
+                    erlangLongName = retriever.checkHostName(true, getJavaLongHostName());
+                }
             }
-        }
-        final String forcedShortName = System.getProperty("erlide.short.name");
-        if (!Strings.isNullOrEmpty(forcedShortName)) {
-            erlangShortName = forcedShortName;
-        } else {
-            erlangShortName = retriever.checkHostName(false);
-            if (erlangShortName == null) {
-                erlangShortName = retriever.checkHostName(false, getJavaShortHostName());
+            final String forcedShortName = System.getProperty("erlide.short.name");
+            if (!Strings.isNullOrEmpty(forcedShortName)) {
+                erlangShortName = forcedShortName;
+            } else {
+                erlangShortName = retriever.checkHostName(false);
+                if (erlangShortName == null) {
+                    erlangShortName = retriever.checkHostName(false,
+                            getJavaShortHostName());
+                }
             }
+            ErlLogger.debug("Detected:: %s%s && %s%s", erlangShortName,
+                    forcedShortName != null ? "(forced)" : "", erlangLongName,
+                    forcedLongName != null ? "(forced)" : "");
+            return true;
+        } catch (final Exception e) {
+            ErlLogger.error(e);
+            return false;
         }
-        ErlLogger.debug("Detected:: %s%s && %s%s", erlangShortName,
-                forcedShortName != null ? "(forced)" : "", erlangLongName,
-                forcedLongName != null ? "(forced)" : "");
     }
 
     public static String getErlangLongHostName() {
