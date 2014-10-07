@@ -5,12 +5,14 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.erlide.runtime.api.IOtpRpc;
 import org.erlide.runtime.api.RuntimeData;
 import org.erlide.runtime.rpc.RpcException;
 import org.erlide.runtime.runtimeinfo.RuntimeInfo;
 import org.erlide.runtime.runtimeinfo.RuntimeInfoCatalog;
 import org.erlide.util.ErlLogger;
+import org.erlide.util.SystemConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,14 +23,13 @@ import com.google.common.util.concurrent.Service.State;
 public class OtpNodeProxyTest {
 
     private Process process;
-    private ManagedOtpNodeProxy runtime;
+    private OtpNodeProxy nodeProxy;
     private RuntimeInfo info;
 
     @Before
     public void prepareRuntime() {
         final RuntimeInfoCatalog cat = new RuntimeInfoCatalog();
         cat.initializeRuntimesList();
-        System.out.println(cat.getRuntimes());
         assertThat("empty runtime list", !cat.getRuntimes().isEmpty());
         info = cat.getRuntimes().iterator().next();
         assertThat("no default info", info != RuntimeInfo.NO_RUNTIME_INFO);
@@ -38,11 +39,19 @@ public class OtpNodeProxyTest {
         data.setLongName(false);
         data.setCookie("c");
 
-        runtime = new ManagedOtpNodeProxy(data);
-        runtime.startAsync();
-        runtime.awaitRunning();
-        process = runtime.getProcess();
-        assertThat("beam process", process, is(not(nullValue())));
+        final ErtsProcess erts = new ErtsProcess(data);
+        erts.startUp();
+        nodeProxy = new OtpNodeProxy(data);
+        nodeProxy.startAndWait();
+        nodeProxy.addStatusHandler(new Procedure1<Boolean>() {
+            @Override
+            public void apply(final Boolean p) {
+                nodeProxy.triggerShutdown();
+            }
+        });
+
+        process = erts.getProcess();
+        assertThat("beam process didn't start", process, is(not(nullValue())));
     }
 
     @After
@@ -51,7 +60,7 @@ public class OtpNodeProxyTest {
             process.destroy();
         }
         process = null;
-        runtime = null;
+        nodeProxy = null;
     }
 
     @Test
@@ -63,8 +72,8 @@ public class OtpNodeProxyTest {
             val = -1;
         }
         assertThat("bad exit value", val, is(-1));
-        assertThat("not running", runtime.isRunning(), is(true));
-        final IOtpRpc site = runtime.getOtpRpc();
+        assertThat("not running", nodeProxy.isRunning(), is(true));
+        final IOtpRpc site = nodeProxy.getOtpRpc();
         OtpErlangObject r;
         try {
             r = site.call("erlang", "now", "");
@@ -76,50 +85,51 @@ public class OtpNodeProxyTest {
             site.cast("erlang", "halt", "i", 0);
         } catch (final RpcException e1) {
         }
-        expect(runtime, process, 0, State.TERMINATED);
+        expect(nodeProxy, process, 0, State.TERMINATED);
     }
 
     @Test
     public void shutdownIsDetected() {
-        final IOtpRpc site = runtime.getOtpRpc();
+        final IOtpRpc site = nodeProxy.getOtpRpc();
         try {
             site.cast("erlang", "halt", "i", 0);
         } catch (final RpcException e1) {
         }
-        expect(runtime, process, 0, State.TERMINATED);
+        expect(nodeProxy, process, 0, State.TERMINATED);
     }
 
     @Test
     public void exitCodeIsDetected() {
-        final IOtpRpc site = runtime.getOtpRpc();
+        final IOtpRpc site = nodeProxy.getOtpRpc();
         try {
             site.cast("erlang", "halt", "i", 3);
         } catch (final RpcException e1) {
         }
-        expect(runtime, process, 3, State.FAILED);
+        expect(nodeProxy, process, 3, State.TERMINATED);
     }
 
     @Test
     public void crashIsDetected() {
         process.destroy();
-        expect(runtime, process, 143, State.FAILED);
+        final int code = SystemConfiguration.getInstance().isOnWindows() ? 1 : 143;
+        expect(nodeProxy, process, code, State.TERMINATED);
     }
 
     @Test
     public void haltIsDetected() throws RpcException {
-        runtime.getOtpRpc().cast("erlang", "halt", "i", 136);
-        expect(runtime, process, 136, State.FAILED);
+        nodeProxy.getOtpRpc().cast("erlang", "halt", "i", 136);
+        expect(nodeProxy, process, 136, State.TERMINATED);
     }
 
-    private void expect(final OtpNodeProxy aRuntime, final Process aProcess,
+    private void expect(final OtpNodeProxy aNodeProxy, final Process aProcess,
             final int code, final State state) {
-        while (aRuntime.isRunning()) {
+        while (aNodeProxy.isRunning()) {
             try {
                 Thread.sleep(OtpNodeProxy.POLL_INTERVAL);
             } catch (final InterruptedException e) {
             }
         }
-        assertThat("state", aRuntime.state(), is(state));
+        assertThat("state", aNodeProxy.state(), is(state));
         if (aProcess != null) {
             int val;
             try {
@@ -134,7 +144,7 @@ public class OtpNodeProxyTest {
     @Test
     public void nonManagedRuntimeWorks() {
         final RuntimeData data = new RuntimeData(info, "run");
-        data.setNodeName(runtime.getNodeName());
+        data.setNodeName(nodeProxy.getNodeName());
         data.setLongName(false);
         data.setCookie("c");
         data.setManaged(false);
@@ -142,10 +152,6 @@ public class OtpNodeProxyTest {
         final OtpNodeProxy runtime2 = new OtpNodeProxy(data);
         runtime2.startAsync();
         runtime2.awaitRunning();
-
-        final Process process2 = runtime2.getProcess();
-        assertThat("running", runtime2.isRunning(), is(true));
-        assertThat("beam process", process2, is(nullValue()));
 
         final IOtpRpc site = runtime2.getOtpRpc();
         OtpErlangObject r;
@@ -161,7 +167,6 @@ public class OtpNodeProxyTest {
         } catch (final Throwable t) {
             ErlLogger.error(t);
         }
-        expect(runtime2, process2, -1, State.TERMINATED);
-        assertThat("state", runtime.state(), is(State.RUNNING));
+        assertThat("state", nodeProxy.state(), is(State.RUNNING));
     }
 }

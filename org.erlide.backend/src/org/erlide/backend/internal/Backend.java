@@ -37,7 +37,9 @@ import org.erlide.backend.debug.BeamUtil;
 import org.erlide.backend.debug.ErlideDebug;
 import org.erlide.backend.debug.model.ErlangDebugTarget;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.runtime.ErtsProcess;
 import org.erlide.runtime.api.BeamLoader;
+import org.erlide.runtime.api.ErlRuntimeReporter;
 import org.erlide.runtime.api.IOtpNodeProxy;
 import org.erlide.runtime.api.IOtpRpc;
 import org.erlide.runtime.shell.IBackendShell;
@@ -52,22 +54,23 @@ import com.google.common.collect.Lists;
 
 public abstract class Backend implements IStreamListener, IBackend {
 
-    private final IOtpNodeProxy runtime;
+    private final IOtpNodeProxy nodeProxy;
+    private final BackendData data;
+    private final ErtsProcess erts;
+
     private BackendShellManager shellManager;
     private final CodeManager codeManager;
-
-    private final BackendData data;
     private ErlangDebugTarget debugTarget;
-    protected final IBackendManager backendManager;
     private boolean disposed = false;
 
-    public Backend(final BackendData data, @NonNull final IOtpNodeProxy runtime,
-            final IBackendManager backendManager) {
-        this.runtime = runtime;
+    public Backend(final BackendData data, @NonNull final IOtpNodeProxy nodeProxy,
+            final ErtsProcess erts) {
+        this.nodeProxy = nodeProxy;
         this.data = data;
-        this.backendManager = backendManager;
+        this.erts = erts;
         codeManager = new CodeManager(getOtpRpc(), data.getRuntimeInfo().getName(), data
                 .getRuntimeInfo().getVersion());
+        shellManager = new BackendShellManager(this);
     }
 
     @Override
@@ -83,13 +86,16 @@ public abstract class Backend implements IStreamListener, IBackend {
             shellManager.dispose();
             shellManager = null;
         }
-        runtime.dispose();
+        nodeProxy.dispose();
+        if (erts != null) {
+            erts.shutDown();
+        }
         BackendCore.getBackendManager().removeBackend(this);
     }
 
     @Override
     public String getName() {
-        return runtime.getNodeName();
+        return nodeProxy.getNodeName();
     }
 
     protected boolean startErlideApps(final OtpErlangPid jRex, final boolean watch) {
@@ -117,7 +123,7 @@ public abstract class Backend implements IStreamListener, IBackend {
 
     @Override
     public boolean isRunning() {
-        return runtime.isRunning();
+        return nodeProxy.isRunning();
     }
 
     public void removePath(final @NonNull String path) {
@@ -129,7 +135,7 @@ public abstract class Backend implements IStreamListener, IBackend {
     }
 
     public synchronized void initErlang(final boolean watch) {
-        startErlideApps(getRuntime().getEventPid(), watch);
+        startErlideApps(getNodeProxy().getEventPid(), watch);
     }
 
     @Override
@@ -245,33 +251,12 @@ public abstract class Backend implements IStreamListener, IBackend {
         return null;
     }
 
-    protected void postLaunch() throws DebugException {
-        final Collection<IProject> projects = Lists.newArrayList(data.getProjects());
-        registerProjectsWithExecutionBackend(projects);
-        if (data.isDebug()) {
-            // add debugTarget
-            final ILaunch launch = getData().getLaunch();
-            if (!debuggerIsRunning()) {
-                debugTarget = new ErlangDebugTarget(launch, this, projects);
-                launch.addDebugTarget(debugTarget);
-                registerStartupFunctionStarter(data);
-                debugTarget.sendStarted();
-            }
-        } else if (data.isManaged()) {
-            // don't run this if the node is already running
-            final ErlangFunctionCall initCall = data.getInitialCall();
-            if (initCall != null) {
-                runInitial(initCall.getModule(), initCall.getName(),
-                        initCall.getParameters());
-            }
-        }
-    }
-
     private boolean debuggerIsRunning() {
         return ErlideDebug.isRunning(getOtpRpc());
     }
 
-    private void registerProjectsWithExecutionBackend(final Collection<IProject> projects) {
+    private void registerProjectsWithExecutionBackend(
+            final Collection<IProject> projects, final IBackendManager backendManager) {
         for (final IProject project : projects) {
             backendManager.addExecutionBackend(project, this);
         }
@@ -314,19 +299,38 @@ public abstract class Backend implements IStreamListener, IBackend {
     }
 
     @Override
-    public void initialize(final CodeContext context,
-            final Collection<ICodeBundle> bundles) {
-        runtime.setShutdownCallback(this);
-        shellManager = new BackendShellManager(this);
-        for (final ICodeBundle bb : bundles) {
+    public void initialize(final CodeContext context, final IBackendManager backendManager) {
+        setupPeer(context, backendManager);
+    }
+
+    public void setupPeer(final CodeContext context, final IBackendManager backendManager) {
+        for (final ICodeBundle bb : backendManager.getCodeBundles()) {
             registerCodeBundle(context, bb);
         }
         initErlang(data.isManaged());
-
-        try {
-            postLaunch();
-        } catch (final DebugException e) {
-            ErlLogger.error(e);
+        if (data.isManaged()) {
+            // don't run this if the node is already running
+            final ErlangFunctionCall initCall = data.getInitialCall();
+            if (initCall != null) {
+                runInitial(initCall.getModule(), initCall.getName(),
+                        initCall.getParameters());
+            }
+        }
+        final Collection<IProject> projects = Lists.newArrayList(data.getProjects());
+        registerProjectsWithExecutionBackend(projects, backendManager);
+        if (data.isDebug()) {
+            // add debugTarget
+            final ILaunch launch = getData().getLaunch();
+            if (!debuggerIsRunning()) {
+                try {
+                    debugTarget = new ErlangDebugTarget(launch, this, projects);
+                    launch.addDebugTarget(debugTarget);
+                    registerStartupFunctionStarter(data);
+                    debugTarget.sendStarted();
+                } catch (final DebugException e) {
+                    ErlLogger.error(e);
+                }
+            }
         }
     }
 
@@ -334,17 +338,12 @@ public abstract class Backend implements IStreamListener, IBackend {
 
     @Override
     public IOtpRpc getOtpRpc() {
-        return runtime.getOtpRpc();
+        return nodeProxy.getOtpRpc();
     }
 
     @Override
-    public IOtpNodeProxy getRuntime() {
-        return runtime;
-    }
-
-    @Override
-    public void onShutdown() {
-        dispose();
+    public IOtpNodeProxy getNodeProxy() {
+        return nodeProxy;
     }
 
     private void loadBeamsFromDir(final String outDir) {
@@ -378,6 +377,54 @@ public abstract class Backend implements IStreamListener, IBackend {
             return "debug".equals(getData().getLaunch().getLaunchMode());
         } catch (final Exception e) {
             return false;
+        }
+    }
+
+    @Override
+    public ErtsProcess getErtsProcess() {
+        return erts;
+    }
+
+    public void handleCrash(final IBackendManager backendManager) {
+        if (isCrashed()) {
+            ErlLogger.debug("Backend " + getName() + " crashed");
+            if (shouldRestart()) {
+                // TODO keep track of how many restarts?
+                ErlLogger.debug("Restarting backend " + getName());
+                erts.shutDown();
+                erts.startUp();
+                if (nodeProxy.connect()) {
+                    setupPeer(data.getContext(), backendManager);
+                }
+            } else {
+                reportCrash();
+            }
+        }
+    }
+
+    protected boolean isCrashed() {
+        return !disposed;
+    }
+
+    protected abstract boolean shouldRestart();
+
+    private void reportCrash() {
+        final int exitCode = erts.getExitCode();
+        if (exitCode < 0) {
+            return;
+        }
+        ErlLogger.warn(String.format("Node %s crashed, exit code: %d.", getName(),
+                exitCode));
+
+        final ErlRuntimeReporter reporter = new ErlRuntimeReporter(data.isInternal(),
+                data.isReportErrors());
+        reporter.reportRuntimeDown(getName());
+        try {
+            if (data.isReportErrors()) {
+                reporter.createFileReport(getName(), exitCode);
+            }
+        } catch (final Exception t) {
+            ErlLogger.warn(t);
         }
     }
 

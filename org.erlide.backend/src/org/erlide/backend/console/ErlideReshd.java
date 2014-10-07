@@ -10,10 +10,10 @@ import com.ericsson.otp.erlang.OtpErlangPid;
 public class ErlideReshd implements ShellService {
 
     @Override
-    public OtpErlangPid start(final IOtpNodeProxy runtime) {
+    public OtpErlangPid start(final IOtpNodeProxy nodeProxy) {
         try {
-            final OtpErlangObject r = runtime.getOtpRpc().call("erlide_shell", "start",
-                    "p", runtime.getEventPid());
+            final OtpErlangObject r = nodeProxy.getOtpRpc().call("erlide_shell", "start",
+                    "p", nodeProxy.getEventPid());
             final OtpErlangPid server = (OtpErlangPid) BackendUtils.ok(r);
             return server;
         } catch (final RpcException e) {

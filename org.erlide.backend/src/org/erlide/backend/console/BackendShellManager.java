@@ -41,7 +41,7 @@ public class BackendShellManager implements IDisposable {
         if (shell == null) {
             OtpErlangPid server = null;
             try {
-                server = new ErlideReshd().start(backend.getRuntime());
+                server = new ErlideReshd().start(backend.getNodeProxy());
             } catch (final Exception e) {
                 ErlLogger.warn(e);
             }

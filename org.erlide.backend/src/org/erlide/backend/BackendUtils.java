@@ -71,9 +71,9 @@ public class BackendUtils {
         return reg.getExtensionPoint(BackendActivator.PLUGIN_ID, "codepath");
     }
 
-    public static boolean isAccessibleDir(final IOtpRpc backend, final String localDir) {
+    public static boolean isAccessibleDir(final IOtpRpc otpRpc, final String localDir) {
         try {
-            final OtpErlangObject r = backend.call("file", "read_file_info", "s",
+            final OtpErlangObject r = otpRpc.call("file", "read_file_info", "s",
                     localDir);
             if (Util.isOk(r)) {
                 final OtpErlangTuple result = (OtpErlangTuple) r;

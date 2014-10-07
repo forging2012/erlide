@@ -16,58 +16,56 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.erlide.runtime.api.RuntimeData;
-import org.erlide.runtime.internal.ErlRuntimeException;
+import org.erlide.runtime.internal.ErtsException;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.SystemConfiguration;
 
-public class ManagedOtpNodeProxy extends OtpNodeProxy {
+public class ErtsProcess {
 
     private Process process;
     private volatile int exitCode;
+    private final RuntimeData data;
 
     private static final long EXIT_POLL_INTERVAL = 500;
 
-    public ManagedOtpNodeProxy(final RuntimeData data) {
-        super(data);
+    public ErtsProcess(final RuntimeData data) {
+        this.data = data;
     }
 
-    @Override
-    protected void startUp() throws Exception {
-        exitCode = -1;
-        process = startRuntimeProcess(data);
-        if (process == null) {
-            throw new Exception("no runtime");
+    public synchronized void startUp() {
+        if (process != null) {
+            return;
         }
-        super.startUp();
+        exitCode = -1;
+        process = startRuntimeProcess();
+        if (process == null) {
+            throw new IllegalStateException("Could not start runtime process " + data);
+        }
     }
 
-    @Override
-    protected void shutDown() throws Exception {
-        super.shutDown();
+    public synchronized void shutDown() {
         process.destroy();
         process = null;
     }
 
-    @Override
     public Process getProcess() {
-        awaitRunning();
         return process;
     }
 
-    private Process startRuntimeProcess(final RuntimeData rtData) {
-        final String[] cmds = rtData.getCmdLine();
-        final File workingDirectory = new File(rtData.getWorkingDir());
+    private Process startRuntimeProcess() {
+        final String[] cmds = data.getCmdLine();
+        final File workingDirectory = new File(data.getWorkingDir());
 
         try {
             ErlLogger.debug("START node :> " + Arrays.toString(cmds) + " *** "
                     + workingDirectory.getCanonicalPath());
         } catch (final IOException e1) {
-            ErlLogger.error("START ERROR node :> " + e1.getMessage());
+            // ignore
         }
 
         final ProcessBuilder builder = new ProcessBuilder(cmds);
         builder.directory(workingDirectory);
-        setEnvironment(rtData, builder);
+        setEnvironment(data, builder);
         try {
             final Process aProcess = builder.start();
             return aProcess;
@@ -89,9 +87,14 @@ public class ManagedOtpNodeProxy extends OtpNodeProxy {
         }
     }
 
-    @Override
-    protected void waitForExit() throws ErlRuntimeException {
+    /**
+     * To be called only when we want to make sure the process has exited.
+     *
+     * @throws ErtsException
+     */
+    public void waitForExit() throws ErtsException {
         if (process != null) {
+            // give up after 4 minutes
             int i = 500;
             // may have to wait for crash dump to be written
             while (i-- > 0 && exitCode < 0) {
@@ -100,25 +103,32 @@ public class ManagedOtpNodeProxy extends OtpNodeProxy {
                     Thread.sleep(EXIT_POLL_INTERVAL);
                     exitCode = process.exitValue();
                 } catch (final IllegalThreadStateException e) {
+                    // keep trying
                 } catch (final InterruptedException e) {
-                }
-                if (exitCode > 0) {
-                    throw new ErlRuntimeException(String.format(
-                            "Runtime %s died with exit code %d", getNodeName(), exitCode));
+                    // keep trying
                 }
             }
-            if (exitCode < 0) {
-                ErlLogger.warn(
-                        "Runtime %s died, but process is still running; killing it",
-                        getNodeName());
-                throw new ErlRuntimeException(String.format(
-                        "Runtime %s died with exit code unknown", getNodeName()));
+            if (i <= 0) {
+                throw new ErtsException("Process " + data.getNodeName()
+                        + " didn't exit in time... giving up");
             }
         }
     }
 
-    @Override
     public int getExitCode() {
         return exitCode;
     }
+
+    public boolean isRunning() {
+        if (process == null) {
+            return false;
+        }
+        try {
+            exitCode = process.exitValue();
+            return false;
+        } catch (final IllegalThreadStateException e) {
+            return true;
+        }
+    }
+
 }

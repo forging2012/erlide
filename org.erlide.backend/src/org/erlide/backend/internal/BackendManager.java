@@ -280,12 +280,12 @@ public final class BackendManager implements IBackendManager {
         }
         final Collection<IBackend> list = getAllBackends();
         for (final IBackend b : list) {
-            if (b.getRuntime().getVersion().equals(version)) {
+            if (b.getNodeProxy().getVersion().equals(version)) {
                 return b.getOtpRpc();
             }
         }
         for (final IBackend b : list) {
-            if (b.getRuntime().getVersion().isCompatible(version)) {
+            if (b.getNodeProxy().getVersion().isCompatible(version)) {
                 return b.getOtpRpc();
             }
         }

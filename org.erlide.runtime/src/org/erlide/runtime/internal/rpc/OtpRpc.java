@@ -6,13 +6,13 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.erlide.runtime.api.IOtpNodeProxy;
 import org.erlide.runtime.api.IOtpRpc;
 import org.erlide.runtime.rpc.IRpcCallback;
 import org.erlide.runtime.rpc.IRpcResultCallback;
 import org.erlide.runtime.rpc.RpcException;
 import org.erlide.runtime.rpc.RpcFuture;
 import org.erlide.runtime.rpc.RpcMonitor;
+import org.erlide.runtime.rpc.RpcNoTargetException;
 import org.erlide.runtime.rpc.RpcResult;
 import org.erlide.runtime.rpc.RpcTimeoutException;
 import org.erlide.util.ErlLogger;
@@ -52,16 +52,13 @@ public class OtpRpc implements IOtpRpc {
     private static final ExecutorService threadPool = Executors
             .newCachedThreadPool(threadFactory);
 
-    private final IOtpNodeProxy runtime;
     private final String nodeName;
     private final OtpNode localNode;
-    private volatile boolean connected;
+    private boolean connected;
 
-    public OtpRpc(final IOtpNodeProxy runtime, final OtpNode localNode,
-            final String nodeName) {
-        this.runtime = runtime;
+    public OtpRpc(final OtpNode localNode, final String peerNode) {
         this.localNode = localNode;
-        this.nodeName = nodeName;
+        this.nodeName = peerNode;
         connected = false;
     }
 
@@ -91,7 +88,6 @@ public class OtpRpc implements IOtpRpc {
     public RpcFuture async_call(final OtpErlangObject gleader, final String module,
             final String fun, final String signature, final Object... args0)
             throws RpcException {
-        checkConnected();
         try {
             return sendRpcCall(localNode, nodeName, false, gleader, module, fun,
                     signature, args0);
@@ -117,7 +113,6 @@ public class OtpRpc implements IOtpRpc {
     public void async_call_cb(final IRpcCallback cb, final long timeout,
             final OtpErlangObject gleader, final String module, final String fun,
             final String signature, final Object... args) throws RpcException {
-        checkConnected();
         try {
             final RpcFuture future = sendRpcCall(localNode, nodeName, false, gleader,
                     module, fun, signature, args);
@@ -138,7 +133,7 @@ public class OtpRpc implements IOtpRpc {
             // We can't use jobs here, it's an Eclipse dependency
             threadPool.execute(target);
         } catch (final SignatureException e) {
-            throw new RpcException(e);
+            // throw new RpcException(e);
         }
     }
 
@@ -146,18 +141,19 @@ public class OtpRpc implements IOtpRpc {
     public OtpErlangObject call(final long timeout, final OtpErlangObject gleader,
             final String module, final String fun, final String signature,
             final Object... args0) throws RpcException {
-        checkConnected();
-        OtpErlangObject result = null;
+        OtpErlangObject result;
         try {
             final RpcFuture future = sendRpcCall(localNode, nodeName, false, gleader,
                     module, fun, signature, args0);
-            result = future.checkedGet(timeout, TimeUnit.MILLISECONDS);
+            OtpErlangObject result1;
+            result1 = future.checkedGet(timeout, TimeUnit.MILLISECONDS);
             if (CHECK_RPC) {
-                ErlLogger.debug("RPC result:: " + result);
+                ErlLogger.debug("RPC result:: " + result1);
             }
-            if (isBadRpc(result)) {
-                throw new RpcException("Bad RPC: " + result);
+            if (isBadRpc(result1)) {
+                throw new RpcException(result1.toString());
             }
+            result = result1;
         } catch (final SignatureException e) {
             throw new RpcException(e);
         } catch (final TimeoutException e) {
@@ -177,11 +173,10 @@ public class OtpRpc implements IOtpRpc {
     public void cast(final OtpErlangObject gleader, final String module,
             final String fun, final String signature, final Object... args0)
             throws RpcException {
-        checkConnected();
         try {
             rpcCast(localNode, nodeName, false, gleader, module, fun, signature, args0);
         } catch (final SignatureException e) {
-            throw new RpcException(e);
+            // throw new RpcException(e);
         }
     }
 
@@ -194,7 +189,6 @@ public class OtpRpc implements IOtpRpc {
     @Override
     public void send(final OtpErlangPid pid, final Object msg) {
         try {
-            checkConnected();
             final OtpMbox mbox = localNode.createMbox();
             try {
                 if (mbox != null) {
@@ -211,9 +205,13 @@ public class OtpRpc implements IOtpRpc {
     }
 
     @Override
+    public void send(final String name, final Object msg) {
+        send(nodeName, name, msg);
+    }
+
+    @Override
     public void send(final String fullNodeName, final String name, final Object msg) {
         try {
-            checkConnected();
             send(localNode, fullNodeName, name, msg);
         } catch (final Exception e) {
         }
@@ -248,26 +246,6 @@ public class OtpRpc implements IOtpRpc {
         return call(DEFAULT_TIMEOUT, m, f, signature, a);
     }
 
-    @Override
-    public void send(final String name, final Object msg) {
-        try {
-            checkConnected();
-            send(localNode, nodeName, name, msg);
-        } catch (final Exception e) {
-        }
-    }
-
-    private void checkConnected() throws RpcException {
-        if (!isConnected()) {
-            throw new RpcException(
-                    String.format("backend %s down", runtime.getNodeName()));
-        }
-    }
-
-    public boolean isConnected() {
-        return connected;
-    }
-
     private static void setDefaultTimeout() {
         final String t = System.getProperty("erlide.rpc.timeout", "9000");
         if ("infinity".equals(t)) {
@@ -282,14 +260,18 @@ public class OtpRpc implements IOtpRpc {
     }
 
     private void send(final OtpNode node, final String peer, final String name,
-            final Object msg) throws SignatureException {
+            final Object msg) {
         final OtpMbox mbox = node.createMbox();
         try {
             if (mbox != null) {
                 if (CHECK_RPC) {
                     ErlLogger.debug("SEND " + name + "-> " + msg);
                 }
-                mbox.send(name, peer, TypeConverter.java2erlang(msg, "x"));
+                try {
+                    mbox.send(name, peer, TypeConverter.java2erlang(msg, "x"));
+                } catch (final SignatureException e) {
+                    // ignore
+                }
             }
         } finally {
             node.closeMbox(mbox);
@@ -310,7 +292,11 @@ public class OtpRpc implements IOtpRpc {
     private synchronized RpcFuture sendRpcCall(final OtpNode node, final String peer,
             final boolean logCalls, final OtpErlangObject gleader, final String module,
             final String fun, final String signature, final Object... args0)
-            throws SignatureException {
+            throws SignatureException, RpcNoTargetException {
+        if (!connected) {
+            throw new RpcNoTargetException();
+        }
+
         final OtpErlangObject[] args = convertArgs(signature, args0);
 
         OtpErlangObject res = null;
@@ -408,7 +394,12 @@ public class OtpRpc implements IOtpRpc {
 
     private void rpcCast(final OtpNode node, final String peer, final boolean logCalls,
             final OtpErlangObject gleader, final String module, final String fun,
-            final String signature, final Object... args0) throws SignatureException {
+            final String signature, final Object... args0) throws SignatureException,
+            RpcNoTargetException {
+        if (!connected) {
+            throw new RpcNoTargetException();
+        }
+
         final OtpErlangObject[] args = convertArgs(signature, args0);
 
         OtpErlangObject msg = null;

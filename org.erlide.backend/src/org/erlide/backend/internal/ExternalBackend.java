@@ -16,15 +16,15 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.erlide.backend.api.BackendData;
-import org.erlide.backend.api.IBackendManager;
+import org.erlide.runtime.ErtsProcess;
 import org.erlide.runtime.api.IOtpNodeProxy;
 import org.erlide.util.ErlLogger;
 
 public class ExternalBackend extends Backend {
 
-    public ExternalBackend(final BackendData data, final @NonNull IOtpNodeProxy runtime,
-            final IBackendManager backendManager) {
-        super(data, runtime, backendManager);
+    public ExternalBackend(final BackendData data,
+            final @NonNull IOtpNodeProxy nodeProxy, final ErtsProcess erts) {
+        super(data, nodeProxy, erts);
         assignStreamProxyListeners();
     }
 
@@ -32,7 +32,7 @@ public class ExternalBackend extends Backend {
     public synchronized void dispose() {
         try {
             final ILaunch launch = getData().getLaunch();
-            if (!launch.isTerminated()) {
+            if (launch != null && !launch.isTerminated()) {
                 launch.terminate();
             }
         } catch (final DebugException e) {
@@ -43,19 +43,24 @@ public class ExternalBackend extends Backend {
 
     @Override
     protected IStreamsProxy getStreamsProxy() {
-        final IProcess p = getErtsProcess();
+        final IProcess p = getIProcess();
         if (p == null) {
             return null;
         }
         return p.getStreamsProxy();
     }
 
-    private IProcess getErtsProcess() {
-        final IProcess[] ps = getData().getLaunch().getProcesses();
+    private IProcess getIProcess() {
+        final ILaunch launch = getData().getLaunch();
+        final IProcess[] ps = launch.getProcesses();
         if (ps == null || ps.length == 0) {
             return null;
         }
         return ps[0];
     }
 
+    @Override
+    public boolean shouldRestart() {
+        return false;
+    }
 }

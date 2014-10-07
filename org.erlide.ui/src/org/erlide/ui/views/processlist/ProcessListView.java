@@ -86,7 +86,7 @@ public class ProcessListView extends ViewPart {
                 .getName());
 
         public ViewContentProvider() {
-            getBackend().getRuntime().registerEventListener(handler);
+            getBackend().getNodeProxy().registerEventListener(handler);
         }
 
         @Override

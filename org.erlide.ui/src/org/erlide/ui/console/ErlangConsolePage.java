@@ -152,7 +152,7 @@ public class ErlangConsolePage extends Page implements IAdaptable,
     }
 
     boolean isInputComplete() {
-        if (!backend.getRuntime().isRunning()) {
+        if (!backend.getNodeProxy().isRunning()) {
             return false;
         }
         try {

@@ -12,19 +12,27 @@ package org.erlide.backend.internal;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.erlide.backend.api.BackendData;
-import org.erlide.backend.api.IBackendManager;
+import org.erlide.runtime.ErtsProcess;
 import org.erlide.runtime.api.IOtpNodeProxy;
 
 public class InternalBackend extends Backend {
 
-    public InternalBackend(final BackendData data, final @NonNull IOtpNodeProxy runtime,
-            final IBackendManager backendManager) {
-        super(data, runtime, backendManager);
+    public InternalBackend(final BackendData data,
+            final @NonNull IOtpNodeProxy nodeProxy, final ErtsProcess erts) {
+        super(data, nodeProxy, erts);
     }
 
     @Override
-    public void onShutdown() {
-        super.onShutdown();
+    public synchronized void dispose() {
         getData().setLaunch(null);
+        super.dispose();
     }
+
+    @Override
+    protected boolean shouldRestart() {
+        final boolean result = isCrashed() && getErtsProcess() != null;
+        System.out.println(getName() + " >> RESTART? " + result);
+        return result;
+    }
+
 }

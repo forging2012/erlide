@@ -1,17 +1,15 @@
 package org.erlide.backend.api;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import org.erlide.backend.api.ICodeBundle.CodeContext;
+import org.erlide.runtime.ErtsProcess;
 import org.erlide.runtime.api.IOtpNodeProxy;
 import org.erlide.runtime.api.IOtpRpc;
-import org.erlide.runtime.api.IShutdownCallback;
 import org.erlide.runtime.shell.IBackendShell;
 import org.erlide.util.IDisposable;
 
-public interface IBackend extends IShutdownCallback, IDisposable, IPluginCodeLoader,
-        IProjectCodeLoader {
+public interface IBackend extends IDisposable, IPluginCodeLoader, IProjectCodeLoader {
 
     String getName();
 
@@ -19,7 +17,7 @@ public interface IBackend extends IShutdownCallback, IDisposable, IPluginCodeLoa
 
     IOtpRpc getOtpRpc();
 
-    IOtpNodeProxy getRuntime();
+    IOtpNodeProxy getNodeProxy();
 
     boolean isRunning();
 
@@ -27,8 +25,10 @@ public interface IBackend extends IShutdownCallback, IDisposable, IPluginCodeLoa
 
     IBackendShell getShell(String string);
 
-    void initialize(CodeContext context, Collection<ICodeBundle> collection);
+    void initialize(CodeContext context, IBackendManager backendManager);
 
     void input(final String s) throws IOException;
+
+    ErtsProcess getErtsProcess();
 
 }

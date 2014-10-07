@@ -10,18 +10,18 @@
  *******************************************************************************/
 package org.erlide.runtime;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
+import org.erlide.runtime.api.ErlRuntimeReporter;
 import org.erlide.runtime.api.IOtpNodeProxy;
 import org.erlide.runtime.api.IOtpRpc;
-import org.erlide.runtime.api.IShutdownCallback;
 import org.erlide.runtime.api.RuntimeData;
 import org.erlide.runtime.events.ErlEvent;
 import org.erlide.runtime.events.ErlangLogEventHandler;
 import org.erlide.runtime.events.LogEventHandler;
-import org.erlide.runtime.internal.ErlRuntimeException;
-import org.erlide.runtime.internal.ErlRuntimeReporter;
 import org.erlide.runtime.internal.EventParser;
 import org.erlide.runtime.internal.LocalNodeCreator;
 import org.erlide.runtime.internal.rpc.OtpRpc;
@@ -34,28 +34,29 @@ import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangPid;
 import com.ericsson.otp.erlang.OtpMbox;
 import com.ericsson.otp.erlang.OtpNode;
+import com.ericsson.otp.erlang.OtpNodeStatus;
+import com.google.common.collect.Lists;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 
 public class OtpNodeProxy extends AbstractExecutionThreadService implements IOtpNodeProxy {
-    private static final String COULD_NOT_CONNECT = "Could not connect to %s! Please check runtime settings.";
+    private static final String COULD_NOT_CONNECT = "Could not connect to ";
 
     private static final int MAX_RETRIES = 15;
     public static final int RETRY_DELAY = Integer.parseInt(System.getProperty(
             "erlide.connect.delay", "400"));
 
-    protected final RuntimeData data;
+    private final RuntimeData data;
+
     private OtpNode localNode;
-    final ErlRuntimeReporter reporter;
     private OtpMbox eventMBox;
-    private IShutdownCallback callback;
-    private IOtpRpc OtpRpc;
+    private IOtpRpc otpRpc;
     private final EventBus eventBus;
-    protected volatile boolean stopped;
     private final EventParser eventHelper;
-    boolean crashed;
+    private volatile boolean stopped;
+    private final List<Procedure1<Boolean>> statusHandlers = Lists.newArrayList();
 
     static final boolean DEBUG = Boolean.parseBoolean(System
             .getProperty("erlide.event.daemon"));
@@ -63,7 +64,6 @@ public class OtpNodeProxy extends AbstractExecutionThreadService implements IOtp
 
     public OtpNodeProxy(final RuntimeData data) {
         this.data = data;
-        reporter = new ErlRuntimeReporter(data.isInternal());
 
         eventHelper = new EventParser();
         final String nodeName = getNodeName();
@@ -72,35 +72,67 @@ public class OtpNodeProxy extends AbstractExecutionThreadService implements IOtp
         registerEventListener(new LogEventHandler(nodeName));
         registerEventListener(new ErlangLogEventHandler(nodeName));
 
-        addListener(new ErlRuntimeListener(), executor());
+        addListener(new OtpNodeProxyListener(), executor());
     }
 
     @Override
     protected void startUp() throws Exception {
         localNode = LocalNodeCreator.startLocalNode(this, data.getCookie(),
                 data.hasLongName());
-        eventMBox = createMbox("rex");
-        OtpRpc = new OtpRpc(this, localNode, getNodeName());
-        connect();
-        OtpRpc.setConnected(true);
+        registerStatusHandler();
 
+        eventMBox = createMbox("rex");
+        otpRpc = new OtpRpc(getLocalNode(), getNodeName());
+        addStatusHandler(new Procedure1<Boolean>() {
+            @Override
+            public void apply(final Boolean up) {
+                ErlLogger.debug("RPC " + (up ? "up" : "down") + " for "
+                        + data.getNodeName());
+                otpRpc.setConnected(up);
+            }
+        });
+        connect();
+        stopped = false;
+    }
+
+    @Override
+    public boolean connect() {
+        boolean connected = doConnect();
         if (!waitForCodeServer()) {
             triggerShutdown();
             ErlLogger.error(COULD_NOT_CONNECT, getNodeName());
+            connected = false;
         }
-        stopped = false;
-        crashed = false;
+        return connected;
+    }
+
+    private void registerStatusHandler() {
+        final OtpNodeStatus watcher = new OtpNodeStatus() {
+            @Override
+            public void remoteStatus(final String peer, final boolean up,
+                    final Object info) {
+                if (peer.equals(getNodeName())) {
+                    for (final Procedure1<Boolean> handler : statusHandlers) {
+                        try {
+                            handler.apply(up);
+                        } catch (final Exception e) {
+                            // ignore
+                        }
+                    }
+                }
+            }
+        };
+        localNode.registerStatusHandler(watcher);
+    }
+
+    @Override
+    public void addStatusHandler(final Procedure1<Boolean> handler) {
+        statusHandlers.add(handler);
     }
 
     @Override
     protected void shutDown() throws Exception {
         localNode.close();
-
-        if (callback != null) {
-            callback.onShutdown();
-        }
-        callback = null;
-        OtpRpc.setConnected(false);
     }
 
     @Override
@@ -113,10 +145,7 @@ public class OtpNodeProxy extends AbstractExecutionThreadService implements IOtp
         final OtpMbox eventBox = eventMBox;
         do {
             receiveEventMessage(eventBox);
-        } while (!stopped && !crashed);
-        if (crashed && !stopped) {
-            waitForExit();
-        }
+        } while (!stopped);
     }
 
     private void receiveEventMessage(final OtpMbox eventBox) throws OtpErlangExit {
@@ -137,6 +166,11 @@ public class OtpNodeProxy extends AbstractExecutionThreadService implements IOtp
         } catch (final OtpErlangDecodeException e) {
             ErlLogger.error(e);
         }
+    }
+
+    @Override
+    public OtpNode getLocalNode() {
+        return localNode;
     }
 
     @Override
@@ -170,17 +204,8 @@ public class OtpNodeProxy extends AbstractExecutionThreadService implements IOtp
     }
 
     @Override
-    public void setShutdownCallback(final IShutdownCallback aCallback) {
-        callback = aCallback;
-    }
-
-    @Override
     public void dispose() {
         triggerShutdown();
-    }
-
-    @SuppressWarnings("unused")
-    protected void waitForExit() throws ErlRuntimeException {
     }
 
     @Override
@@ -190,13 +215,8 @@ public class OtpNodeProxy extends AbstractExecutionThreadService implements IOtp
             return null;
         } catch (final TimeoutException e) {
             awaitRunning();
-            return OtpRpc;
+            return otpRpc;
         }
-    }
-
-    @Override
-    public Process getProcess() {
-        return null;
     }
 
     @Override
@@ -209,15 +229,15 @@ public class OtpNodeProxy extends AbstractExecutionThreadService implements IOtp
         return getClass().getSimpleName() + " " + getNodeName();
     }
 
-    private void connect() throws Exception {
+    private boolean doConnect() {
         final String label = getNodeName();
         ErlLogger.debug(label + ": waiting connection to peer... ");
 
         final boolean connected = pingPeer();
         if (!connected) {
             ErlLogger.error(COULD_NOT_CONNECT, getNodeName());
-            throw new Exception(COULD_NOT_CONNECT);
         }
+        return connected;
     }
 
     private boolean pingPeer() {
@@ -237,7 +257,7 @@ public class OtpNodeProxy extends AbstractExecutionThreadService implements IOtp
             int i = 30;
             boolean gotIt = false;
             do {
-                r = OtpRpc.call("erlang", "whereis", "a", "code_server");
+                r = otpRpc.call("erlang", "whereis", "a", "code_server");
                 gotIt = !(r instanceof OtpErlangPid);
                 if (!gotIt) {
                     try {
@@ -265,59 +285,26 @@ public class OtpNodeProxy extends AbstractExecutionThreadService implements IOtp
         ErlLogger.warn("Dead event: " + dead + " in runtime " + getNodeName());
     }
 
-    public void triggerCrashed() {
-        OtpRpc.setConnected(false);
-        crashed = true;
-    }
-
-    private class ErlRuntimeListener extends Listener {
-        public ErlRuntimeListener() {
+    private class OtpNodeProxyListener extends Listener {
+        public OtpNodeProxyListener() {
         }
 
         @Override
         public void terminated(final State from) {
-            ErlLogger.debug(String.format("Runtime %s terminated", getNodeName()));
+            ErlLogger.debug(String.format("Node %s terminated", getNodeName()));
             dispose();
-            reportDown();
-        }
-
-        @Override
-        public void failed(final State from, final Throwable failure) {
-            final String nodeName = getNodeName();
-            final int exitCode = getExitCode();
-            ErlLogger.warn(String.format("Runtime %s crashed, exit code: %d.", nodeName,
-                    exitCode));
-            dispose();
-            reportDown();
-            try {
-                if (data.isReportErrors()) {
-                    reporter.createFileReport(nodeName, exitCode);
-                }
-            } catch (final Exception t) {
-                ErlLogger.warn(t);
-            }
-        }
-
-        private void reportDown() {
-            if (data.isReportErrors() && getExitCode() > 0) {
+            final ErlRuntimeReporter reporter = new ErlRuntimeReporter(data.isInternal(),
+                    data.isReportErrors());
+            if (getExitCode() > 0) {
                 reporter.reportRuntimeDown(getNodeName());
             }
         }
 
         @Override
-        public void starting() {
-            ErlLogger.debug("Runtime %s starting", getNodeName());
+        public void failed(final State from, final Throwable failure) {
+            ErlLogger.error(failure);
         }
 
-        @Override
-        public void running() {
-            ErlLogger.debug("Runtime %s running", getNodeName());
-        }
-
-        @Override
-        public void stopping(final State from) {
-            ErlLogger.debug("Runtime %s stopping", getNodeName());
-        }
     }
 
     public int getExitCode() {

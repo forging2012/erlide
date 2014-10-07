@@ -154,7 +154,7 @@ public class TraceBackend {
                         getBackend(true);
                         loadingFileInfo = true;
                         handler = new TraceEventHandler(tracerBackend.getName());
-                        tracerBackend.getRuntime().registerEventListener(handler);
+                        tracerBackend.getNodeProxy().registerEventListener(handler);
 
                         // list of nodes being traced
                         final List<OtpErlangObject> erlangObjects = new ArrayList<OtpErlangObject>();
@@ -316,7 +316,7 @@ public class TraceBackend {
                         loadingFileInfo = true;
                         handler = new TraceEventHandler(tracerBackend.getName());
                         getBackend(true);
-                        tracerBackend.getRuntime().registerEventListener(handler);
+                        tracerBackend.getNodeProxy().registerEventListener(handler);
                         tracerBackend.getOtpRpc().call(Constants.ERLANG_HELPER_MODULE,
                                 FUN_FILE_INFO, "s", new OtpErlangString(path));
                     } catch (final RpcException e) {
@@ -350,7 +350,7 @@ public class TraceBackend {
                         handler = new TraceEventHandler(tracerBackend.getName());
                         getBackend(true);
                         TraceCollections.getTracesList().clear();
-                        tracerBackend.getRuntime().registerEventListener(handler);
+                        tracerBackend.getNodeProxy().registerEventListener(handler);
                         final OtpErlangLong start = new OtpErlangLong(theStartIndex);
                         final OtpErlangLong stop = new OtpErlangLong(endIndex);
                         tracerBackend.getOtpRpc().call(Constants.ERLANG_HELPER_MODULE,

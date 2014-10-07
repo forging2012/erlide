@@ -49,7 +49,7 @@ public class BackendShell implements IBackendShell {
     public void open() {
         final ErlangEventHandler handler = new ConsoleEventHandler(backend.getName(),
                 this);
-        backend.getRuntime().registerEventListener(handler);
+        backend.getNodeProxy().registerEventListener(handler);
     }
 
     @Override
