@@ -48,7 +48,7 @@ public class ErlRuntimeReporter {
                     + "_<timestamp>.txt' has been created in your home directory, "
                     + "please consider reporting the problem. \n"
                     + (SystemConfiguration.hasFeatureEnabled("erlide.ericsson.user") ? ""
-                            : "http://www.assembla.com/spaces/erlide/support/tickets");
+                            : "https://github.com/erlide/erlide/issues");
             MessageReporter.showError(msg, msg1 + "\n\n" + details);
         }
         return msg;
@@ -76,8 +76,7 @@ public class ErlRuntimeReporter {
                     + report
                     + ". Please report the problem so that we can fix it.\n"
                     + (SystemConfiguration.hasFeatureEnabled("erlide.ericsson.user") ? ""
-                            : "http://www.assembla.com/spaces/erlide/support/tickets")
-                    : "";
+                            : "https://github.com/erlide/erlide/issues") : "";
             MessageReporter
                     .showError(
                             msg
