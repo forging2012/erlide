@@ -2,52 +2,36 @@ package org.erlide.runtime.internal;
 
 import org.erlide.runtime.api.IOtpNodeProxy;
 import org.erlide.runtime.events.ErlEvent;
+import org.erlide.util.ErlLogger;
+import org.erlide.util.erlang.Bindings;
+import org.erlide.util.erlang.ErlUtils;
+import org.erlide.util.erlang.TermParserException;
 
-import com.ericsson.otp.erlang.OtpErlangAtom;
+import com.ericsson.otp.erlang.OtpErlangException;
 import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangPid;
-import com.ericsson.otp.erlang.OtpErlangTuple;
 
 public class EventParser {
 
-    public ErlEvent parse(final OtpErlangObject msg, final IOtpNodeProxy runtime) {
+    public ErlEvent parse(final OtpErlangObject msg, final IOtpNodeProxy nodeProxy) {
         if (msg == null) {
             return null;
         }
-        final String topic = getEventTopic(msg);
-        if (topic == null) {
+        try {
+            final Bindings b = ErlUtils.match("{event,Topic,Event,Sender}", msg);
+            if (b == null) {
+                return null;
+            }
+            final String topic = b.getAtom("Topic");
+            final OtpErlangObject event = b.get("Event");
+            final OtpErlangPid sender = b.getPid("Sender");
+            return new ErlEvent(topic, nodeProxy, event, sender);
+        } catch (final TermParserException e) {
+            return null;
+        } catch (final OtpErlangException e) {
+            ErlLogger.warn("Unrecognized event: " + msg);
             return null;
         }
-        final OtpErlangObject event = getEventData(msg);
-        final OtpErlangPid sender = getEventSender(msg);
-        return new ErlEvent(topic, runtime, event, sender);
-    }
-
-    public boolean isEventMessage(final OtpErlangObject msg) {
-        try {
-            final OtpErlangTuple tmsg = (OtpErlangTuple) msg;
-            final OtpErlangObject el0 = tmsg.elementAt(0);
-            return ((OtpErlangAtom) el0).atomValue().equals("event") && tmsg.arity() == 4;
-        } catch (final Exception e) {
-            return false;
-        }
-    }
-
-    private OtpErlangPid getEventSender(final OtpErlangObject msg) {
-        final OtpErlangTuple tmsg = (OtpErlangTuple) msg;
-        return (OtpErlangPid) tmsg.elementAt(3);
-    }
-
-    private OtpErlangObject getEventData(final OtpErlangObject msg) {
-        final OtpErlangTuple tmsg = (OtpErlangTuple) msg;
-        return tmsg.elementAt(2);
-    }
-
-    private String getEventTopic(final OtpErlangObject msg) {
-        final OtpErlangTuple tmsg = (OtpErlangTuple) msg;
-        final Object el0 = tmsg.elementAt(1);
-        final OtpErlangAtom a = (OtpErlangAtom) el0;
-        return a.atomValue();
     }
 
 }

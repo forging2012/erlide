@@ -36,8 +36,8 @@ public class EmakeBuilder extends ExternalBuilder {
     {
       IBackendManager _backendManager = BackendCore.getBackendManager();
       final IBackend backend = _backendManager.getBuildBackend(erlProject);
-      IOtpNodeProxy _runtime = backend.getRuntime();
-      String _otpHome = _runtime.getOtpHome();
+      IOtpNodeProxy _nodeProxy = backend.getNodeProxy();
+      String _otpHome = _nodeProxy.getOtpHome();
       Path _path = new Path(_otpHome);
       final IPath path = _path.append("bin/erl");
       String _xifexpression = null;

@@ -1,7 +1,6 @@
 package org.erlide.runtime.internal
 
 import com.ericsson.otp.erlang.OtpNode
-import com.ericsson.otp.erlang.OtpNodeStatus
 import com.google.common.base.Strings
 import java.io.IOException
 import java.net.Socket
@@ -10,6 +9,8 @@ import org.erlide.util.ErlLogger
 import org.erlide.util.HostnameUtils
 import org.fishwife.jrugged.Initializable
 import org.fishwife.jrugged.Initializer
+
+import static org.erlide.runtime.internal.LocalNodeCreator.*
 
 class LocalNodeCreator {
 
@@ -22,11 +23,12 @@ class LocalNodeCreator {
         }
     }
 
-    static def OtpNode startLocalNode(OtpNodeProxy runtime, String cookie, boolean hasLongName) {
+    static def OtpNode startLocalNode(OtpNodeProxy nodeProxy, String cookie, boolean hasLongName) {
+        return startLocalNode(nodeProxy, createOtpNode(cookie, hasLongName))
+    }
+
+    static def OtpNode startLocalNode(OtpNodeProxy nodeProxy, OtpNode lNode) {
         wait_for_epmd()
-        val lNode = createOtpNode(cookie, hasLongName)
-        val statusWatcher = new ErlideNodeStatus(runtime)
-        lNode.registerStatusHandler(statusWatcher)
         return lNode
     }
 
@@ -48,7 +50,7 @@ class LocalNodeCreator {
                 val msg = '''
                     Couldn't contact epmd - erlang backend is probably not working.
                     Your host's entry in /etc/hosts is probably wrong («host»).
-                    '''
+                '''
                 ErlLogger.error(msg)
                 throw new RuntimeException(msg)
             }
@@ -65,22 +67,9 @@ class LocalNodeCreator {
         val initializer = new Initializer(client)
         initializer.maxRetries = 30
         initializer.retryMillis = POLL_INTERVAL
+
         // run synchronously
         initializer.run
     }
 
-}
-
-class ErlideNodeStatus extends OtpNodeStatus {
-    val OtpNodeProxy runtime
-
-    new(OtpNodeProxy runtime) {
-        this.runtime = runtime
-    }
-
-    override void remoteStatus(String node, boolean up, Object info) {
-        if (node == runtime.getNodeName() && !up) {
-            runtime.triggerCrashed()
-        }
-    }
 }

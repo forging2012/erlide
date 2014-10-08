@@ -5,17 +5,17 @@ import org.erlide.runtime.api.IOtpNodeProxy;
 import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangPid;
 
-public class ErlEvent {
+public final class ErlEvent {
 
     private final String topic;
-    private final IOtpNodeProxy runtime;
+    private final IOtpNodeProxy nodeProxy;
     private final OtpErlangObject event;
     private final OtpErlangPid sender;
 
-    public ErlEvent(final String topic, final IOtpNodeProxy runtime,
+    public ErlEvent(final String topic, final IOtpNodeProxy nodeProxy,
             final OtpErlangObject event, final OtpErlangPid sender) {
         this.topic = topic;
-        this.runtime = runtime;
+        this.nodeProxy = nodeProxy;
         this.event = event;
         this.sender = sender;
     }
@@ -28,8 +28,8 @@ public class ErlEvent {
         return topic;
     }
 
-    public IOtpNodeProxy getRuntime() {
-        return runtime;
+    public IOtpNodeProxy getNodeProxy() {
+        return nodeProxy;
     }
 
     public OtpErlangPid getSender() {

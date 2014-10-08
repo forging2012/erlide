@@ -1,4 +1,4 @@
-package org.erlide.runtime.internal;
+package org.erlide.runtime.api;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,16 +16,16 @@ import org.erlide.util.event_tracer.ErlideEventTracer;
 public class ErlRuntimeReporter {
 
     private final boolean internal;
+    private final boolean shouldReport;
 
-    public ErlRuntimeReporter(final boolean internal) {
+    public ErlRuntimeReporter(final boolean internal, final boolean shouldReport) {
         this.internal = internal;
+        this.shouldReport = shouldReport;
     }
 
     public String reportRuntimeDown(final String peer) {
         final String fmt = "Backend '%s' is down";
         String msg = String.format(fmt, peer);
-        // TODO when to report errors?
-        final boolean shouldReport = internal;
         if (shouldReport) {
             final String user = System.getProperty("user.name");
 
@@ -48,7 +48,7 @@ public class ErlRuntimeReporter {
                     + "_<timestamp>.txt' has been created in your home directory, "
                     + "please consider reporting the problem. \n"
                     + (SystemConfiguration.hasFeatureEnabled("erlide.ericsson.user") ? ""
-                            : "http://www.assembla.com/spaces/erlide/support/tickets");
+                            : "https://github.com/erlide/erlide/issues");
             MessageReporter.showError(msg, msg1 + "\n\n" + details);
         }
         return msg;
@@ -76,8 +76,7 @@ public class ErlRuntimeReporter {
                     + report
                     + ". Please report the problem so that we can fix it.\n"
                     + (SystemConfiguration.hasFeatureEnabled("erlide.ericsson.user") ? ""
-                            : "http://www.assembla.com/spaces/erlide/support/tickets")
-                    : "";
+                            : "https://github.com/erlide/erlide/issues") : "";
             MessageReporter
                     .showError(
                             msg

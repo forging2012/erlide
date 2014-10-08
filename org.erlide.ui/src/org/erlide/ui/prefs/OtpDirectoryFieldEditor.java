@@ -29,12 +29,7 @@ public class OtpDirectoryFieldEditor extends DirectoryFieldEditor {
 
     @Override
     protected boolean doCheckState() {
-        String fileName = getTextControl().getText();
-        fileName = fileName.trim();
-        if (RuntimeInfo.hasCompiler(fileName)) {
-            showMessage("No Erlang compiler was found."
-                    + " This runtime can't be used for a compiler backend.");
-        }
-        return RuntimeInfo.isValidOtpHome(fileName);
+        final String fileName = getTextControl().getText();
+        return RuntimeInfo.isValidOtpHome(fileName.trim());
     }
 }

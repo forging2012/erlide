@@ -1,8 +1,8 @@
 package org.erlide.runtime.internal;
 
-public class ErlRuntimeException extends Exception {
+public class ErtsException extends Exception {
 
-    public ErlRuntimeException(final String msg) {
+    public ErtsException(final String msg) {
         super(msg);
     }
 

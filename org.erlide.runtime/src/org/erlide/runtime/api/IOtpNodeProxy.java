@@ -10,19 +10,19 @@
  *******************************************************************************/
 package org.erlide.runtime.api;
 
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.erlide.runtime.runtimeinfo.RuntimeVersion;
 import org.erlide.util.IDisposable;
 
 import com.ericsson.otp.erlang.OtpErlangPid;
 import com.ericsson.otp.erlang.OtpMbox;
+import com.ericsson.otp.erlang.OtpNode;
 
 public interface IOtpNodeProxy extends IDisposable {
 
     void startAndWait();
 
     boolean isRunning();
-
-    Process getProcess();
 
     String getNodeName();
 
@@ -36,11 +36,14 @@ public interface IOtpNodeProxy extends IDisposable {
 
     OtpMbox createMbox();
 
-    void setShutdownCallback(IShutdownCallback callback);
-
     OtpErlangPid getEventPid();
 
     void registerEventListener(Object handler);
+
+    OtpNode getLocalNode();
+    void addStatusHandler(Procedure1<Boolean> handler);
+
+    boolean connect();
 
     void unregisterEventListener(Object handler);
 

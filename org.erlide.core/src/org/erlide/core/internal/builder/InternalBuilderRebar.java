@@ -121,7 +121,7 @@ public class InternalBuilderRebar extends ErlangBuilder {
 
         final ErlangEventHandler handler = new BuilderEventHandler(backend.getName(),
                 notifier, project, state);
-        backend.getRuntime().registerEventListener(handler);
+        backend.getNodeProxy().registerEventListener(handler);
         try {
             try {
                 final OtpErlangObject projectInfo = BuilderUtils
@@ -152,7 +152,7 @@ public class InternalBuilderRebar extends ErlangBuilder {
                 ErlLogger.error(e);
             }
         } finally {
-            backend.getRuntime().unregisterEventListener(handler);
+            backend.getNodeProxy().unregisterEventListener(handler);
         }
     }
 

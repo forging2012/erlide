@@ -11,15 +11,12 @@
  *******************************************************************************/
 package org.erlide.backend.launch;
 
-import java.util.Map;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
-import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.erlide.backend.BackendCore;
 import org.erlide.backend.api.BackendData;
@@ -28,14 +25,10 @@ import org.erlide.backend.api.IBackend;
 import org.erlide.backend.api.ICodeBundle.CodeContext;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.IBeamLocator;
-import org.erlide.runtime.api.IOtpNodeProxy;
 import org.erlide.runtime.epmd.EpmdWatcher;
 import org.erlide.runtime.runtimeinfo.RuntimeInfo;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.HostnameUtils;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 public class ErlangLaunchDelegate extends LaunchConfigurationDelegate {
 
@@ -52,15 +45,11 @@ public class ErlangLaunchDelegate extends LaunchConfigurationDelegate {
         if (data.isManaged()) {
             setCaptureOutput(launch);
         }
-        IOtpNodeProxy runtime;
+        data.setLaunch(launch);
         if (!isErlangInternalLaunch(launch)) {
             backend = BackendCore.getBackendManager().createExecutionBackend(data);
-            runtime = backend.getRuntime();
         } else {
-            runtime = BackendCore.getBackendManager().getFactory().createNodeProxy(data);
-        }
-        if (data.isManaged()) {
-            startErtsProcess(launch, data, runtime.getProcess());
+            backend = BackendCore.getBackendManager().getFactory().createBackend(data);
         }
     }
 
@@ -97,18 +86,6 @@ public class ErlangLaunchDelegate extends LaunchConfigurationDelegate {
             data.setContext(CodeContext.DEBUGGER);
         }
         return data;
-    }
-
-    private void startErtsProcess(final ILaunch launch, final BackendData data,
-            final Process process) {
-        Preconditions.checkArgument(process != null);
-
-        data.setLaunch(launch);
-        final Map<String, String> map = Maps.newHashMap();
-        final IProcess erts = DebugPlugin.newProcess(launch, process, data.getNodeName(),
-                map);
-
-        ErlLogger.debug("Started erts: %s >> %s", erts.getLabel(), data.getNodeName());
     }
 
     private void setCaptureOutput(final ILaunch launch) {

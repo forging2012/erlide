@@ -90,7 +90,7 @@ public class DebuggerEventDaemon implements IBackendListener {
 
     public synchronized void start() {
         stopped = false;
-        mbox = backend.getRuntime().createMbox();
+        mbox = backend.getNodeProxy().createMbox();
         new Thread(new HandlerJob(backend)).start();
     }
 

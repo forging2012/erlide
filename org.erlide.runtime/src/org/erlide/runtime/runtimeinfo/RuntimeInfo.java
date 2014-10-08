@@ -150,7 +150,7 @@ public final class RuntimeInfo {
 
     public static boolean validateLocation(final String path) {
         final String v = getRuntimeVersion(path);
-        return v != null;
+        return v != null && isValidOtpHome(path);
     }
 
     public static boolean isValidOtpHome(final String otpHome) {
@@ -178,27 +178,6 @@ public final class RuntimeInfo {
         final File simpleFile = new File(fileName);
         final File exeFile = new File(fileName + ".exe");
         return simpleFile.exists() || exeFile.exists();
-    }
-
-    public static boolean hasCompiler(final String otpHome) {
-        if (!isValidOtpHome(otpHome)) {
-            return false;
-        }
-        final boolean hasErlc = hasExecutableFile(otpHome + "/bin/erlc");
-        return hasErlc;
-    }
-
-    protected static String cvt(final Collection<String> path) {
-        final StringBuilder result = new StringBuilder();
-        for (String s : path) {
-            if (s.length() > 0) {
-                if (s.contains(" ")) {
-                    s = "\"" + s + "\"";
-                }
-                result.append(s).append(';');
-            }
-        }
-        return result.toString();
     }
 
     public RuntimeVersion getVersion() {

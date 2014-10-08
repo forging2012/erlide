@@ -63,6 +63,12 @@ import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangString;
 import com.google.common.collect.Maps;
 
+/**
+ * Default implementation of IErlangEngine.
+ *
+ * Note: Services must handle the case where the backend == null by returning a
+ * default (empty) result.
+ */
 public class DefaultErlangEngine implements IErlangEngine, IExecutableExtension {
 
     private final Map<Class<? extends ErlangService>, Class<? extends ErlangService>> implementations = Maps

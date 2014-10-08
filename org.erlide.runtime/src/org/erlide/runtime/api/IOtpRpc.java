@@ -1,9 +1,9 @@
 package org.erlide.runtime.api;
 
 import org.erlide.runtime.rpc.IRpcCallback;
-import org.erlide.runtime.rpc.RpcFuture;
 import org.erlide.runtime.rpc.IRpcResultCallback;
 import org.erlide.runtime.rpc.RpcException;
+import org.erlide.runtime.rpc.RpcFuture;
 import org.erlide.runtime.rpc.RpcResult;
 
 import com.ericsson.otp.erlang.OtpErlangObject;
@@ -11,6 +11,8 @@ import com.ericsson.otp.erlang.OtpErlangPid;
 import com.ericsson.otp.erlang.OtpMbox;
 
 public interface IOtpRpc {
+
+    void setConnected(boolean connected);
 
     // y
     RpcResult call_noexception(final String m, final String f, final String signature,
@@ -102,8 +104,5 @@ public interface IOtpRpc {
     // y (RpcFuture)
     OtpErlangObject getRpcResult(OtpMbox mbox, long timeout, String env)
             throws RpcException;
-
-    // y (ErlRuntime)
-    void setConnected(boolean b);
 
 }

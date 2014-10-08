@@ -11,8 +11,12 @@
 package org.erlide.backend.internal;
 
 import java.io.File;
+import java.util.Map;
 
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.erlide.backend.BackendCore;
 import org.erlide.backend.BackendUtils;
 import org.erlide.backend.api.BackendData;
@@ -20,7 +24,7 @@ import org.erlide.backend.api.IBackend;
 import org.erlide.backend.api.IBackendFactory;
 import org.erlide.backend.api.IBackendManager;
 import org.erlide.backend.api.ICodeBundle.CodeContext;
-import org.erlide.runtime.ManagedOtpNodeProxy;
+import org.erlide.runtime.ErtsProcess;
 import org.erlide.runtime.OtpNodeProxy;
 import org.erlide.runtime.api.IOtpNodeProxy;
 import org.erlide.runtime.runtimeinfo.IRuntimeInfoCatalog;
@@ -28,6 +32,8 @@ import org.erlide.runtime.runtimeinfo.RuntimeInfo;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.HostnameUtils;
 import org.erlide.util.SystemConfiguration;
+
+import com.google.common.collect.Maps;
 
 public class BackendFactory implements IBackendFactory {
 
@@ -56,29 +62,40 @@ public class BackendFactory implements IBackendFactory {
     public synchronized IBackend createBackend(final BackendData data) {
         ErlLogger.debug("Create backend " + data.getNodeName());
 
-        final IBackend b;
-        final IOtpNodeProxy runtime = createNodeProxy(data);
+        final ErtsProcess erts;
+        if (data.isManaged()) {
+            erts = new ErtsProcess(data);
+            erts.startUp();
+
+            if (data.getLaunch() != null) {
+                final Map<String, String> map = Maps.newHashMap();
+                final IProcess proc = DebugPlugin.newProcess(data.getLaunch(),
+                        erts.getProcess(), data.getNodeName(), map);
+
+                ErlLogger.debug("@@@ Started erts: %s >> %s", proc.getLabel(),
+                        data.getNodeName());
+            }
+        } else {
+            erts = null;
+        }
+        final IOtpNodeProxy nodeProxy = new OtpNodeProxy(data);
+        nodeProxy.startAndWait();
 
         final IBackendManager backendManager = BackendCore.getBackendManager();
-        b = data.isInternal() ? new InternalBackend(data, runtime, backendManager)
-                : new ExternalBackend(data, runtime, backendManager);
+        final Backend b = data.isInternal() ? new InternalBackend(data, nodeProxy, erts)
+                : new ExternalBackend(data, nodeProxy, erts);
 
-        b.initialize(data.getContext(), backendManager.getCodeBundles());
+        b.initialize(data.getContext(), backendManager);
+        nodeProxy.addStatusHandler(new Procedure1<Boolean>() {
+            @Override
+            public void apply(final Boolean up) {
+                if (!up) {
+                    b.handleCrash(backendManager);
+                }
+            }
+        });
+
         return b;
-    }
-
-    @Override
-    @NonNull
-    public IOtpNodeProxy createNodeProxy(final BackendData data) {
-        IOtpNodeProxy result;
-        if (data.isManaged()) {
-            result = new ManagedOtpNodeProxy(data);
-        } else {
-            result = new OtpNodeProxy(data);
-        }
-        final IOtpNodeProxy runtime = result;
-        runtime.startAndWait();
-        return runtime;
     }
 
     private BackendData getIdeBackendData() {

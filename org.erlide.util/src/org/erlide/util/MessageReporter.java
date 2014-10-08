@@ -1,6 +1,6 @@
 package org.erlide.util;
 
-public abstract class MessageReporter {
+public final class MessageReporter {
 
     /**
      * Status type severity (bit mask, value 1) indicating this status is
@@ -28,8 +28,6 @@ public abstract class MessageReporter {
      * @see #matches(int)
      */
     public static final int ERROR = 0x04;
-
-    abstract public void displayMessage(int severity, String message, String details);
 
     public static void showError(final String message) {
         show(ERROR, message, null);
@@ -59,4 +57,6 @@ public abstract class MessageReporter {
         ErlideEventBus.post(new ErlideMessage(severity, message, details));
     }
 
+    private MessageReporter() {
+    }
 }
