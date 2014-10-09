@@ -57,6 +57,9 @@ public class BuilderEventHandler extends ErlangEventHandler {
                 return false
             }
             callback.apply(b)
+        } catch (BuilderCanceledException e) {
+            ErlLogger.info("Build job canceled")
+            return true
         } catch (Exception e) {
             ErlLogger.error(e)
             return false

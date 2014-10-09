@@ -23,6 +23,7 @@ import org.eclipse.xtext.xbase.lib.Pair;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.erlide.core.builder.BuilderHelper;
 import org.erlide.core.internal.builder.BuildNotifier;
+import org.erlide.core.internal.builder.BuilderCanceledException;
 import org.erlide.core.internal.builder.BuilderState;
 import org.erlide.engine.model.builder.MarkerUtils;
 import org.erlide.engine.util.ResourceUtil;
@@ -98,9 +99,13 @@ public class BuilderEventHandler extends ErlangEventHandler {
       }
       _xtrycatchfinallyexpression = _xblockexpression;
     } catch (final Throwable _t) {
-      if (_t instanceof Exception) {
-        final Exception e = (Exception)_t;
-        ErlLogger.error(e);
+      if (_t instanceof BuilderCanceledException) {
+        final BuilderCanceledException e = (BuilderCanceledException)_t;
+        ErlLogger.info("Build job canceled");
+        return true;
+      } else if (_t instanceof Exception) {
+        final Exception e_1 = (Exception)_t;
+        ErlLogger.error(e_1);
         return false;
       } else {
         throw Exceptions.sneakyThrow(_t);

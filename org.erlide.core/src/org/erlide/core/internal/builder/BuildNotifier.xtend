@@ -86,11 +86,10 @@ class BuildNotifier {
      */
     def void checkCancelWithinCompiler() {
         if (monitor.isCanceled() && !cancelling) {
-
             // Once the compiler has been canceled, don't check again.
             setCancelling(true)
 
-        // TODO stop compiler
+            throw new BuilderCanceledException()
         }
     }
 
@@ -106,7 +105,6 @@ class BuildNotifier {
         monitor.isCanceled()
     }
 
-    // FIXME
     def worked(int work) {
         monitor.worked(work)
     }

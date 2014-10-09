@@ -17,8 +17,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.erlide.core.builder.BuilderHelper;
 import org.erlide.core.internal.builder.BuildPhase;
+import org.erlide.core.internal.builder.BuilderCanceledException;
 import org.erlide.core.internal.builder.BuilderMessages;
 import org.erlide.util.ErlLogger;
 
@@ -106,15 +108,20 @@ public class BuildNotifier {
    * checkCancel() when within the compiler.
    */
   public void checkCancelWithinCompiler() {
-    boolean _and = false;
-    boolean _isCanceled = this.monitor.isCanceled();
-    if (!_isCanceled) {
-      _and = false;
-    } else {
-      _and = (!this.cancelling);
-    }
-    if (_and) {
-      this.setCancelling(true);
+    try {
+      boolean _and = false;
+      boolean _isCanceled = this.monitor.isCanceled();
+      if (!_isCanceled) {
+        _and = false;
+      } else {
+        _and = (!this.cancelling);
+      }
+      if (_and) {
+        this.setCancelling(true);
+        throw new BuilderCanceledException();
+      }
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
     }
   }
   
