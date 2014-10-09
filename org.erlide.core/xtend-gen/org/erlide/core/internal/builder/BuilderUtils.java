@@ -4,6 +4,8 @@ import com.ericsson.otp.erlang.OtpErlangList;
 import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangString;
 import com.google.common.collect.Iterables;
+import com.google.common.io.Files;
+import java.io.File;
 import java.util.Collection;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -36,6 +38,8 @@ public class BuilderUtils {
         final RuntimeVersion minOtpVsn = _requiredRuntimeVersion.asMajor();
         final Collection<String> libs = CollectionLiterals.<String>newArrayList();
         final Collection<String> libIncs = CollectionLiterals.<String>newArrayList();
+        File _createTempDir = Files.createTempDir();
+        final String tmpDir = _createTempDir.getAbsolutePath();
         final Function1<IPath, OtpErlangString> _function = new Function1<IPath, OtpErlangString>() {
           public OtpErlangString apply(final IPath it) {
             String _portableString = it.toPortableString();
@@ -66,7 +70,7 @@ public class BuilderUtils {
         };
         Iterable<OtpErlangString> _map_3 = IterableExtensions.<String, OtpErlangString>map(libs, _function_3);
         _xblockexpression = ErlUtils.format(
-          "{project_info,~s,~ls,~ls,~s,~x,~s,~ls}", rootDir, _map, _plus, _portableString, opts, _string, _map_3);
+          "{project_info,~s,~ls,~ls,~s,~x,~s,~ls,~s}", rootDir, _map, _plus, _portableString, opts, _string, _map_3, tmpDir);
       }
       return _xblockexpression;
     } catch (Throwable _e) {

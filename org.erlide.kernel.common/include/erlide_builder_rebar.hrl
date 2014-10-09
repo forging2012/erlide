@@ -6,5 +6,6 @@
                        outDir="ebin",
                        opts=[],
                        min_otp_vsn=".*",
-                       libs=[]
+                       libs=[],
+                       tmpDir="/tmp"
                       }).

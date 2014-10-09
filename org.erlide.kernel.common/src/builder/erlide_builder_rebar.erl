@@ -43,9 +43,10 @@ rebar(ProjProps=#project_info{rootDir=RootDir, sourceDirs=SrcDirs, outDir=OutDir
     {ok, OldCwd} = file:get_cwd(),
     try
         file:set_cwd(RootDir),
+        TmpDir = ProjProps#project_info.tmpDir,
         with_config_file(ProjProps,
-                         fun() ->
-                                 rebar(SrcDirs, OutDir, Ops)
+                         fun(ConfigFile) ->
+                                 rebar(SrcDirs, OutDir, TmpDir, Ops++["-f", ConfigFile])
                          end)
     after
         file:set_cwd(OldCwd),
@@ -53,9 +54,10 @@ rebar(ProjProps=#project_info{rootDir=RootDir, sourceDirs=SrcDirs, outDir=OutDir
     end.
 
 
-rebar(Srcs, Out, Ops) when is_list(Ops) ->
+rebar(Srcs, Out, TmpDir, Ops) when is_list(Ops) ->
     with_app_file(Srcs,
                   Out,
+                  TmpDir,
                   fun()->
                           call_rebar(Ops)
                   end).
@@ -67,6 +69,7 @@ call_rebar(Ops) ->
     NewLeader = spawn(fun() -> leader(Self, []) end),
     group_leader(NewLeader, Self),
     try
+        erlide_log:log(Ops),
         rebar:run(Ops)
     catch
         throw:rebar_abort ->
@@ -167,39 +170,40 @@ handle_aux(_Msg) ->
     none.
 
 with_config_file(ProjProps, Fun) ->
-    case filelib:is_regular(".erlide.rebar.config") of
+    TmpDir = ProjProps#project_info.tmpDir,
+    case filelib:is_regular(TmpDir++"/.erlide.rebar.config") of
         true ->
-            file:delete("rebar.config"),
-            file:delete(".erlide.rebar.config");
+            file:delete(TmpDir++"/rebar.config"),
+            file:delete(TmpDir++"/.erlide.rebar.config");
         false ->
             ok
     end,
 
     case filelib:is_regular("rebar.config") of
         true ->
-            Fun();
+            Fun("rebar.config");
         _ ->
             try
-                file:write_file(".erlide.rebar.config", ""),
-                ok = file:write_file("rebar.config", create_rebar_config(ProjProps))
+                file:write_file(TmpDir++"/.erlide.rebar.config", ""),
+                ok = file:write_file(TmpDir++"/rebar.config", create_rebar_config(ProjProps))
             catch
                 K:E ->
-                    erlide_log:log({"ERROR: could not create rebar.config", {K,E}})
+                    erlide_log:log({"ERROR: could not create rebar.config", TmpDir, {K,E}})
             end,
             try
-                Fun()
+                Fun(TmpDir++"/rebar.config")
             after
-                file:delete("rebar.config"),
-                file:delete(".erlide.rebar.config")
+                file:delete(TmpDir++"/rebar.config"),
+                file:delete(TmpDir++"/.erlide.rebar.config")
             end
     end.
 
-with_app_file(SrcDir, EbinDir, Fun) ->
-    case filelib:is_regular(".erlide.rebar.app") of
+with_app_file(SrcDir, EbinDir, TmpDir, Fun) ->
+    case filelib:is_regular(TmpDir++"/.erlide.rebar.app") of
         true ->
             file:delete("___dummy___.app.src"),
             file:delete("___dummy___.app.src.script"),
-            file:delete(".erlide.rebar.app");
+            file:delete(TmpDir++"/.erlide.rebar.app");
         false ->
             ok
     end,
@@ -209,18 +213,20 @@ with_app_file(SrcDir, EbinDir, Fun) ->
             %% we try to use a file name not likely to exist
             File = lists:flatten(SrcDir++"/___dummy___.app.src"),
             try
-                file:write(".erlide.rebar.app", ""),
+                file:write(TmpDir++"/.erlide.rebar.app", ""),
                 ok = file:write_file(File, "{application, '___dummy___', [{vsn,\"0\"}]}.")
             catch
                 K:E ->
-                    erlide_log:log({"ERROR: could not create rebar.config", {K,E}})
+                    erlide_log:log({"ERROR: could not create .app.src", {K,E}})
             end,
+            %% we try to run even if creation of app.src failed,
+            %% there might be some magic at work
             try
                 Fun()
             after
                 file:delete(File),
                 file:delete(EbinDir++"/___dummy___.app"),
-                file:delete(".erlide.rebar.app")
+                file:delete(TmpDir++"/.erlide.rebar.app")
             end;
         _ ->
             Fun()
