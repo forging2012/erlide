@@ -20,6 +20,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -37,6 +38,7 @@ import com.ericsson.otp.erlang.OtpErlangRangeException;
 import com.ericsson.otp.erlang.OtpErlangString;
 import com.ericsson.otp.erlang.OtpErlangTuple;
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 
 /**
  * Provides convenient utility methods to other types in this package.
@@ -661,6 +663,14 @@ public final class Util {
             return new OtpErlangList(elements);
         }
         return null;
+    }
+
+    public static List<String> asStringList(final OtpErlangList l) {
+        final List<String> result = Lists.newArrayListWithCapacity(l.arity());
+        for (final OtpErlangObject o : l) {
+            result.add(Util.stringValue(o));
+        }
+        return result;
     }
 
 }

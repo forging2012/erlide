@@ -33,9 +33,7 @@ public class ErlideContextAssist implements ContextAssistService {
             if (Util.isOk(res)) {
                 final OtpErlangTuple t = (OtpErlangTuple) res;
                 final OtpErlangList l = (OtpErlangList) t.elementAt(1);
-                for (final OtpErlangObject i : l) {
-                    result.add(Util.stringValue(i));
-                }
+                return new TreeSet<String>(Util.asStringList(l));
             }
         } catch (final RpcException e) {
             ErlLogger.error(e);

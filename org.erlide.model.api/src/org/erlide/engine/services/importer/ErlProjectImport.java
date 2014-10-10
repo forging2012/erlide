@@ -1,6 +1,5 @@
 package org.erlide.engine.services.importer;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
@@ -24,16 +23,13 @@ public class ErlProjectImport {
         final OtpErlangTuple t = (OtpErlangTuple) o;
 
         OtpErlangList l = (OtpErlangList) t.elementAt(0);
-        resources = (SortedSet<String>) erlangStringList2Collection(l,
-                new TreeSet<String>());
+        resources = new TreeSet<String>(Util.asStringList(l));
 
         l = (OtpErlangList) t.elementAt(1);
-        sourceDirs = (List<String>) erlangStringList2Collection(l,
-                new ArrayList<String>());
+        sourceDirs = Util.asStringList(l);
 
         l = (OtpErlangList) t.elementAt(2);
-        includeDirs = (List<String>) erlangStringList2Collection(l,
-                new ArrayList<String>());
+        includeDirs = Util.asStringList(l);
 
         final OtpErlangObject beamDirElement = t.elementAt(3);
         if (beamDirElement instanceof OtpErlangAtom) {
@@ -43,17 +39,8 @@ public class ErlProjectImport {
         }
 
         l = (OtpErlangList) t.elementAt(4);
-        directories = (List<String>) erlangStringList2Collection(l,
-                new ArrayList<String>());
+        directories = Util.asStringList(l);
         directories.add(0, ".");
-    }
-
-    private static Collection<String> erlangStringList2Collection(final OtpErlangList l,
-            final Collection<String> c) {
-        for (final OtpErlangObject o : l) {
-            c.add(Util.stringValue(o));
-        }
-        return c;
     }
 
     public Collection<String> getResources() {

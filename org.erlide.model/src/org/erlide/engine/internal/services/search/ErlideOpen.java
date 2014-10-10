@@ -166,11 +166,7 @@ public class ErlideOpen implements OpenService {
             if (Util.isOk(res)) {
                 final OtpErlangTuple t = (OtpErlangTuple) res;
                 final OtpErlangList l = (OtpErlangList) t.elementAt(1);
-                final List<String> result = Lists.newArrayListWithCapacity(l.arity());
-                for (final OtpErlangObject o : l) {
-                    result.add(Util.stringValue(o));
-                }
-                return result;
+                return Util.asStringList(l);
             }
         } catch (final RpcException e) {
             ErlLogger.error(e);
@@ -186,11 +182,7 @@ public class ErlideOpen implements OpenService {
             if (Util.isOk(res)) {
                 final OtpErlangTuple t = (OtpErlangTuple) res;
                 final OtpErlangList l = (OtpErlangList) t.elementAt(1);
-                final List<String> result = Lists.newArrayListWithCapacity(l.arity());
-                for (final OtpErlangObject object : l) {
-                    result.add(Util.stringValue(object));
-                }
-                return result;
+                return Util.asStringList(l);
             }
         } catch (final RpcException e) {
             ErlLogger.error(e);
