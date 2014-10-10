@@ -60,7 +60,7 @@ public class ErlExternalReferenceEntryList extends Openable implements IErlExter
                 .getExternalTree(externalIncludes);
         if (externalModuleTree == null || externalIncludeTree == null) {
             final OtpErlangList pathVars = ErlangEngine.getInstance().getModel()
-                    .getPathVars();
+                    .getPathVars(project.getWorkspaceProject());
             final IOtpRpc backend = OtpRpcFactory.getOtpRpcForProject(project);
             if (externalModuleTree == null && externalModules.length() > 0) {
                 if (pm != null) {

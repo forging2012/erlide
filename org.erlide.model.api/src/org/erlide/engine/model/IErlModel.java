@@ -74,7 +74,7 @@ public interface IErlModel extends IErlElement, IOpenable, IParent, IErlElementL
 
     IErlElement innermostThat(final IErlElement el, final Predicate<IErlElement> firstThat);
 
-    OtpErlangList getPathVars();
+    OtpErlangList getPathVars(IResource context);
 
     IErlProject newProject(final String name, final String path) throws ErlModelException;
 

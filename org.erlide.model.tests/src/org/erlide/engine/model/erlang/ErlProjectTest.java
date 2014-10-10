@@ -199,7 +199,7 @@ public class ErlProjectTest {
                             ErlangEngine.getInstance().getModelUtilService()
                                     .getImportsAsList(moduleE),
                             project.getProperties().getExternalModules(),
-                            model.getPathVars());
+                            model.getPathVars(project.getWorkspaceProject()));
             final IErlFunction function = ErlangEngine
                     .getInstance()
                     .getModelFindService()

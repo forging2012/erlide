@@ -117,7 +117,9 @@ public class OpenUtils {
             res2 = ErlangEngine
                     .getInstance()
                     .getService(OpenService.class)
-                    .getSourceFromModule(model.getPathVars(), moduleName,
+                    .getSourceFromModule(
+                            model.getPathVars(erlProject.getCorrespondingResource()),
+                            moduleName,
                             erlProject.getProperties().getExternalModules());
         }
         if (res2 instanceof OtpErlangString && moduleName != null) {

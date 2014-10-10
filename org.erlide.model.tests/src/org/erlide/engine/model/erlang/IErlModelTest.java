@@ -196,8 +196,8 @@ public class IErlModelTest extends ErlModelTestBase {
     // OtpErlangList getPathVars();
     @Test
     public void getPathVars() throws Exception {
-        final OtpErlangList pathVars = model.getPathVars();
-        final IPathVariableManager pvm = ResourcesPlugin.getWorkspace()
+        final OtpErlangList pathVars = model.getPathVars(project.getWorkspaceProject());
+        final IPathVariableManager pvm = project.getCorrespondingResource()
                 .getPathVariableManager();
         final String[] pathVariableNames = pvm.getPathVariableNames();
         final int n = pathVariableNames.length;
@@ -205,7 +205,7 @@ public class IErlModelTest extends ErlModelTestBase {
 
         final URI path = ErlideTestUtils.getTmpURIPath("");
         pvm.setURIValue(PV, path);
-        final OtpErlangList pathVars2 = model.getPathVars();
+        final OtpErlangList pathVars2 = model.getPathVars(project.getWorkspaceProject());
         assertEquals(n + 1, pathVars2.arity());
 
         final OtpErlangTuple t = (OtpErlangTuple) pathVars2.elementAt(0);

@@ -78,6 +78,7 @@ import org.erlide.engine.util.ResourceUtil;
 import org.erlide.runtime.runtimeinfo.RuntimeVersion;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.SystemConfiguration;
+import org.erlide.util.erlang.OtpErlang;
 
 import com.ericsson.otp.erlang.OtpErlangList;
 import com.ericsson.otp.erlang.OtpErlangObject;
@@ -380,19 +381,18 @@ public class ErlModel extends Openable implements IErlModel {
     }
 
     @Override
-    public OtpErlangList getPathVars() {
+    public OtpErlangList getPathVars(final IResource context) {
         // if (fCachedPathVars == null) {
-        final IPathVariableManager pvm = ResourcesPlugin.getWorkspace()
-                .getPathVariableManager();
+        final IPathVariableManager pvm = context.getProject().getPathVariableManager();
+        final List<OtpErlangObject> objects = Lists.newArrayList();
         final String[] names = pvm.getPathVariableNames();
-        final OtpErlangObject[] objects = new OtpErlangObject[names.length];
-        for (int i = 0; i < names.length; i++) {
-            final String name = names[i];
+        for (final String name : names) {
             final String value = URIUtil.toPath(pvm.getURIValue(name)).toPortableString();
-            objects[i] = new OtpErlangTuple(new OtpErlangObject[] {
-                    new OtpErlangString(name), new OtpErlangString(value) });
+            objects.add(new OtpErlangTuple(new OtpErlangObject[] {
+                    new OtpErlangString(name), new OtpErlangString(value) }));
         }
-        fCachedPathVars = new OtpErlangList(objects);
+
+        fCachedPathVars = OtpErlang.mkList(objects);
         // }
         return fCachedPathVars;
     }

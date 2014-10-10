@@ -447,6 +447,8 @@ fold_externals(Fun, Fun2, FileNames, PathVars) ->
 
 fx([], _Fun, _Fun2, _PathVars, _Parent, Done, Acc) ->
     {Done, Acc};
+fx(["" | Rest], Fun, Fun2, PathVars, Parent, Done, Acc) ->
+    fx(Rest, Fun, Fun2, PathVars, Parent, Done, Acc);
 fx([FN0 | Rest], Fun, Fun2, PathVars, Parent, Done, Acc) ->
     FN = replace_path_var(FN0, PathVars),
     case lists:member(FN, Done) of
