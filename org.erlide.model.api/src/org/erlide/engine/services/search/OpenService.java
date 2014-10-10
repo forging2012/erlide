@@ -61,9 +61,6 @@ public interface OpenService extends ErlangService {
     List<ExternalTreeEntry> getExternalModuleTree(IOtpRpc backend,
             final String externalModules, final OtpErlangList pathVars);
 
-    String getExternalInclude(final String filePath, final String externalIncludes,
-            final OtpErlangList pathVars);
-
     List<String> getLibFiles(final String entry);
 
     Collection<String> getIncludesInDir(final String directory);

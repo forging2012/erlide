@@ -142,23 +142,6 @@ public class ErlideOpen implements OpenService {
     }
 
     @Override
-    public String getExternalInclude(final String filePath,
-            final String externalIncludes, final OtpErlangList pathVars) {
-        try {
-            final OtpErlangObject res = ideBackend.call(ERLIDE_OPEN,
-                    "get_external_include", "sx", filePath,
-                    mkContext(null, externalIncludes, pathVars, null, null));
-            if (Util.isOk(res)) {
-                final OtpErlangTuple t = (OtpErlangTuple) res;
-                return Util.stringValue(t.elementAt(1));
-            }
-        } catch (final RpcException e) {
-            ErlLogger.error(e);
-        }
-        return null;
-    }
-
-    @Override
     public OtpErlangList getOtpLibStructure(final IOtpRpc backend) {
         try {
             final OtpErlangObject res = backend.call(ERLIDE_OPEN,
@@ -198,8 +181,8 @@ public class ErlideOpen implements OpenService {
     @Override
     public Collection<String> getIncludesInDir(final String directory) {
         try {
-            final OtpErlangObject res = ideBackend.call(ERLIDE_OPEN,
-                    "get_includes_in_dir", "s", directory);
+            final OtpErlangObject res = ideBackend.call(ERLIDE_OPEN, "get_hrls_in_dir",
+                    "s", directory);
             if (Util.isOk(res)) {
                 final OtpErlangTuple t = (OtpErlangTuple) res;
                 final OtpErlangList l = (OtpErlangList) t.elementAt(1);

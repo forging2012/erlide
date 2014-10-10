@@ -13,11 +13,10 @@
          get_external_modules/2,
          get_external_module/2,
          get_external_module_tree/1,
-         get_external_include/2,
          get_external_1/3,
          get_otp_lib_structure/1,
          get_lib_files/1,
-         get_includes_in_dir/1
+         get_hrls_in_dir/1
         ]).
 
 %% TODO (JC) there are some code duplication in external modules (and includes) handling
@@ -57,12 +56,6 @@ open(Mod, Offset, #open_context{imports=Imports0}=Context) ->
         error:E ->
             {error, E}
     end.
-
-get_external_include(FilePath, #open_context{externalIncludes=ExternalIncludes,
-                                             pathVars=PathVars}) ->
-    ?D(FilePath),
-    ExtIncPaths = get_external_modules_files(ExternalIncludes, PathVars),
-    get_ext_inc(ExtIncPaths, FilePath).
 
 get_otp_lib_structure(StateDir) ->
     RenewFun = fun(_) ->
@@ -126,7 +119,7 @@ get_lib_files(Dir) ->
             {ok, []}
     end.
 
-get_includes_in_dir(Dir) ->
+get_hrls_in_dir(Dir) ->
     case file:list_dir(Dir) of
         {ok, Files} ->
             {ok, filter_includes(Files)};
@@ -530,17 +523,6 @@ find_first_var(Var, S) ->
             error;
         Other ->
             Other
-    end.
-
-get_ext_inc([], _) ->
-    "";
-get_ext_inc([P | Rest], FilePath) ->
-    S = filename:join(P, FilePath),
-    case filelib:is_regular(S) of
-        true ->
-            {ok, S};
-        false ->
-            get_ext_inc(Rest, FilePath)
     end.
 
 get_source_ebin(Mod) ->
