@@ -11,6 +11,7 @@
 package org.erlide.engine.services.cleanup;
 
 import org.eclipse.core.resources.IResource;
+import org.erlide.engine.services.ErlangService;
 
 /**
  * <p>
@@ -20,7 +21,7 @@ import org.eclipse.core.resources.IResource;
  *
  * @author Alain O'Dea [alain dot odea at gmail dot com]
  */
-public interface CleanupProvider {
+public interface CleanupProvider extends ErlangService {
 
     /**
      * <p>

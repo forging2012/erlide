@@ -341,7 +341,7 @@ public class IErlModuleTests extends ErlModelTestBase {
     public void findAllIncludedFiles() throws Exception {
         module.open(null);
         final Collection<IErlModule> includedFiles = ErlangEngine.getInstance()
-                .getModelSearcherService().findAllIncludedFiles(module);
+                .getModelFindService().findAllIncludedFiles(module);
         final String yyHrl = "yy.hrl";
         final IErlModule include = ErlideTestUtils.createInclude(project, yyHrl,
                 "-include(\"zz.hrl\").\n-define(A, hej).\n");
@@ -349,7 +349,7 @@ public class IErlModuleTests extends ErlModelTestBase {
                 "-define(B(X), lists:reverse(X)).\n");
         module.open(null);
         final List<IErlModule> includedFiles2 = Lists.newArrayList(ErlangEngine
-                .getInstance().getModelSearcherService().findAllIncludedFiles(module));
+                .getInstance().getModelFindService().findAllIncludedFiles(module));
         assertEquals(0, includedFiles.size());
         assertEquals(2, includedFiles2.size());
         assertEquals(include, includedFiles2.get(0));
@@ -366,7 +366,7 @@ public class IErlModuleTests extends ErlModelTestBase {
                 "-include(\"yy.hrl\").\n-define(A, hej).\n");
         module.open(null);
         final Collection<IErlModule> includedFiles2 = ErlangEngine.getInstance()
-                .getModelSearcherService().findAllIncludedFiles(module);
+                .getModelFindService().findAllIncludedFiles(module);
     }
 
     // boolean isOnSourcePath();

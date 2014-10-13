@@ -2,7 +2,9 @@ package org.erlide.engine.model.root;
 
 import java.io.File;
 
-public interface IProjectConfiguratorFactory {
+import org.erlide.engine.services.ErlangService;
+
+public interface IProjectConfiguratorFactory extends ErlangService {
 
     public abstract IProjectConfigurator getConfig(ProjectConfigType configType,
             IErlProject project);
