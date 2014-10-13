@@ -11,29 +11,23 @@ public class OtpRpcFactory {
     private static IOtpRpcProvider provider;
 
     public static IOtpRpc getOtpRpc(final RuntimeVersion version) {
-        if (provider == null) {
-            provider = getOtpRpcProvider();
-        }
-        return provider.get(version);
+        return getOtpRpcProvider().get(version);
     }
 
     public static IOtpRpc getOtpRpcForProject(final IErlProject project) {
-        if (provider == null) {
-            provider = getOtpRpcProvider();
-        }
-        return provider.get(project.getName());
+        return getOtpRpcProvider().get(project.getName());
     }
 
     public static IOtpRpc getOtpRpc() {
-        if (provider == null) {
-            provider = getOtpRpcProvider();
-        }
-        return provider.get();
+        return getOtpRpcProvider().get();
     }
 
     private static IOtpRpcProvider getOtpRpcProvider() {
-        return ExtensionUtils.getSingletonExtension("org.erlide.backend.backend",
-                IOtpRpcProvider.class);
+        if (provider == null) {
+            provider = ExtensionUtils.getSingletonExtension("org.erlide.backend.backend",
+                    IOtpRpcProvider.class);
+        }
+        return provider;
     }
 
 }
