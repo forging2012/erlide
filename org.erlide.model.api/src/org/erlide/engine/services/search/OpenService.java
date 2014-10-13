@@ -14,9 +14,11 @@ import com.ericsson.otp.erlang.OtpErlangTuple;
 
 public interface OpenService extends ErlangService {
 
+    // TODO externals
     OtpErlangObject getSourceFromModule(final OtpErlangList pathVars, final String mod,
             final String externalModules) throws RpcException;
 
+    // TODO externals
     OpenResult open(final String scannerName, final int offset,
             final List<OtpErlangObject> imports, final String externalModules,
             final OtpErlangList pathVars) throws RpcException;

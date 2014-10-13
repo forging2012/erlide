@@ -170,6 +170,7 @@ public class ErlProject extends Openable implements IErlProject,
         children.add(external);
     }
 
+    // TODO externals
     private void addExternals(final List<IErlElement> children) {
         final ErlangProjectProperties myProperties = getProperties();
         final String externalIncludes = myProperties.getExternalIncludes();
