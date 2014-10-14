@@ -23,7 +23,6 @@ import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
 import org.erlide.engine.model.IErlModelChangeListener;
-import org.erlide.engine.model.IOpenable;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlProject;
@@ -62,9 +61,9 @@ public class ErlangFileContentProvider implements ITreeContentProvider,
                 parentElement = ErlangEngine.getInstance().getModel()
                         .findModule((IFile) parentElement);
             }
-            if (parentElement instanceof IOpenable) {
-                final IOpenable openable = (IOpenable) parentElement;
-                openable.open(null);
+            if (parentElement instanceof IErlElement) {
+                final IErlElement ErlElement = (IErlElement) parentElement;
+                ErlElement.open(null);
             }
             if (parentElement instanceof IErlElement) {
                 final IErlElement parent = (IErlElement) parentElement;

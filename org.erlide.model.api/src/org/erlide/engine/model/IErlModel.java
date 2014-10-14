@@ -41,7 +41,7 @@ import com.google.common.base.Predicate;
  * @see ErlangCore#create(org.eclipse.core.resources.IWorkspaceRoot)
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IErlModel extends IErlElement, IOpenable, IErlElementLocator {
+public interface IErlModel extends IErlElement, IErlElementLocator {
 
     /**
      * Returns the Erlang project with the given name. This is a handle-only

@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.model.cache.ErlModelCache;
-import org.erlide.engine.internal.model.root.Openable;
+import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
 import org.erlide.engine.model.erlang.IErlModule;
@@ -26,7 +26,7 @@ import org.erlide.runtime.api.IOtpRpc;
 import com.ericsson.otp.erlang.OtpErlangList;
 import com.google.common.collect.Maps;
 
-public class ErlExternalReferenceEntryList extends Openable implements IErlExternalRoot {
+public class ErlExternalReferenceEntryList extends ErlElement implements IErlExternalRoot {
 
     private final String externalIncludes, externalModules;
     private final List<String> projectIncludes;

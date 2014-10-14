@@ -14,7 +14,6 @@ package org.erlide.engine.model.root;
 import java.util.Collection;
 
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IOpenable;
 import org.erlide.engine.model.erlang.IErlModule;
 
 /**
@@ -24,7 +23,7 @@ import org.erlide.engine.model.erlang.IErlModule;
  * @see ErlangCore#createRoot(org.eclipse.core.resources.IFolder)
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IErlFolder extends IErlElement, IOpenable {
+public interface IErlFolder extends IErlElement {
 
     /**
      * @return all modules in this folder and its sub-folders

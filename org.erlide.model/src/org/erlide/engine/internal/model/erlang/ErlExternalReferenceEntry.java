@@ -7,7 +7,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.erlide.engine.ErlangEngine;
-import org.erlide.engine.internal.model.root.Openable;
+import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlElementKind;
@@ -21,7 +21,7 @@ import org.erlide.runtime.api.IOtpRpc;
 
 import com.google.common.collect.Lists;
 
-public class ErlExternalReferenceEntry extends Openable implements IErlExternal {
+public class ErlExternalReferenceEntry extends ErlElement implements IErlExternal {
 
     private final String entry;
     private final boolean prebuilt;

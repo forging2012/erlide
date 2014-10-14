@@ -1,7 +1,9 @@
 package org.erlide.engine.internal.model.erlang;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.erlide.engine.ErlangEngine;
+import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.erlang.IErlMember;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.erlang.ISourceRange;
@@ -68,6 +70,11 @@ public abstract class ErlMember extends SourceRefElement implements IErlMember {
             j = k;
         }
         return s.substring(0, j).trim();
+    }
+
+    @Override
+    public boolean buildStructure(final IProgressMonitor pm) throws ErlModelException {
+        return true;
     }
 
 }

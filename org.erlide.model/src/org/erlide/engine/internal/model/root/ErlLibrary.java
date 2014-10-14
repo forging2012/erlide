@@ -9,7 +9,7 @@ import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlLibrary;
 import org.erlide.engine.model.root.IErlProject;
 
-public class ErlLibrary extends Openable implements IErlLibrary {
+public class ErlLibrary extends ErlElement implements IErlLibrary {
 
     public ErlLibrary(final String name, final IErlElement parent) {
         super(parent, name);

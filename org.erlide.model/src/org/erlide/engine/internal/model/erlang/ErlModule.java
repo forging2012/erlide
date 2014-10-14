@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.erlide.engine.ErlangEngine;
-import org.erlide.engine.internal.model.root.Openable;
+import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.internal.util.ModelConfig;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
@@ -63,7 +63,7 @@ import com.ericsson.otp.erlang.OtpErlangString;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 
-public class ErlModule extends Openable implements IErlModule {
+public class ErlModule extends ErlElement implements IErlModule {
 
     private static final OtpErlangAtom EXPORT_ALL = new OtpErlangAtom("export_all");
     private static final boolean logging = false;

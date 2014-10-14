@@ -32,7 +32,7 @@ import org.erlide.util.SystemConfiguration;
  * @author Jakob C
  *
  */
-public class ErlFolder extends Openable implements IErlFolder {
+public class ErlFolder extends ErlElement implements IErlFolder {
     private final IFolder folder;
     private final ModelUtilService modelUtilService;
 

@@ -3,7 +3,6 @@
  */
 package org.erlide.engine.model.root;
 
-import org.erlide.engine.model.IOpenable;
 
 /**
  * @author jakob
@@ -11,7 +10,7 @@ import org.erlide.engine.model.IOpenable;
  * @noimplement This interface is not intended to be implemented by clients.
  *
  */
-public interface IErlExternal extends IErlElement, IOpenable {
+public interface IErlExternal extends IErlElement {
 
     boolean isOTP();
 

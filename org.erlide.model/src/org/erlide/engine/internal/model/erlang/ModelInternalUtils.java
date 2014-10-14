@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IPath;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IOpenable;
 import org.erlide.engine.model.erlang.ErlangFunction;
 import org.erlide.engine.model.erlang.IErlImport;
 import org.erlide.engine.model.erlang.IErlModule;
@@ -101,10 +100,8 @@ public class ModelInternalUtils implements ModelUtilService {
                 if (parent == null) {
                     break;
                 }
-                if (parent instanceof IOpenable) {
-                    final IOpenable openable = (IOpenable) parent;
-                    openable.open(null);
-                }
+                final IErlElement ErlElement = parent;
+                ErlElement.open(null);
                 if (i == n) {
                     break;
                 }

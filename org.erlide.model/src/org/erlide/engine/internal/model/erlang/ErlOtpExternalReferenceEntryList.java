@@ -7,7 +7,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.erlide.engine.ErlangEngine;
-import org.erlide.engine.internal.model.root.Openable;
+import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlElementKind;
@@ -25,7 +25,7 @@ import com.ericsson.otp.erlang.OtpErlangString;
 import com.ericsson.otp.erlang.OtpErlangTuple;
 import com.google.common.base.Charsets;
 
-public class ErlOtpExternalReferenceEntryList extends Openable implements
+public class ErlOtpExternalReferenceEntryList extends ErlElement implements
         IErlExternalRoot {
 
     public ErlOtpExternalReferenceEntryList(final IErlElement parent, final String name) {

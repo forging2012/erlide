@@ -42,7 +42,6 @@ import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.ErlModelStatus;
 import org.erlide.engine.model.ErlModelStatusConstants;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IOpenable;
 import org.erlide.engine.model.SourcePathUtils;
 import org.erlide.engine.model.builder.BuilderProperties;
 import org.erlide.engine.model.erlang.IErlModule;
@@ -88,7 +87,7 @@ import com.google.common.collect.Lists;
  *
  * @see IErlProject
  */
-public class ErlProject extends Openable implements IErlProject,
+public class ErlProject extends ErlElement implements IErlProject,
         ProjectConfigurationChangeListener {
 
     private static final String CONFIG_TYPE_TAG = "configType";
@@ -490,9 +489,9 @@ public class ErlProject extends Openable implements IErlProject,
                     final IErlModule module = (IErlModule) element;
                     result.add(module);
                     return false;
-                } else if (isExternalOrProject && element instanceof IOpenable) {
-                    final IOpenable openable = (IOpenable) element;
-                    openable.open(null);
+                } else if (isExternalOrProject) {
+                    final IErlElement ErlElement = element;
+                    ErlElement.open(null);
                 }
                 return isExternalOrProject;
             }
@@ -620,9 +619,9 @@ public class ErlProject extends Openable implements IErlProject,
                         result.add(module);
                     }
                     return false;
-                } else if (isExternalOrProject && element instanceof IOpenable) {
-                    final IOpenable openable = (IOpenable) element;
-                    openable.open(null);
+                } else if (isExternalOrProject) {
+                    final IErlElement ErlElement = element;
+                    ErlElement.open(null);
                 }
                 return isExternalOrProject;
             }

@@ -10,7 +10,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IOpenable;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
@@ -61,9 +60,9 @@ public class ErlangExternalsContentProvider implements ITreeContentProvider {
                 return erlangFileContentProvider.getChildren(parentElement);
             }
             if (parentElement instanceof IErlElement) {
-                if (parentElement instanceof IOpenable) {
-                    final IOpenable openable = (IOpenable) parentElement;
-                    openable.open(null);
+                if (parentElement instanceof IErlElement) {
+                    final IErlElement ErlElement = (IErlElement) parentElement;
+                    ErlElement.open(null);
                 }
                 final IErlElement parent = (IErlElement) parentElement;
                 final Collection<IErlElement> children = parent.getChildrenOfKind(
@@ -117,10 +116,10 @@ public class ErlangExternalsContentProvider implements ITreeContentProvider {
                 return true;
             }
             final Stopwatch clock = Stopwatch.createStarted();
-            if (element instanceof IOpenable) {
-                final IOpenable openable = (IOpenable) element;
+            if (element instanceof IErlElement) {
+                final IErlElement ErlElement = (IErlElement) element;
                 try {
-                    openable.open(null);
+                    ErlElement.open(null);
                 } catch (final ErlModelException e) {
                 }
             }

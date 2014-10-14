@@ -50,7 +50,7 @@ import org.erlide.engine.internal.model.root.ErlElementDelta;
 import org.erlide.engine.internal.model.root.ErlFolder;
 import org.erlide.engine.internal.model.root.ErlOtpLibrary;
 import org.erlide.engine.internal.model.root.ErlProject;
-import org.erlide.engine.internal.model.root.Openable;
+import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.internal.util.ModelConfig;
 import org.erlide.engine.model.ElementChangedEvent;
 import org.erlide.engine.model.ErlModelException;
@@ -58,7 +58,6 @@ import org.erlide.engine.model.ErlModelStatus;
 import org.erlide.engine.model.IElementChangedListener;
 import org.erlide.engine.model.IErlModel;
 import org.erlide.engine.model.IErlModelChangeListener;
-import org.erlide.engine.model.IOpenable;
 import org.erlide.engine.model.erlang.ErlangFunction;
 import org.erlide.engine.model.erlang.FunctionRef;
 import org.erlide.engine.model.erlang.IErlFunction;
@@ -97,7 +96,7 @@ import com.google.common.collect.Sets;
  *
  * @see IErlModel
  */
-public class ErlModel extends Openable implements IErlModel {
+public class ErlModel extends ErlElement implements IErlModel {
 
     private final List<IErlModelChangeListener> fListeners;
     private final IPathVariableChangeListener fPathVariableChangeListener;
@@ -265,8 +264,8 @@ public class ErlModel extends Openable implements IErlModel {
             if (c == null) {
                 return null;
             }
-            if (openElements && c instanceof IOpenable) {
-                final IOpenable o = (IOpenable) c;
+            if (openElements) {
+                final IErlElement o = c;
                 try {
                     o.open(null);
                 } catch (final ErlModelException e) {
@@ -610,13 +609,11 @@ public class ErlModel extends Openable implements IErlModel {
         if (element != null) {
             final IErlElement p = element.getParent();
             p.removeChild(element);
-            if (element instanceof IOpenable) {
-                final IOpenable openable = (IOpenable) element;
-                try {
-                    openable.close();
-                } catch (final ErlModelException e) {
-                    ErlLogger.error(e);
-                }
+            final IErlElement ErlElement = element;
+            try {
+                ErlElement.close();
+            } catch (final ErlModelException e) {
+                ErlLogger.error(e);
             }
         }
         // TODO should we make Erlidemodelevents and fire them?
