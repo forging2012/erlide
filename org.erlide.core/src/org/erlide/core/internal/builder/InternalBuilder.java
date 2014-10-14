@@ -360,8 +360,8 @@ public class InternalBuilder extends ErlangBuilder {
             }
             final IBackend backend = BackendCore.getBackendManager().getBuildBackend(
                     eproject);
-            backend.getOtpRpc().call("erlide_builder", "compile_app_src", "ssla",
-                    appSrc, destPath, modules);
+            backend.getOtpRpc().call("erlide_builder", "compile_app_src", "ssla", appSrc,
+                    destPath, modules);
         } catch (final Exception e) {
             ErlLogger.error(e);
         }

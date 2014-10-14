@@ -36,7 +36,7 @@ public class ErlFolder extends ErlElement implements IErlFolder {
     private final IFolder folder;
     private final ModelUtilService modelUtilService;
 
-    public ErlFolder(final IFolder folder, final IErlElement parent) {
+    public ErlFolder(final IErlElement parent, final IFolder folder) {
         super(parent, folder.getName());
         this.folder = folder;
         modelUtilService = ErlangEngine.getInstance().getModelUtilService();

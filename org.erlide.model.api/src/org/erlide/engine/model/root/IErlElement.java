@@ -123,17 +123,6 @@ public interface IErlElement extends IAdaptable, IDisposable {
      */
     IResource getResource();
 
-    // /**
-    // * Returns the smallest underlying resource that contains this element, or
-    // * <code>null</code> if this element is not contained in a resource.
-    // *
-    // * @return the underlying resource, or <code>null</code> if none
-    // * @throws ErlModelException
-    // * if this element does not exist or if an exception occurs
-    // * while accessing its underlying resource
-    // */
-    // IResource getUnderlyingResource() throws ErlModelException;
-
     /**
      * Returns whether this Erlang element is read-only. An element is read-only
      * if its structure cannot be modified by the Erlang model.

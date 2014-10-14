@@ -11,7 +11,7 @@ import org.erlide.engine.model.root.IErlProject;
 
 public class ErlLibrary extends ErlElement implements IErlLibrary {
 
-    public ErlLibrary(final String name, final IErlElement parent) {
+    public ErlLibrary(final IErlElement parent, final String name) {
         super(parent, name);
     }
 
@@ -31,8 +31,7 @@ public class ErlLibrary extends ErlElement implements IErlLibrary {
     }
 
     @Override
-    public boolean buildStructure(final IProgressMonitor pm)
-            throws ErlModelException {
+    public boolean buildStructure(final IProgressMonitor pm) throws ErlModelException {
         return false;
     }
 }

@@ -8,8 +8,8 @@ public class ErlOtpLibrary extends ErlLibrary implements IErlOtpLibrary {
 
     private final RuntimeVersion version;
 
-    public ErlOtpLibrary(final RuntimeVersion version, final IErlElement parent) {
-        super(version.toString(), parent);
+    public ErlOtpLibrary(final IErlElement parent, final RuntimeVersion version) {
+        super(parent, version.toString());
         this.version = version;
     }
 

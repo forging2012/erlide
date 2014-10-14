@@ -46,11 +46,11 @@ import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.ModelPlugin;
 import org.erlide.engine.internal.model.cache.ErlModelCache;
 import org.erlide.engine.internal.model.erlang.ErlModule;
+import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.internal.model.root.ErlElementDelta;
 import org.erlide.engine.internal.model.root.ErlFolder;
 import org.erlide.engine.internal.model.root.ErlOtpLibrary;
 import org.erlide.engine.internal.model.root.ErlProject;
-import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.internal.util.ModelConfig;
 import org.erlide.engine.model.ElementChangedEvent;
 import org.erlide.engine.model.ErlModelException;
@@ -167,7 +167,7 @@ public class ErlModel extends ErlElement implements IErlModel {
     }
 
     private IErlProject createErlangProject(final IProject project) {
-        final IErlProject ep = new ErlProject(project, this);
+        final IErlProject ep = new ErlProject(this, project);
         addChild(ep);
         final ErlModelCache cache = getModelCache();
         cache.newProjectCreated();
@@ -668,7 +668,7 @@ public class ErlModel extends ErlElement implements IErlModel {
         if (folder == null) {
             return null;
         }
-        final IErlFolder f = new ErlFolder(folder, parent);
+        final IErlFolder f = new ErlFolder(parent, folder);
         final IErlElement p = parent;
         if (p != null) {
             p.addChild(f);
@@ -719,7 +719,7 @@ public class ErlModel extends ErlElement implements IErlModel {
         if (version == null) {
             return null;
         }
-        final IErlLibrary ep = new ErlOtpLibrary(version, this);
+        final IErlLibrary ep = new ErlOtpLibrary(this, version);
         addChild(ep);
         return ep;
     }

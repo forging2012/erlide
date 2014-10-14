@@ -104,7 +104,7 @@ public class ErlProject extends ErlElement implements IErlProject,
 
     private volatile boolean configuring = false;
 
-    public ErlProject(final IProject project, final IErlElement parent) {
+    public ErlProject(final IErlElement parent, final IProject project) {
         super(parent, project.getName());
         fProject = project;
     }

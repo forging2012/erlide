@@ -37,8 +37,7 @@ public class CodeManager {
     private final RuntimeVersion version;
 
     // only to be called by Backend
-    CodeManager(final IOtpRpc site, final String backendName,
-            final RuntimeVersion version) {
+    CodeManager(final IOtpRpc site, final String backendName, final RuntimeVersion version) {
         this.site = site;
         this.backendName = backendName;
         this.version = version;

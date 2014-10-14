@@ -465,8 +465,9 @@ public final class TypeConverter {
                 || ste.getMethodName().equals("sendRpc")
                 || ste.getMethodName().equals("rpc")
                 || ste.getMethodName().equals("rpct")
-                || ste.getMethodName().equals("rpcx") || ste.getMethodName()
-                .equals("rpcxt")) && ste.getClassName().endsWith("Backend");
+                || ste.getMethodName().equals("rpcx") || ste.getMethodName().equals(
+                "rpcxt"))
+                && ste.getClassName().endsWith("Backend");
     }
 
     private static OtpErlangObject cvtNumber(final Object obj, final Signature type)

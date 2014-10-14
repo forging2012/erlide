@@ -73,8 +73,8 @@ public class BackendUtils {
 
     public static boolean isAccessibleDir(final IOtpRpc otpRpc, final String localDir) {
         try {
-            final OtpErlangObject r = otpRpc.call("file", "read_file_info", "s",
-                    localDir);
+            final OtpErlangObject r = otpRpc
+                    .call("file", "read_file_info", "s", localDir);
             if (Util.isOk(r)) {
                 final OtpErlangTuple result = (OtpErlangTuple) r;
                 final OtpErlangTuple info = (OtpErlangTuple) result.elementAt(1);

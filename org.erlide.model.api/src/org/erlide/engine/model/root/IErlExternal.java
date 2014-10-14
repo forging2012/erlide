@@ -3,7 +3,6 @@
  */
 package org.erlide.engine.model.root;
 
-
 /**
  * @author jakob
  *

@@ -207,8 +207,7 @@ public final class BuilderHelper {
         }
     }
 
-    private void createMarkersForCodeClashes(final IOtpRpc backend,
-            final IProject project) {
+    private void createMarkersForCodeClashes(final IOtpRpc backend, final IProject project) {
         try {
             final OtpErlangList res = BuilderHelper.getCodeClashes(backend);
             for (final OtpErlangObject elem : res) {

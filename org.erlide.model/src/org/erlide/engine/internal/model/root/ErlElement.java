@@ -746,7 +746,8 @@ public abstract class ErlElement extends PlatformObject implements IErlElement, 
                     ErlModelStatusConstants.READ_ONLY, this));
         }
         // final IBuffer buf = getBuffer();
-        // if (buf != null) { // some ErlElements (like a ErlProject) don't have a
+        // if (buf != null) { // some ErlElements (like a ErlProject) don't have
+        // a
         // // buffer
         // buf.save(pm, force);
         // makeConsistent(pm); // update the element info of this
