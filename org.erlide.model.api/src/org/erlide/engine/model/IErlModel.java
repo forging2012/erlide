@@ -41,7 +41,7 @@ import com.google.common.base.Predicate;
  * @see ErlangCore#create(org.eclipse.core.resources.IWorkspaceRoot)
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IErlModel extends IErlElement, IOpenable, IParent, IErlElementLocator {
+public interface IErlModel extends IErlElement, IOpenable, IErlElementLocator {
 
     /**
      * Returns the Erlang project with the given name. This is a handle-only
@@ -153,10 +153,10 @@ public interface IErlModel extends IErlElement, IOpenable, IParent, IErlElementL
 
     void registerModelDelta(IErlElementDelta delta);
 
-    IErlModule getModuleFromFile(IParent parent, String name, String initialText,
+    IErlModule getModuleFromFile(IErlElement parent, String name, String initialText,
             String path, String key);
 
-    IErlModule getModuleFromText(IParent parent, String name, String initialText,
+    IErlModule getModuleFromText(IErlElement parent, String name, String initialText,
             String key);
 
     public void removeModule(final IErlModule module);

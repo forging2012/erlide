@@ -43,7 +43,6 @@ import org.erlide.engine.model.ErlModelStatus;
 import org.erlide.engine.model.ErlModelStatusConstants;
 import org.erlide.engine.model.IErlModel;
 import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.SourcePathUtils;
 import org.erlide.engine.model.builder.BuilderProperties;
 import org.erlide.engine.model.erlang.IErlModule;
@@ -106,7 +105,7 @@ public class ErlProject extends Openable implements IErlProject,
 
     private volatile boolean configuring = false;
 
-    public ErlProject(final IProject project, final IParent parent) {
+    public ErlProject(final IProject project, final IErlElement parent) {
         super(parent, project.getName());
         fProject = project;
     }

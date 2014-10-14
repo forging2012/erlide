@@ -29,7 +29,6 @@ import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.model.cache.ErlModelCache;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlElementVisitor;
@@ -42,14 +41,13 @@ import com.google.common.collect.Lists;
  *
  * @see IErlElement
  */
-public abstract class ErlElement extends PlatformObject implements IErlElement, IParent,
-        Cloneable {
+public abstract class ErlElement extends PlatformObject implements IErlElement, Cloneable {
 
     /**
      * This element's parent, or <code>null</code> if this element does not have
      * a parent.
      */
-    private final IParent fParent;
+    private final IErlElement fParent;
 
     private final List<IErlElement> fChildren = Lists.newArrayList();
 
@@ -75,7 +73,7 @@ public abstract class ErlElement extends PlatformObject implements IErlElement, 
      *             constants
      *
      */
-    protected ErlElement(final IParent parent, final String name) {
+    protected ErlElement(final IErlElement parent, final String name) {
         fParent = parent;
         fName = name;
         assertThat(fName, is(not(nullValue())));
@@ -148,9 +146,9 @@ public abstract class ErlElement extends PlatformObject implements IErlElement, 
             if (element.getKind() == kind) {
                 return element;
             }
-            final IParent parent = element.getParent();
-            if (parent instanceof IErlElement) {
-                element = (IErlElement) parent;
+            final IErlElement parent = element.getParent();
+            if (parent != null) {
+                element = parent;
             } else {
                 break;
             }
@@ -181,7 +179,7 @@ public abstract class ErlElement extends PlatformObject implements IErlElement, 
      * @see IErlElement
      */
     @Override
-    public IParent getParent() {
+    public IErlElement getParent() {
         return fParent;
     }
 
@@ -212,7 +210,7 @@ public abstract class ErlElement extends PlatformObject implements IErlElement, 
     }
 
     /**
-     * @see IParent
+     * @see IErlElement
      */
     @Override
     public boolean hasChildren() {
@@ -313,7 +311,7 @@ public abstract class ErlElement extends PlatformObject implements IErlElement, 
      * Debugging purposes
      */
     protected void toStringAncestors(final StringBuilder buffer) {
-        final IParent parent = getParent();
+        final IErlElement parent = getParent();
         if (parent != null) {
             if (parent instanceof ErlElement) {
                 final ErlElement parentElement = (ErlElement) parent;
@@ -563,8 +561,8 @@ public abstract class ErlElement extends PlatformObject implements IErlElement, 
 
     @Override
     public IResource getResource() {
-        if (fParent instanceof IErlElement) {
-            final IErlElement parentElement = (IErlElement) fParent;
+        if (fParent != null) {
+            final IErlElement parentElement = fParent;
             return parentElement.getResource();
         }
         return null;

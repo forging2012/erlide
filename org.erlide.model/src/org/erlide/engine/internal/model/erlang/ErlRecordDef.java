@@ -2,7 +2,6 @@ package org.erlide.engine.internal.model.erlang;
 
 import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlRecordDef;
 import org.erlide.engine.model.erlang.IErlRecordField;
 import org.erlide.engine.model.root.ErlElementKind;
@@ -20,7 +19,7 @@ public class ErlRecordDef extends ErlMember implements IErlRecordDef {
      * @param imports
      * @param module
      */
-    public ErlRecordDef(final IParent parent, final String name, final String extra) {
+    public ErlRecordDef(final IErlElement parent, final String name, final String extra) {
         super(parent, "record_definition");
         record = name != null ? name : uptoEndOfToken(extra);
         this.extra = extra;

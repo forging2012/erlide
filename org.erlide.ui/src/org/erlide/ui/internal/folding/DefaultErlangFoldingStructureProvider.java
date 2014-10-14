@@ -36,7 +36,6 @@ import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IElementChangedListener;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlComment;
 import org.erlide.engine.model.erlang.IErlMember;
 import org.erlide.engine.model.erlang.IErlModule;
@@ -592,40 +591,40 @@ public class DefaultErlangFoldingStructureProvider implements IProjectionListene
             return;
         }
         try {
-            computeAdditions((IParent) erlModule, map);
-            computeAdditions(erlModule.getComments(), map);
+            computeAdditions((IErlElement) erlModule, map);
+            computeAdditions1(erlModule.getComments(), map);
         } catch (final ErlModelException x) {
             ErlLogger.warn(x);
         }
     }
 
-    private void computeAdditions(final IParent parent,
+    private void computeAdditions(final IErlElement parent,
             final Map<ErlangProjectionAnnotation, Position> map) {
         if (parent == null) {
             return;
         }
         try {
-            computeAdditions(parent.getChildren(), map);
+            computeAdditions1(parent.getChildren(), map);
         } catch (final ErlModelException x) {
             ErlLogger.warn(x);
         }
     }
 
-    private void computeAdditions(final Collection<? extends IErlElement> elements,
+    private void computeAdditions1(final Collection<? extends IErlElement> elements,
             final Map<ErlangProjectionAnnotation, Position> map) throws ErlModelException {
         if (elements == null) {
             return;
         }
         for (final IErlElement element : elements) {
-            computeAdditions(element, map);
-            if (element instanceof IParent) {
-                final IParent parent = (IParent) element;
-                computeAdditions(parent.getChildren(), map);
+            computeAdditions1(element, map);
+            if (element != null) {
+                final IErlElement parent = element;
+                computeAdditions1(parent.getChildren(), map);
             }
         }
     }
 
-    private void computeAdditions(final IErlElement element,
+    private void computeAdditions1(final IErlElement element,
             final Map<ErlangProjectionAnnotation, Position> map) {
         boolean createProjection = false;
         boolean collapse = false;

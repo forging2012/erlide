@@ -46,7 +46,6 @@ import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
 import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.ui.editors.erl.ErlangDocumentSetupParticipant;
@@ -159,8 +158,8 @@ public class ErlStructureCreator extends StructureCreator {
             final IOpenable o = (IOpenable) element;
             o.open(null);
         }
-        if (element instanceof IParent) {
-            final IParent p = (IParent) element;
+        if (element != null) {
+            final IErlElement p = element;
             final Collection<IErlElement> children = p.getChildren();
             for (final IErlElement child : children) {
                 recursiveMakeErlNodes(child, n, doc);
@@ -312,7 +311,7 @@ public class ErlStructureCreator extends StructureCreator {
                 if (e instanceof IErlModule) {
                     break;
                 }
-                e = (IErlElement) e.getParent();
+                e = e.getParent();
             }
             Collections.reverse(args);
             return args.toArray(new String[args.size()]);

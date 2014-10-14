@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.erlide.engine.ErlangEngine;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.ErlangFunction;
 import org.erlide.engine.model.erlang.IErlComment;
 import org.erlide.engine.model.erlang.IErlFunction;
@@ -48,7 +47,7 @@ public class ErlFunction extends ErlMember implements IErlFunction {
      * @param head
      * @param comment
      */
-    public ErlFunction(final IParent parent, final String name, final int arity,
+    public ErlFunction(final IErlElement parent, final String name, final int arity,
             final String head, final boolean exported, final OtpErlangList parameters) {
         super(parent, name);
         this.arity = arity;

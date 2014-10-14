@@ -9,7 +9,6 @@ import org.eclipse.core.runtime.Path;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.model.root.Openable;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
@@ -29,7 +28,7 @@ import com.google.common.base.Charsets;
 public class ErlOtpExternalReferenceEntryList extends Openable implements
         IErlExternalRoot {
 
-    public ErlOtpExternalReferenceEntryList(final IParent parent, final String name) {
+    public ErlOtpExternalReferenceEntryList(final IErlElement parent, final String name) {
         super(parent, name);
     }
 

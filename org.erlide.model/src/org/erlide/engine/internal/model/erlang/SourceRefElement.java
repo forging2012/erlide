@@ -16,7 +16,6 @@ import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.internal.model.root.Openable;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.ISourceRange;
 import org.erlide.engine.model.erlang.ISourceReference;
 import org.erlide.engine.model.root.IErlElement;
@@ -32,7 +31,7 @@ public abstract class SourceRefElement extends ErlElement implements ISourceRefe
     protected int fSourceRangeLength;
     protected int lineStart, lineEnd;
 
-    protected SourceRefElement(final IParent parent, final String name) {
+    protected SourceRefElement(final IErlElement parent, final String name) {
         super(parent, name);
     }
 
@@ -75,17 +74,13 @@ public abstract class SourceRefElement extends ErlElement implements ISourceRefe
      */
     @Override
     public IOpenable getOpenableParent() {
-        IParent parent = getParent();
+        IErlElement parent = getParent();
         while (parent != null) {
             if (parent instanceof IOpenable) {
                 return (IOpenable) parent;
             }
-            if (parent instanceof IErlElement) {
-                final IErlElement parentElement = (IErlElement) parent;
-                parent = parentElement.getParent();
-            } else {
-                break;
-            }
+            final IErlElement parentElement = parent;
+            parent = parentElement.getParent();
         }
         return null;
     }
@@ -131,7 +126,7 @@ public abstract class SourceRefElement extends ErlElement implements ISourceRefe
     // }
 
     /**
-     * @see IParent
+     * @see IErlElement
      */
     @Override
     public boolean hasChildren() {

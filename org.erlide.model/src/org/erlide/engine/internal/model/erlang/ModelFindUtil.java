@@ -9,7 +9,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.model.cache.ErlModelCache;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.ErlangFunction;
 import org.erlide.engine.model.erlang.ErlangIncludeFile;
 import org.erlide.engine.model.erlang.IErlFunction;
@@ -291,7 +290,7 @@ public class ModelFindUtil implements ModelFindService {
     private Collection<IErlModule> getLocalIncludes(final IErlModule module)
             throws ErlModelException {
         final List<IErlModule> result = Lists.newArrayList();
-        final IParent parent = module.getParent();
+        final IErlElement parent = module.getParent();
         for (final IErlElement child : parent.getChildrenOfKind(ErlElementKind.MODULE)) {
             if (child instanceof IErlModule
                     && SourceKind.nameToModuleKind(child.getName()) == SourceKind.HRL) {

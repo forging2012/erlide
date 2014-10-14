@@ -14,7 +14,6 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.util.ErlLogger;
@@ -27,8 +26,8 @@ public class ErlangContentProvider implements ITreeContentProvider {
 
     @Override
     public Object[] getChildren(final Object parent) {
-        if (parent instanceof IParent) {
-            final IParent p = (IParent) parent;
+        if (parent instanceof IErlElement) {
+            final IErlElement p = (IErlElement) parent;
             try {
                 return p.getChildren().toArray();
             } catch (final ErlModelException x) {
@@ -54,8 +53,8 @@ public class ErlangContentProvider implements ITreeContentProvider {
 
     @Override
     public boolean hasChildren(final Object parent) {
-        if (parent instanceof IParent) {
-            final IParent p = (IParent) parent;
+        if (parent instanceof IErlElement) {
+            final IErlElement p = (IErlElement) parent;
             return p.hasChildren();
         }
         return false;

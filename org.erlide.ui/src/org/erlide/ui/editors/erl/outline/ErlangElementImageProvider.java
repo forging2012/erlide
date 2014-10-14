@@ -281,8 +281,8 @@ public class ErlangElementImageProvider {
     // try {
     // flags |= ProblemsLabelDecorator.getErrorTicksFromMarkers(
     // element.getResource(), IResource.DEPTH_INFINITE, sr);
-    // if (element instanceof IParent) {
-    // final IParent p = (IParent) element;
+    // if (element instanceof IErlElement) {
+    // final IErlElement p = (IErlElement) element;
     // for (final IErlElement e : p.getChildren()) {
     // if (e instanceof ISourceReference) {
     // final ISourceReference esr = (ISourceReference) e;

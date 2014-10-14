@@ -21,7 +21,6 @@ import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.ErlModelStatus;
 import org.erlide.engine.model.ErlModelStatusConstants;
 import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.util.ErlLogger;
@@ -36,7 +35,7 @@ public abstract class Openable extends ErlElement implements IOpenable {
 
     protected IResource findResult;
 
-    protected Openable(final IParent parent, final String name) {
+    protected Openable(final IErlElement parent, final String name) {
         super(parent, name);
     }
 
@@ -169,15 +168,14 @@ public abstract class Openable extends ErlElement implements IOpenable {
     }
 
     protected boolean parentExists() {
-        final IParent parent = getParent();
+        final IErlElement parent = getParent();
         if (parent == null) {
             return true;
         }
-        if (parent instanceof IErlElement) {
-            final IErlElement element = (IErlElement) parent;
+        {
+            final IErlElement element = parent;
             return element.exists();
         }
-        return false;
     }
 
     protected boolean resourceExists() {

@@ -51,8 +51,8 @@ import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.util.ResourceUtil;
 import org.erlide.runtime.api.IOtpRpc;
-import org.erlide.runtime.rpc.RpcFuture;
 import org.erlide.runtime.rpc.RpcException;
+import org.erlide.runtime.rpc.RpcFuture;
 import org.erlide.util.ErlLogger;
 
 import com.ericsson.otp.erlang.OtpErlangAtom;

@@ -12,9 +12,9 @@ import org.erlide.engine.internal.model.cache.ErlModelCache;
 import org.erlide.engine.internal.model.root.Openable;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlElementKind;
+import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlExternal;
 import org.erlide.engine.model.root.IErlExternalRoot;
 import org.erlide.engine.model.root.IErlProject;
@@ -31,7 +31,7 @@ public class ErlExternalReferenceEntryList extends Openable implements IErlExter
     private final String externalIncludes, externalModules;
     private final List<String> projectIncludes;
 
-    public ErlExternalReferenceEntryList(final IParent parent, final String name,
+    public ErlExternalReferenceEntryList(final IErlElement parent, final String name,
             final String externalIncludes, final List<String> projectIncludes,
             final String externalModules) {
         super(parent, name);

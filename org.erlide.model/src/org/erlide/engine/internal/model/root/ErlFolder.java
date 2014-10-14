@@ -17,7 +17,6 @@ import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.ErlModelStatus;
 import org.erlide.engine.model.ErlModelStatusConstants;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.erlang.SourceKind;
 import org.erlide.engine.model.root.ErlElementKind;
@@ -37,7 +36,7 @@ public class ErlFolder extends Openable implements IErlFolder {
     private final IFolder folder;
     private final ModelUtilService modelUtilService;
 
-    public ErlFolder(final IFolder folder, final IParent parent) {
+    public ErlFolder(final IFolder folder, final IErlElement parent) {
         super(parent, folder.getName());
         this.folder = folder;
         modelUtilService = ErlangEngine.getInstance().getModelUtilService();

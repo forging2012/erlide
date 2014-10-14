@@ -31,7 +31,6 @@ import org.erlide.engine.internal.model.root.Openable;
 import org.erlide.engine.internal.util.ModelConfig;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.ErlangFunction;
 import org.erlide.engine.model.erlang.ErlangIncludeFile;
 import org.erlide.engine.model.erlang.IErlAttribute;
@@ -80,16 +79,16 @@ public class ErlModule extends Openable implements IErlModule {
 
     private final ModelUtilService modelUtilService;
 
-    public ErlModule(final IParent parent, final String name, final IFile file) {
+    public ErlModule(final IErlElement parent, final String name, final IFile file) {
         this(parent, name, file, null, null, null);
     }
 
-    public ErlModule(final IParent parent, final String name, final String path,
+    public ErlModule(final IErlElement parent, final String name, final String path,
             final String encoding, final String initialText) {
         this(parent, name, null, path, encoding, initialText);
     }
 
-    private ErlModule(final IParent parent, final String name, final IFile file,
+    private ErlModule(final IErlElement parent, final String name, final IFile file,
             final String path, final String encoding, final String initialText) {
         super(parent, name);
         modelUtilService = ErlangEngine.getInstance().getModelUtilService();
@@ -102,7 +101,7 @@ public class ErlModule extends Openable implements IErlModule {
         scannerName = createScannerName();
         comments = Lists.newArrayList();
         if (ModelConfig.verbose) {
-            final IErlElement element = (IErlElement) parent;
+            final IErlElement element = parent;
             final String parentName = element.getName();
             ErlLogger.debug("...creating " + parentName + "/" + getName() + " "
                     + moduleKind);
@@ -530,7 +529,7 @@ public class ErlModule extends Openable implements IErlModule {
 
     @Override
     public boolean isOnSourcePath() {
-        final IParent parent = getParent();
+        final IErlElement parent = getParent();
         if (parent instanceof IErlFolder) {
             final IErlFolder folder = (IErlFolder) parent;
             return folder.isOnSourcePath();
@@ -543,7 +542,7 @@ public class ErlModule extends Openable implements IErlModule {
 
     @Override
     public boolean isOnIncludePath() {
-        final IParent parent = getParent();
+        final IErlElement parent = getParent();
         if (parent instanceof IErlFolder) {
             final IErlFolder folder = (IErlFolder) parent;
             return folder.isOnIncludePath();

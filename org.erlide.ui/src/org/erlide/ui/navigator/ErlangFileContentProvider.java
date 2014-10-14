@@ -24,7 +24,6 @@ import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
 import org.erlide.engine.model.IErlModelChangeListener;
 import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlProject;
@@ -67,8 +66,8 @@ public class ErlangFileContentProvider implements ITreeContentProvider,
                 final IOpenable openable = (IOpenable) parentElement;
                 openable.open(null);
             }
-            if (parentElement instanceof IParent) {
-                final IParent parent = (IParent) parentElement;
+            if (parentElement instanceof IErlElement) {
+                final IErlElement parent = (IErlElement) parentElement;
                 final Collection<IErlElement> children = parent.getChildren();
                 return children.toArray();
             }
@@ -89,9 +88,9 @@ public class ErlangFileContentProvider implements ITreeContentProvider,
     public Object getParent(final Object element) {
         if (element instanceof IErlElement) {
             final IErlElement elt = (IErlElement) element;
-            final IParent parent = elt.getParent();
+            final IErlElement parent = elt.getParent();
             if (parent instanceof IErlModule || parent instanceof IErlProject) {
-                final IErlElement e = (IErlElement) parent;
+                final IErlElement e = parent;
                 return e.getCorrespondingResource();
             }
         }
@@ -104,8 +103,8 @@ public class ErlangFileContentProvider implements ITreeContentProvider,
             // it was too slow to open all modules to find out;
             // empty modules aren't widely used anyway :-)
             return true;
-        } else if (element instanceof IParent) {
-            final IParent parent = (IParent) element;
+        } else if (element instanceof IErlElement) {
+            final IErlElement parent = (IErlElement) element;
             return parent.hasChildren();
         }
         return false;

@@ -31,7 +31,6 @@ import org.eclipse.ui.progress.IProgressService;
 import org.erlide.core.services.search.SearchCoreUtil;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlFunctionClause;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlElementKind;
@@ -98,8 +97,8 @@ public class SearchUtil {
                 } else if (i instanceof IErlModule) {
                     final IErlModule module = (IErlModule) i;
                     result.addModule(module);
-                } else if (i instanceof IParent) {
-                    final IParent parent = (IParent) i;
+                } else if (i instanceof IErlElement) {
+                    final IErlElement parent = (IErlElement) i;
                     SearchCoreUtil.addExternalModules(parent, result,
                             externalModulePaths, addExternals, addOtp);
                 }
@@ -308,18 +307,18 @@ public class SearchUtil {
             for (final IAdaptable a : elements) {
                 final IResource r = (IResource) a.getAdapter(IResource.class);
                 SearchCoreUtil.addResourceToScope(result, r);
-                IParent parent = null;
+                IErlElement parent = null;
                 Object o = a.getAdapter(IErlElement.class);
-                if (o instanceof IParent) {
-                    parent = (IParent) o;
+                if (o instanceof IErlElement) {
+                    parent = (IErlElement) o;
                 } else {
                     o = a.getAdapter(IResource.class);
                     if (o != null) {
                         final IResource resource = (IResource) o;
                         final IErlElement element = ErlangEngine.getInstance().getModel()
                                 .findElement(resource);
-                        if (element instanceof IParent) {
-                            parent = (IParent) element;
+                        if (element != null) {
+                            parent = element;
                         }
                     }
                 }

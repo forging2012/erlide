@@ -48,7 +48,6 @@ import org.erlide.engine.ModelActivator;
 import org.erlide.engine.internal.model.erlang.ErlAttribute;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.builder.BuilderTool;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlangProjectProperties;
@@ -487,7 +486,7 @@ public abstract class WorkspaceTest {
         return createProject(projectName, getTmpPath(projectName));
     }
 
-    public IErlElement createErlAttribute(final IParent parent, final String name,
+    public IErlElement createErlAttribute(final IErlElement parent, final String name,
             final OtpErlangObject value, final String extra, final int sourceRangeOffset,
             final int sourceRangeLength) {
         final ErlAttribute attribute = new ErlAttribute(parent, name, value, extra);

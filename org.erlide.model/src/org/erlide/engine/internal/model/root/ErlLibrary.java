@@ -4,14 +4,14 @@ import java.util.Collection;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.root.ErlElementKind;
+import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlLibrary;
 import org.erlide.engine.model.root.IErlProject;
 
 public class ErlLibrary extends Openable implements IErlLibrary {
 
-    public ErlLibrary(final String name, final IParent parent) {
+    public ErlLibrary(final String name, final IErlElement parent) {
         super(parent, name);
     }
 

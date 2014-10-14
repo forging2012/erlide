@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IPath;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.erlang.SourceKind;
 import org.erlide.engine.model.root.ErlElementKind;
@@ -85,7 +84,7 @@ public class SearchCoreUtil {
         }
     }
 
-    public static void addExternalModules(final IParent element,
+    public static void addExternalModules(final IErlElement element,
             final ErlSearchScope result, final Set<String> externalModulePaths,
             final boolean addExternals, final boolean addOtp) throws ErlModelException {
         final Collection<IErlElement> externals = element.getChildrenOfKind(

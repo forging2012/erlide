@@ -9,9 +9,9 @@ import org.eclipse.core.runtime.Path;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.model.root.Openable;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlElementKind;
+import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlExternal;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.services.search.OpenService;
@@ -28,7 +28,7 @@ public class ErlExternalReferenceEntry extends Openable implements IErlExternal 
     private final boolean hasHeaders;
     private String group;
 
-    public ErlExternalReferenceEntry(final IParent parent, final String name,
+    public ErlExternalReferenceEntry(final IErlElement parent, final String name,
             final String entry, final boolean prebuilt, final boolean hasHeaders) {
         super(parent, name);
         this.entry = entry;
@@ -87,7 +87,7 @@ public class ErlExternalReferenceEntry extends Openable implements IErlExternal 
 
     @Override
     public boolean isOTP() {
-        final IParent parent = getParent();
+        final IErlElement parent = getParent();
         if (parent instanceof IErlExternal) {
             final IErlExternal external = (IErlExternal) parent;
             return external.isOTP();

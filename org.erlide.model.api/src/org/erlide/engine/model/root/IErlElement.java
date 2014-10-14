@@ -11,13 +11,14 @@
  *******************************************************************************/
 package org.erlide.engine.model.root;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.IAdaptable;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.util.IDisposable;
 
 /**
@@ -109,7 +110,7 @@ public interface IErlElement extends IAdaptable, IDisposable {
      * @return the parent element, or <code>null</code> if this element has no
      *         parent
      */
-    IParent getParent();
+    IErlElement getParent();
 
     /**
      * Returns the innermost resource enclosing this element. This is a
@@ -192,5 +193,45 @@ public interface IErlElement extends IAdaptable, IDisposable {
     void clearCaches();
 
     String toStringWithAncestors();
+
+    /**
+     * Returns the immediate children of this element. Unless otherwise
+     * specified by the implementing element, the children are in no particular
+     * order.
+     *
+     * @exception ErlModelException
+     *                if this element does not exist or if an exception occurs
+     *                while accessing its corresponding resource
+     * @return the immediate children of this element
+     */
+    List<IErlElement> getChildren() throws ErlModelException;
+
+    int getChildCount();
+
+    /**
+     * Returns whether this element has one or more immediate children. This is
+     * a convenience method, and may be more efficient than testing whether
+     * <code>getChildren</code> is an empty array.
+     *
+     * @exception ErlModelException
+     *                if this element does not exist or if an exception occurs
+     *                while accessing its corresponding resource
+     * @return true if the immediate children of this element, false otherwise
+     */
+    boolean hasChildren();
+
+    List<IErlElement> getChildrenOfKind(ErlElementKind... kind) throws ErlModelException;
+
+    boolean hasChildrenOfKind(ErlElementKind... kind);
+
+    IErlElement getChildNamed(String s);
+
+    IErlElement getChildWithResource(IResource rsrc);
+
+    void addChild(IErlElement child);
+
+    public void setChildren(final Collection<? extends IErlElement> children);
+
+    void removeChild(IErlElement e);
 
 }
