@@ -40,8 +40,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.SafeRunner;
-import org.eclipse.xtext.xbase.lib.Functions.Function1;
-import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.ModelPlugin;
 import org.erlide.engine.internal.model.cache.ErlModelCache;
@@ -49,7 +47,6 @@ import org.erlide.engine.internal.model.erlang.ErlModule;
 import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.internal.model.root.ErlElementDelta;
 import org.erlide.engine.internal.model.root.ErlFolder;
-import org.erlide.engine.internal.model.root.ErlOtpLibrary;
 import org.erlide.engine.internal.model.root.ErlProject;
 import org.erlide.engine.internal.util.ModelConfig;
 import org.erlide.engine.model.ElementChangedEvent;
@@ -67,13 +64,11 @@ import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlElementDelta;
 import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlFolder;
-import org.erlide.engine.model.root.IErlLibrary;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.model.root.ProjectConfigurationChangeListener;
 import org.erlide.engine.util.CommonUtils;
 import org.erlide.engine.util.NatureUtil;
 import org.erlide.engine.util.ResourceUtil;
-import org.erlide.runtime.runtimeinfo.RuntimeVersion;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.SystemConfiguration;
 import org.erlide.util.erlang.OtpErlang;
@@ -715,15 +710,6 @@ public class ErlModel extends ErlElement implements IErlModel {
         return createErlangProject(project);
     }
 
-    public IErlLibrary createLibrary(final RuntimeVersion version) {
-        if (version == null) {
-            return null;
-        }
-        final IErlLibrary ep = new ErlOtpLibrary(this, version);
-        addChild(ep);
-        return ep;
-    }
-
     /**
      * Returns the Erlang element corresponding to the given resource, or
      * <code>null</code> if unable to associate the given resource with a Erlang
@@ -1155,27 +1141,6 @@ public class ErlModel extends ErlElement implements IErlModel {
     public IErlElementDelta createElementDelta(final int kind, final int flags,
             final IErlElement element) {
         return new ErlElementDelta(kind, flags, element);
-    }
-
-    @Override
-    public Collection<IErlLibrary> getLibraries() throws ErlModelException {
-        final Collection<IErlElement> list = getChildrenOfKind(ErlElementKind.LIBRARY);
-        final Collection<IErlLibrary> result = Lists.newArrayList();
-        for (final IErlElement e : list) {
-            result.add((IErlLibrary) e);
-        }
-        return result;
-    }
-
-    @Override
-    public IErlLibrary getLibrary(final String name) throws ErlModelException {
-        return IterableExtensions.findFirst(getLibraries(),
-                new Function1<IErlLibrary, Boolean>() {
-                    @Override
-                    public Boolean apply(final IErlLibrary input) {
-                        return input.getName().equals(name);
-                    }
-                });
     }
 
 }

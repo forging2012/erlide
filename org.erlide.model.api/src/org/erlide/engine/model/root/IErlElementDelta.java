@@ -255,20 +255,6 @@ public interface IErlElementDelta {
      */
     public int F_PATHENTRY_REORDER = 0x040000;
 
-    // public int F_SUPER_TYPES = 0x080000;
-
-    /**
-     * Change flag indicating that a source jar has been attached to a binary
-     * jar.
-     */
-    public int F_SOURCEATTACHED = 0x100000;
-
-    /**
-     * Change flag indicating that a source jar has been detached to a binary
-     * jar.
-     */
-    public int F_SOURCEDETACHED = 0x200000;
-
     /**
      * Returns deltas for the children that have been added, removed or changed
      * as specified.
