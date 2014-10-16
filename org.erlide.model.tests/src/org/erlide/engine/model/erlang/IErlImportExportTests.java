@@ -22,9 +22,7 @@ public class IErlImportExportTests extends ErlModelTestBase {
     private IErlExport export;
 
     @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    public void setup() throws Exception {
         module2 = ErlideTestUtils.createModule(project, "zz.erl",
                 "-module(zz).\n-export([f/2, f/0]).\n"
                         + "-import(lists, [foldl/3, reverse/1, reverse/2]).\n");

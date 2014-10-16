@@ -37,6 +37,7 @@ public class ErlModelTestBase {
     protected IErlModule module;
     protected IErlProject project;
 
+    @Before
     public void setupModules() throws CoreException {
         ErlideTestUtils.initModulesAndIncludes();
         project = projects[0];
@@ -45,19 +46,10 @@ public class ErlModelTestBase {
                         + "f(A) ->\n    lists:reverse(A).\n");
     }
 
-    protected void tearDownModules() throws CoreException {
+    @After
+    public void tearDownModules() throws CoreException {
         ErlideTestUtils.deleteModules();
         ErlideTestUtils.refreshProjects();
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        setupModules();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        tearDownModules();
     }
 
 }

@@ -22,9 +22,7 @@ public class IErlCommentTests extends ErlModelTestBase {
     private IErlModule module5;
 
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
         module2 = ErlideTestUtils.createModule(project, "ww.erl",
                 "% header\n-module(ww).\n% comment\n");
         module2.open(null);

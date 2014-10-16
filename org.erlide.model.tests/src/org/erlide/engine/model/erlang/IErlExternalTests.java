@@ -23,9 +23,7 @@ public class IErlExternalTests extends ErlModelTestBase {
     private String externalModulesString;
 
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
         externalModulesString = project.getProperties().getExternalModules();
         final String externalFileName = "external.erl";
         externalFile = ErlideTestUtils.createTmpFile(externalFileName,
@@ -37,7 +35,6 @@ public class IErlExternalTests extends ErlModelTestBase {
     }
 
     @After
-    @Override
     public void tearDown() throws Exception {
         if (externalFile != null && externalFile.exists()) {
             externalFile.delete();
@@ -46,7 +43,6 @@ public class IErlExternalTests extends ErlModelTestBase {
             externalsFile.delete();
         }
         ((ErlProject) project).setExternalModulesFile(externalModulesString);
-        super.tearDown();
     }
 
     // boolean isOTP();

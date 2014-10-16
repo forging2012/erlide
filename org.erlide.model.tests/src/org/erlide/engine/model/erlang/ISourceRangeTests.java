@@ -13,10 +13,8 @@ public class ISourceRangeTests extends ErlModelTestBase {
     private ISourceRange sourceRange;
     private ISourceRange sourceRange2;
 
-    @Override
     @Before
     public void setUp() throws Exception {
-        super.setUp();
         module.open(null);
         final IErlElement element = module.getElementAtLine(0);
         final IErlAttribute attribute = (IErlAttribute) element;

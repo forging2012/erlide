@@ -42,18 +42,13 @@ public class IErlModelTest extends ErlModelTestBase {
     private IErlModel model;
 
     @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    public void setup() throws Exception {
         model = ErlangEngine.getInstance().getModel();
     }
 
     @After
-    @Override
-    public void tearDown() throws Exception {
-        ResourcesPlugin.getWorkspace().getPathVariableManager()
-                .setURIValue(PV, (URI) null);
-        super.tearDown();
+    public void teardown() throws Exception {
+        ResourcesPlugin.getWorkspace().getPathVariableManager().setURIValue(PV, null);
     }
 
     // void addModelChangeListener(IErlModelChangeListener listener);

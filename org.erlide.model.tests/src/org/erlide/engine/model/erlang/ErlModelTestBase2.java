@@ -15,10 +15,8 @@ public class ErlModelTestBase2 extends ErlModelTestBase {
     protected IErlFunction functionB;
     protected IErlFunction functionC;
 
-    @Override
     @Before
     public void setUp() throws Exception {
-        super.setUp();
         module2 = ErlideTestUtils.createModule(project, "yy.erl",
                 "-module(yy).\n-export([a/1, b/0]).\n"
                         + "a(L) when is_list(L)->\n    lists:reverse(L);\n"

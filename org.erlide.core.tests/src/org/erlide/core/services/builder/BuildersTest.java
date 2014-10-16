@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.io.IOException;
 import java.io.StringBufferInputStream;
 
 import org.eclipse.core.resources.IFile;
@@ -14,6 +15,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.core.internal.builder.BuildNotifier;
 import org.erlide.core.internal.builder.ErlangBuilder;
 import org.erlide.core.internal.builder.ErlangBuilder.BuildKind;
@@ -24,17 +26,18 @@ import org.erlide.engine.model.builder.BuilderTool;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.util.ErlideTestUtils;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings("deprecation")
-public class BuildersTest {
+public class BuildersTest extends WorkspaceTest {
 
     private IProject prj;
 
     @Before
-    public void initialClean() throws CoreException {
+    public void initialClean() throws CoreException, IOException {
+        setUpProject("builders");
+
         final IErlProject p2 = ErlideTestUtils.getExistingProject("builders");
         prj = p2.getResource().getProject();
 
@@ -49,13 +52,6 @@ public class BuildersTest {
     @After
     public void restore() {
         prj = null;
-    }
-
-    @AfterClass
-    public static void finish() throws CoreException {
-        final IErlProject p2 = ErlideTestUtils.getExistingProject("p2");
-        final IProject prj = p2.getResource().getProject();
-        ErlangNature.setErlangProjectBuilder(prj, BuilderTool.INTERNAL);
     }
 
     @Test

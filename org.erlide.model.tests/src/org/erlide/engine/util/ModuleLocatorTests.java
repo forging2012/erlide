@@ -5,11 +5,13 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlangProjectProperties;
@@ -17,13 +19,18 @@ import org.erlide.engine.model.root.IErlProject;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ModuleLocatorTests {
+public class ModuleLocatorTests extends WorkspaceTest {
 
     private IErlProject p1;
     private IErlProject p2;
 
     @Before
-    public void setup() throws CoreException {
+    public void setup() throws CoreException, IOException {
+        setUpProject("p1");
+        setUpProject("p2");
+        setUpTmpFile("external_modules");
+        setUpTmpFile("external_includes");
+
         p1 = ErlideTestUtils.getExistingProject("p1");
         p2 = ErlideTestUtils.getExistingProject("p2");
         if (p1 != null) {

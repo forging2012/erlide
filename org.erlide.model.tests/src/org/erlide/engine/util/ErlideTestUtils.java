@@ -182,6 +182,9 @@ public class ErlideTestUtils {
     }
 
     public static void deleteModule(final IErlModule module) throws CoreException {
+        module.dispose();
+        modulesAndIncludes.remove(module);
+
         final String scannerName = module.getScannerName();
         final IFile file = (IFile) module.getResource();
         if (file != null) {
@@ -195,8 +198,6 @@ public class ErlideTestUtils {
             final File f = new File(p.toOSString());
             f.delete();
         }
-        module.dispose();
-        modulesAndIncludes.remove(module);
     }
 
     public static IErlProject createProject(final IPath path, final String name)
@@ -304,6 +305,7 @@ public class ErlideTestUtils {
     public static void deleteModules() throws CoreException {
         final List<IErlModule> list = Lists.newArrayList(modulesAndIncludes);
         for (final IErlModule module : list) {
+            System.out.println("delete " + module);
             deleteModule(module);
         }
     }

@@ -29,9 +29,7 @@ public class IErlFolderTests extends ErlModelTestBase {
     private static IErlProject project2;
 
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
         srcFolder = (IErlFolder) project.getChildNamed("src");
         includeFolder = (IErlFolder) project.getChildNamed("include");
         ebinFolder = (IErlFolder) project.getChildNamed("ebin");
