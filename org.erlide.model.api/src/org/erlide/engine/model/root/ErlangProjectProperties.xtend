@@ -1,6 +1,8 @@
 package org.erlide.engine.model.root
 
 import com.google.common.base.Strings
+import com.google.common.collect.Lists
+import java.util.Collection
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.Platform
@@ -16,6 +18,9 @@ import org.erlide.util.PreferencesUtils
 class ErlangProjectProperties extends ErlangLibraryProperties {
 
     IPath outputDir
+    Collection<IPath> testDirs
+
+    Collection<ErlangLibraryProperties> libraries
 
     String externalIncludesFile
     String externalModulesFile
@@ -25,16 +30,21 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
         outputDir = new Path(ProjectPreferencesConstants.DEFAULT_OUTPUT_DIR)
         includeDirs = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_INCLUDE_DIRS)
         testDirs = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_TEST_DIRS)
+        requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION
+
         externalIncludesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_INCLUDES
         externalModulesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_MODULES
-        requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION
+
+        libraries = ErlangLibraryProperties.build(externalModulesFile, externalIncludesFile)
     ]
 
     new() {
         super()
         outputDir = new Path("")
+        testDirs = newArrayList()
         externalIncludesFile = ""
         externalModulesFile = ""
+        libraries = newArrayList()
     }
 
     def void copyFrom(ErlangProjectProperties props) {
@@ -45,6 +55,14 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
         requiredRuntimeVersion = props.requiredRuntimeVersion
         externalIncludesFile = props.externalIncludesFile
         externalModulesFile = props.externalModulesFile
+    }
+
+    def void setTestDirs(Collection<IPath> dirs) {
+        testDirs = Lists.newArrayList(dirs)
+    }
+
+    def void setTestDirs(IPath... dirs) {
+        testDirs = Lists.newArrayList(dirs)
     }
 
     def String getExternalIncludes() {

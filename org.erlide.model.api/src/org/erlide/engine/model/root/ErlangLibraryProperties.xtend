@@ -14,14 +14,12 @@ import org.erlide.runtime.runtimeinfo.RuntimeVersion
 class ErlangLibraryProperties {
     Collection<IPath> sourceDirs
     Collection<IPath> includeDirs
-    Collection<IPath> testDirs
 
     RuntimeVersion requiredRuntimeVersion
 
     new() {
         sourceDirs = newArrayList()
         includeDirs = newArrayList()
-        testDirs = newArrayList()
         requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION
     }
 
@@ -41,12 +39,10 @@ class ErlangLibraryProperties {
         includeDirs = Lists.newArrayList(dirs)
     }
 
-    def void setTestDirs(Collection<IPath> dirs) {
-        testDirs = Lists.newArrayList(dirs)
-    }
+    def static Collection<ErlangLibraryProperties> build(String modulesFile, String includesFile) {
 
-    def void setTestDirs(IPath... dirs) {
-        testDirs = Lists.newArrayList(dirs)
+        // TODO fill from
+        newArrayList()
     }
 
 }

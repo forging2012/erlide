@@ -22,8 +22,6 @@ public class ErlangLibraryProperties {
   
   private Collection<IPath> includeDirs;
   
-  private Collection<IPath> testDirs;
-  
   private RuntimeVersion requiredRuntimeVersion;
   
   public ErlangLibraryProperties() {
@@ -31,8 +29,6 @@ public class ErlangLibraryProperties {
     this.sourceDirs = _newArrayList;
     ArrayList<IPath> _newArrayList_1 = CollectionLiterals.<IPath>newArrayList();
     this.includeDirs = _newArrayList_1;
-    ArrayList<IPath> _newArrayList_2 = CollectionLiterals.<IPath>newArrayList();
-    this.testDirs = _newArrayList_2;
     this.requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION;
   }
   
@@ -56,14 +52,8 @@ public class ErlangLibraryProperties {
     this.includeDirs = _newArrayList;
   }
   
-  public void setTestDirs(final Collection<IPath> dirs) {
-    ArrayList<IPath> _newArrayList = Lists.<IPath>newArrayList(dirs);
-    this.testDirs = _newArrayList;
-  }
-  
-  public void setTestDirs(final IPath... dirs) {
-    ArrayList<IPath> _newArrayList = Lists.<IPath>newArrayList(dirs);
-    this.testDirs = _newArrayList;
+  public static Collection<ErlangLibraryProperties> build(final String modulesFile, final String includesFile) {
+    return CollectionLiterals.<ErlangLibraryProperties>newArrayList();
   }
   
   @Pure
@@ -74,11 +64,6 @@ public class ErlangLibraryProperties {
   @Pure
   public Collection<IPath> getIncludeDirs() {
     return this.includeDirs;
-  }
-  
-  @Pure
-  public Collection<IPath> getTestDirs() {
-    return this.testDirs;
   }
   
   @Pure
@@ -110,11 +95,6 @@ public class ErlangLibraryProperties {
         return false;
     } else if (!this.includeDirs.equals(other.includeDirs))
       return false;
-    if (this.testDirs == null) {
-      if (other.testDirs != null)
-        return false;
-    } else if (!this.testDirs.equals(other.testDirs))
-      return false;
     if (this.requiredRuntimeVersion == null) {
       if (other.requiredRuntimeVersion != null)
         return false;
@@ -130,7 +110,6 @@ public class ErlangLibraryProperties {
     int result = 1;
     result = prime * result + ((this.sourceDirs== null) ? 0 : this.sourceDirs.hashCode());
     result = prime * result + ((this.includeDirs== null) ? 0 : this.includeDirs.hashCode());
-    result = prime * result + ((this.testDirs== null) ? 0 : this.testDirs.hashCode());
     result = prime * result + ((this.requiredRuntimeVersion== null) ? 0 : this.requiredRuntimeVersion.hashCode());
     return result;
   }
@@ -141,7 +120,6 @@ public class ErlangLibraryProperties {
     ToStringBuilder b = new ToStringBuilder(this);
     b.add("sourceDirs", this.sourceDirs);
     b.add("includeDirs", this.includeDirs);
-    b.add("testDirs", this.testDirs);
     b.add("requiredRuntimeVersion", this.requiredRuntimeVersion);
     return b.toString();
   }
