@@ -2,8 +2,6 @@ package org.erlide.engine.model.root;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -12,11 +10,11 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.xtend.lib.annotations.Accessors;
 import org.eclipse.xtend.lib.annotations.EqualsHashCode;
 import org.eclipse.xtend.lib.annotations.ToString;
-import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.ObjectExtensions;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+import org.erlide.engine.model.root.ErlangLibraryProperties;
 import org.erlide.engine.model.root.ExternalKind;
 import org.erlide.engine.model.root.PathSerializer;
 import org.erlide.engine.model.root.ProjectPreferencesConstants;
@@ -27,16 +25,8 @@ import org.erlide.util.PreferencesUtils;
 @EqualsHashCode
 @ToString
 @SuppressWarnings("all")
-public class ErlangProjectProperties {
+public class ErlangProjectProperties extends ErlangLibraryProperties {
   private IPath outputDir;
-  
-  private Collection<IPath> sourceDirs;
-  
-  private Collection<IPath> includeDirs;
-  
-  private Collection<IPath> testDirs;
-  
-  private RuntimeVersion requiredRuntimeVersion;
   
   private String externalIncludesFile;
   
@@ -45,69 +35,37 @@ public class ErlangProjectProperties {
   public final static ErlangProjectProperties DEFAULT = ObjectExtensions.<ErlangProjectProperties>operator_doubleArrow(new ErlangProjectProperties(), new Procedure1<ErlangProjectProperties>() {
     public void apply(final ErlangProjectProperties it) {
       Collection<IPath> _unpackList = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_SOURCE_DIRS);
-      it.sourceDirs = _unpackList;
+      it.setSourceDirs(_unpackList);
       Path _path = new Path(ProjectPreferencesConstants.DEFAULT_OUTPUT_DIR);
       it.outputDir = _path;
       Collection<IPath> _unpackList_1 = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_INCLUDE_DIRS);
-      it.includeDirs = _unpackList_1;
+      it.setIncludeDirs(_unpackList_1);
       Collection<IPath> _unpackList_2 = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_TEST_DIRS);
-      it.testDirs = _unpackList_2;
+      it.setTestDirs(_unpackList_2);
       it.externalIncludesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_INCLUDES;
       it.externalModulesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_MODULES;
-      it.requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION;
+      it.setRequiredRuntimeVersion(ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION);
     }
   });
   
   public ErlangProjectProperties() {
-    ArrayList<IPath> _newArrayList = CollectionLiterals.<IPath>newArrayList();
-    this.sourceDirs = _newArrayList;
+    super();
     Path _path = new Path("");
     this.outputDir = _path;
-    ArrayList<IPath> _newArrayList_1 = CollectionLiterals.<IPath>newArrayList();
-    this.includeDirs = _newArrayList_1;
-    ArrayList<IPath> _newArrayList_2 = CollectionLiterals.<IPath>newArrayList();
-    this.testDirs = _newArrayList_2;
     this.externalIncludesFile = "";
     this.externalModulesFile = "";
-    this.requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION;
-  }
-  
-  public void setSourceDirs(final Collection<IPath> dirs) {
-    ArrayList<IPath> _newArrayList = Lists.<IPath>newArrayList(dirs);
-    this.sourceDirs = _newArrayList;
-  }
-  
-  public void setSourceDirs(final IPath... dirs) {
-    ArrayList<IPath> _newArrayList = Lists.<IPath>newArrayList(dirs);
-    this.sourceDirs = _newArrayList;
-  }
-  
-  public void setIncludeDirs(final Collection<IPath> dirs) {
-    ArrayList<IPath> _newArrayList = Lists.<IPath>newArrayList(dirs);
-    this.includeDirs = _newArrayList;
-  }
-  
-  public void setIncludeDirs(final IPath... dirs) {
-    ArrayList<IPath> _newArrayList = Lists.<IPath>newArrayList(dirs);
-    this.includeDirs = _newArrayList;
-  }
-  
-  public void setTestDirs(final Collection<IPath> dirs) {
-    ArrayList<IPath> _newArrayList = Lists.<IPath>newArrayList(dirs);
-    this.testDirs = _newArrayList;
-  }
-  
-  public void setTestDirs(final IPath... dirs) {
-    ArrayList<IPath> _newArrayList = Lists.<IPath>newArrayList(dirs);
-    this.testDirs = _newArrayList;
   }
   
   public void copyFrom(final ErlangProjectProperties props) {
-    this.includeDirs = props.includeDirs;
-    this.testDirs = props.testDirs;
-    this.sourceDirs = props.sourceDirs;
+    Collection<IPath> _includeDirs = props.getIncludeDirs();
+    this.setIncludeDirs(_includeDirs);
+    Collection<IPath> _testDirs = props.getTestDirs();
+    this.setTestDirs(_testDirs);
+    Collection<IPath> _sourceDirs = props.getSourceDirs();
+    this.setSourceDirs(_sourceDirs);
     this.outputDir = props.outputDir;
-    this.requiredRuntimeVersion = props.requiredRuntimeVersion;
+    RuntimeVersion _requiredRuntimeVersion = props.getRequiredRuntimeVersion();
+    this.setRequiredRuntimeVersion(_requiredRuntimeVersion);
     this.externalIncludesFile = props.externalIncludesFile;
     this.externalModulesFile = props.externalModulesFile;
   }
@@ -164,30 +122,6 @@ public class ErlangProjectProperties {
   }
   
   @Pure
-  public Collection<IPath> getSourceDirs() {
-    return this.sourceDirs;
-  }
-  
-  @Pure
-  public Collection<IPath> getIncludeDirs() {
-    return this.includeDirs;
-  }
-  
-  @Pure
-  public Collection<IPath> getTestDirs() {
-    return this.testDirs;
-  }
-  
-  @Pure
-  public RuntimeVersion getRequiredRuntimeVersion() {
-    return this.requiredRuntimeVersion;
-  }
-  
-  public void setRequiredRuntimeVersion(final RuntimeVersion requiredRuntimeVersion) {
-    this.requiredRuntimeVersion = requiredRuntimeVersion;
-  }
-  
-  @Pure
   public String getExternalIncludesFile() {
     return this.externalIncludesFile;
   }
@@ -214,31 +148,13 @@ public class ErlangProjectProperties {
       return false;
     if (getClass() != obj.getClass())
       return false;
+    if (!super.equals(obj))
+      return false;
     ErlangProjectProperties other = (ErlangProjectProperties) obj;
     if (this.outputDir == null) {
       if (other.outputDir != null)
         return false;
     } else if (!this.outputDir.equals(other.outputDir))
-      return false;
-    if (this.sourceDirs == null) {
-      if (other.sourceDirs != null)
-        return false;
-    } else if (!this.sourceDirs.equals(other.sourceDirs))
-      return false;
-    if (this.includeDirs == null) {
-      if (other.includeDirs != null)
-        return false;
-    } else if (!this.includeDirs.equals(other.includeDirs))
-      return false;
-    if (this.testDirs == null) {
-      if (other.testDirs != null)
-        return false;
-    } else if (!this.testDirs.equals(other.testDirs))
-      return false;
-    if (this.requiredRuntimeVersion == null) {
-      if (other.requiredRuntimeVersion != null)
-        return false;
-    } else if (!this.requiredRuntimeVersion.equals(other.requiredRuntimeVersion))
       return false;
     if (this.externalIncludesFile == null) {
       if (other.externalIncludesFile != null)
@@ -257,12 +173,8 @@ public class ErlangProjectProperties {
   @Pure
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
+    int result = super.hashCode();
     result = prime * result + ((this.outputDir== null) ? 0 : this.outputDir.hashCode());
-    result = prime * result + ((this.sourceDirs== null) ? 0 : this.sourceDirs.hashCode());
-    result = prime * result + ((this.includeDirs== null) ? 0 : this.includeDirs.hashCode());
-    result = prime * result + ((this.testDirs== null) ? 0 : this.testDirs.hashCode());
-    result = prime * result + ((this.requiredRuntimeVersion== null) ? 0 : this.requiredRuntimeVersion.hashCode());
     result = prime * result + ((this.externalIncludesFile== null) ? 0 : this.externalIncludesFile.hashCode());
     result = prime * result + ((this.externalModulesFile== null) ? 0 : this.externalModulesFile.hashCode());
     return result;
@@ -271,14 +183,9 @@ public class ErlangProjectProperties {
   @Override
   @Pure
   public String toString() {
-    ToStringBuilder b = new ToStringBuilder(this);
-    b.add("outputDir", this.outputDir);
-    b.add("sourceDirs", this.sourceDirs);
-    b.add("includeDirs", this.includeDirs);
-    b.add("testDirs", this.testDirs);
-    b.add("requiredRuntimeVersion", this.requiredRuntimeVersion);
-    b.add("externalIncludesFile", this.externalIncludesFile);
-    b.add("externalModulesFile", this.externalModulesFile);
-    return b.toString();
+    String result = new ToStringBuilder(this)
+    	.addAllFields()
+    	.toString();
+    return result;
   }
 }

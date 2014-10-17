@@ -1,8 +1,6 @@
 package org.erlide.engine.model.root
 
 import com.google.common.base.Strings
-import com.google.common.collect.Lists
-import java.util.Collection
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.Platform
@@ -10,20 +8,14 @@ import org.eclipse.core.runtime.preferences.IPreferencesService
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.EqualsHashCode
 import org.eclipse.xtend.lib.annotations.ToString
-import org.erlide.runtime.runtimeinfo.RuntimeVersion
 import org.erlide.util.PreferencesUtils
 
 @Accessors
 @EqualsHashCode
 @ToString
-class ErlangProjectProperties {
+class ErlangProjectProperties extends ErlangLibraryProperties {
 
     IPath outputDir
-    Collection<IPath> sourceDirs
-    Collection<IPath> includeDirs
-    Collection<IPath> testDirs
-
-    RuntimeVersion requiredRuntimeVersion
 
     String externalIncludesFile
     String externalModulesFile
@@ -39,37 +31,10 @@ class ErlangProjectProperties {
     ]
 
     new() {
-        sourceDirs = newArrayList()
+        super()
         outputDir = new Path("")
-        includeDirs = newArrayList()
-        testDirs = newArrayList()
         externalIncludesFile = ""
         externalModulesFile = ""
-        requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION
-    }
-
-    def void setSourceDirs(Collection<IPath> dirs) {
-        sourceDirs = Lists.newArrayList(dirs)
-    }
-
-    def void setSourceDirs(IPath... dirs) {
-        sourceDirs = Lists.newArrayList(dirs)
-    }
-
-    def void setIncludeDirs(Collection<IPath> dirs) {
-        includeDirs = Lists.newArrayList(dirs)
-    }
-
-    def void setIncludeDirs(IPath... dirs) {
-        includeDirs = Lists.newArrayList(dirs)
-    }
-
-    def void setTestDirs(Collection<IPath> dirs) {
-        testDirs = Lists.newArrayList(dirs)
-    }
-
-    def void setTestDirs(IPath... dirs) {
-        testDirs = Lists.newArrayList(dirs)
     }
 
     def void copyFrom(ErlangProjectProperties props) {
@@ -115,3 +80,4 @@ class ErlangProjectProperties {
     }
 
 }
+
