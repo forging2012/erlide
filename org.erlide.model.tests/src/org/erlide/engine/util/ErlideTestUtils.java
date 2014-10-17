@@ -33,6 +33,7 @@ import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.util.ErlLogger;
 
 import com.google.common.collect.Lists;
 
@@ -187,7 +188,7 @@ public class ErlideTestUtils {
 
         final String scannerName = module.getScannerName();
         final IFile file = (IFile) module.getResource();
-        if (file != null) {
+        if (file != null && file.exists()) {
             file.delete(true, null);
         }
         final IPath stateDir = new Path(ErlangEngine.getInstance().getStateDir());
@@ -196,7 +197,9 @@ public class ErlideTestUtils {
         for (final String ext : cacheExts) {
             final IPath p = stateDir.append(scannerName + ext);
             final File f = new File(p.toOSString());
-            f.delete();
+            if (f.exists()) {
+                f.delete();
+            }
         }
     }
 
@@ -204,10 +207,8 @@ public class ErlideTestUtils {
             throws CoreException {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         final IProject project2 = root.getProject(name);
-        try {
+        if (project2.exists()) {
             project2.delete(true, null);
-        } catch (final CoreException x) {
-            // ignore
         }
         final IErlProject erlProject = ErlangEngine.getInstance().getModel()
                 .newProject(name, path.toPortableString());
@@ -276,7 +277,11 @@ public class ErlideTestUtils {
     public static void deleteProject(final IErlProject erlProject) throws CoreException {
         final IProject project = erlProject.getWorkspaceProject();
         final IPath location = project.getLocation();
-        project.delete(true, null);
+        try {
+            project.delete(true, null);
+        } catch (final Exception e) {
+            ErlLogger.error(e);
+        }
         if (location != null) {
             new File(location.toPortableString()).delete();
         }

@@ -52,10 +52,6 @@ public class ErlangLibraryProperties {
     this.includeDirs = _newArrayList;
   }
   
-  public static Collection<ErlangLibraryProperties> build(final String modulesFile, final String includesFile) {
-    return CollectionLiterals.<ErlangLibraryProperties>newArrayList();
-  }
-  
   @Pure
   public Collection<IPath> getSourceDirs() {
     return this.sourceDirs;

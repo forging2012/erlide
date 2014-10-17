@@ -39,10 +39,4 @@ class ErlangLibraryProperties {
         includeDirs = Lists.newArrayList(dirs)
     }
 
-    def static Collection<ErlangLibraryProperties> build(String modulesFile, String includesFile) {
-
-        // TODO fill from
-        newArrayList()
-    }
-
 }

@@ -1,14 +1,11 @@
 package org.erlide.engine.model.root;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.xtend.lib.annotations.AccessorType;
 import org.eclipse.xtend.lib.annotations.Accessors;
 import org.eclipse.xtend.lib.annotations.EqualsHashCode;
 import org.eclipse.xtend.lib.annotations.ToString;
@@ -18,11 +15,10 @@ import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 import org.erlide.engine.model.root.ErlangLibraryProperties;
-import org.erlide.engine.model.root.ExternalKind;
+import org.erlide.engine.model.root.ExternalLibrariesHelper;
 import org.erlide.engine.model.root.PathSerializer;
 import org.erlide.engine.model.root.ProjectPreferencesConstants;
 import org.erlide.runtime.runtimeinfo.RuntimeVersion;
-import org.erlide.util.PreferencesUtils;
 
 @Accessors
 @EqualsHashCode
@@ -35,9 +31,8 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
   
   private Collection<ErlangLibraryProperties> libraries;
   
-  private String externalIncludesFile;
-  
-  private String externalModulesFile;
+  @Accessors(AccessorType.NONE)
+  private final transient ExternalLibrariesHelper externalLibrariesHelper;
   
   public final static ErlangProjectProperties DEFAULT = ObjectExtensions.<ErlangProjectProperties>operator_doubleArrow(new ErlangProjectProperties(), new Procedure1<ErlangProjectProperties>() {
     public void apply(final ErlangProjectProperties it) {
@@ -50,9 +45,11 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
       Collection<IPath> _unpackList_2 = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_TEST_DIRS);
       it.testDirs = _unpackList_2;
       it.setRequiredRuntimeVersion(ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION);
-      it.externalIncludesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_INCLUDES;
-      it.externalModulesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_MODULES;
-      Collection<ErlangLibraryProperties> _build = ErlangLibraryProperties.build(it.externalModulesFile, it.externalIncludesFile);
+      final String externalIncludesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_INCLUDES;
+      final String externalModulesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_MODULES;
+      it.externalLibrariesHelper.setExternalModulesFile(externalModulesFile);
+      it.externalLibrariesHelper.setExternalIncludesFile(externalIncludesFile);
+      Collection<ErlangLibraryProperties> _build = it.externalLibrariesHelper.build();
       it.libraries = _build;
     }
   });
@@ -63,10 +60,10 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
     this.outputDir = _path;
     ArrayList<IPath> _newArrayList = CollectionLiterals.<IPath>newArrayList();
     this.testDirs = _newArrayList;
-    this.externalIncludesFile = "";
-    this.externalModulesFile = "";
     ArrayList<ErlangLibraryProperties> _newArrayList_1 = CollectionLiterals.<ErlangLibraryProperties>newArrayList();
     this.libraries = _newArrayList_1;
+    ExternalLibrariesHelper _externalLibrariesHelper = new ExternalLibrariesHelper("", "");
+    this.externalLibrariesHelper = _externalLibrariesHelper;
   }
   
   public void copyFrom(final ErlangProjectProperties props) {
@@ -78,8 +75,10 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
     this.outputDir = props.outputDir;
     RuntimeVersion _requiredRuntimeVersion = props.getRequiredRuntimeVersion();
     this.setRequiredRuntimeVersion(_requiredRuntimeVersion);
-    this.externalIncludesFile = props.externalIncludesFile;
-    this.externalModulesFile = props.externalModulesFile;
+    String _externalIncludesFile = props.getExternalIncludesFile();
+    this.setExternalIncludesFile(_externalIncludesFile);
+    String _externalModulesFile = props.getExternalModulesFile();
+    this.setExternalModulesFile(_externalModulesFile);
   }
   
   public void setTestDirs(final Collection<IPath> dirs) {
@@ -93,45 +92,27 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
   }
   
   public String getExternalIncludes() {
-    final String externalIncludesString = this.getExternal(ExternalKind.EXTERNAL_INCLUDES);
-    return externalIncludesString;
+    return this.externalLibrariesHelper.getExternalIncludes();
   }
   
   public String getExternalModules() {
-    final String externalModulesString = this.getExternal(ExternalKind.EXTERNAL_MODULES);
-    return externalModulesString;
+    return this.externalLibrariesHelper.getExternalModules();
   }
   
-  private String getExternal(final ExternalKind external) {
-    final IPreferencesService service = Platform.getPreferencesService();
-    String _xifexpression = null;
-    boolean _equals = Objects.equal(external, ExternalKind.EXTERNAL_INCLUDES);
-    if (_equals) {
-      _xifexpression = "default_external_includes";
-    } else {
-      _xifexpression = "default_external_modules";
-    }
-    final String key = _xifexpression;
-    String result = this.getExternal(external, service, key, "org.erlide.ui");
-    boolean _isNullOrEmpty = Strings.isNullOrEmpty(result);
-    if (_isNullOrEmpty) {
-      String _external = this.getExternal(external, service, key, "org.erlide.core");
-      result = _external;
-    }
-    return result;
+  public void setExternalModulesFile(final String mods) {
+    this.externalLibrariesHelper.setExternalModulesFile(mods);
   }
   
-  private String getExternal(final ExternalKind external, final IPreferencesService service, final String key, final String pluginId) {
-    final String global = service.getString(pluginId, key, "", null);
-    String _xifexpression = null;
-    boolean _equals = Objects.equal(external, ExternalKind.EXTERNAL_INCLUDES);
-    if (_equals) {
-      _xifexpression = this.externalIncludesFile;
-    } else {
-      _xifexpression = this.externalModulesFile;
-    }
-    final String projprefs = _xifexpression;
-    return PreferencesUtils.packArray(new String[] { projprefs, global });
+  public void setExternalIncludesFile(final String incs) {
+    this.externalLibrariesHelper.setExternalIncludesFile(incs);
+  }
+  
+  public String getExternalModulesFile() {
+    return this.externalLibrariesHelper.getExternalModulesFile();
+  }
+  
+  public String getExternalIncludesFile() {
+    return this.externalLibrariesHelper.getExternalIncludesFile();
   }
   
   @Pure
@@ -155,24 +136,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
   
   public void setLibraries(final Collection<ErlangLibraryProperties> libraries) {
     this.libraries = libraries;
-  }
-  
-  @Pure
-  public String getExternalIncludesFile() {
-    return this.externalIncludesFile;
-  }
-  
-  public void setExternalIncludesFile(final String externalIncludesFile) {
-    this.externalIncludesFile = externalIncludesFile;
-  }
-  
-  @Pure
-  public String getExternalModulesFile() {
-    return this.externalModulesFile;
-  }
-  
-  public void setExternalModulesFile(final String externalModulesFile) {
-    this.externalModulesFile = externalModulesFile;
   }
   
   @Override
@@ -202,16 +165,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
         return false;
     } else if (!this.libraries.equals(other.libraries))
       return false;
-    if (this.externalIncludesFile == null) {
-      if (other.externalIncludesFile != null)
-        return false;
-    } else if (!this.externalIncludesFile.equals(other.externalIncludesFile))
-      return false;
-    if (this.externalModulesFile == null) {
-      if (other.externalModulesFile != null)
-        return false;
-    } else if (!this.externalModulesFile.equals(other.externalModulesFile))
-      return false;
     return true;
   }
   
@@ -223,8 +176,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
     result = prime * result + ((this.outputDir== null) ? 0 : this.outputDir.hashCode());
     result = prime * result + ((this.testDirs== null) ? 0 : this.testDirs.hashCode());
     result = prime * result + ((this.libraries== null) ? 0 : this.libraries.hashCode());
-    result = prime * result + ((this.externalIncludesFile== null) ? 0 : this.externalIncludesFile.hashCode());
-    result = prime * result + ((this.externalModulesFile== null) ? 0 : this.externalModulesFile.hashCode());
     return result;
   }
   

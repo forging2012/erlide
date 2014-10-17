@@ -20,6 +20,7 @@ import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.util.ErlideTestUtils;
 import org.erlide.runtime.runtimeinfo.RuntimeInfo;
 import org.erlide.runtime.runtimeinfo.RuntimeVersion;
+import org.erlide.util.SystemConfiguration;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -101,7 +102,13 @@ public class IErlProjectTests extends ErlModelTestBase {
             assertEquals(1, difference.size());
             final IErlModule externalModule = difference.iterator().next();
             assertNotNull(externalModule);
-            assertEquals(absolutePath, externalModule.getFilePath());
+            if (SystemConfiguration.getInstance().isOnWindows()) {
+                assertEquals(new Path(absolutePath.toLowerCase()), new Path(
+                        externalModule.getFilePath().toLowerCase()));
+            } else {
+                assertEquals(new Path(absolutePath),
+                        new Path(externalModule.getFilePath()));
+            }
         } finally {
             if (externalFile != null && externalFile.exists()) {
                 externalFile.delete();
@@ -150,7 +157,13 @@ public class IErlProjectTests extends ErlModelTestBase {
             assertEquals(1, difference.size());
             final IErlModule externalInclude = difference.iterator().next();
             assertNotNull(externalInclude);
-            assertEquals(absolutePath, externalInclude.getFilePath());
+            if (SystemConfiguration.getInstance().isOnWindows()) {
+                assertEquals(new Path(absolutePath.toLowerCase()), new Path(
+                        externalInclude.getFilePath().toLowerCase()));
+            } else {
+                assertEquals(new Path(absolutePath),
+                        new Path(externalInclude.getFilePath()));
+            }
         } finally {
             if (externalFile != null && externalFile.exists()) {
                 externalFile.delete();
@@ -193,7 +206,13 @@ public class IErlProjectTests extends ErlModelTestBase {
             final Set<IErlModule> difference = Sets.difference(externalSet, otpSet);
             final IErlModule externalInclude = difference.iterator().next();
             assertNotNull(externalInclude);
-            assertEquals(absolutePath, externalInclude.getFilePath());
+            if (SystemConfiguration.getInstance().isOnWindows()) {
+                assertEquals(new Path(absolutePath.toLowerCase()), new Path(
+                        externalInclude.getFilePath().toLowerCase()));
+            } else {
+                assertEquals(new Path(absolutePath),
+                        new Path(externalInclude.getFilePath()));
+            }
         } finally {
             if (externalFile != null && externalFile.exists()) {
                 externalFile.delete();

@@ -22,8 +22,8 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
 
     Collection<ErlangLibraryProperties> libraries
 
-    String externalIncludesFile
-    String externalModulesFile
+    @Accessors(NONE)
+    val transient ExternalLibrariesHelper externalLibrariesHelper
 
     val public static ErlangProjectProperties DEFAULT = new ErlangProjectProperties() => [
         sourceDirs = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_SOURCE_DIRS)
@@ -31,20 +31,19 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
         includeDirs = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_INCLUDE_DIRS)
         testDirs = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_TEST_DIRS)
         requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION
-
-        externalIncludesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_INCLUDES
-        externalModulesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_MODULES
-
-        libraries = ErlangLibraryProperties.build(externalModulesFile, externalIncludesFile)
+        val externalIncludesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_INCLUDES
+        val externalModulesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_MODULES
+        externalLibrariesHelper.externalModulesFile = externalModulesFile
+        externalLibrariesHelper.externalIncludesFile = externalIncludesFile
+        libraries = externalLibrariesHelper.build()
     ]
 
     new() {
         super()
         outputDir = new Path("")
         testDirs = newArrayList()
-        externalIncludesFile = ""
-        externalModulesFile = ""
         libraries = newArrayList()
+        externalLibrariesHelper = new ExternalLibrariesHelper("", "")
     }
 
     def void copyFrom(ErlangProjectProperties props) {
@@ -66,18 +65,51 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
     }
 
     def String getExternalIncludes() {
-        val externalIncludesString = getExternal(ExternalKind.EXTERNAL_INCLUDES);
-        return externalIncludesString;
+        externalLibrariesHelper.externalIncludes
     }
 
     def String getExternalModules() {
-        val externalModulesString = getExternal(ExternalKind.EXTERNAL_MODULES);
-        return externalModulesString;
-
+        externalLibrariesHelper.externalModules
     }
 
-    def private String getExternal(ExternalKind external) {
-        val IPreferencesService service = Platform.getPreferencesService()
+    def setExternalModulesFile(String mods) {
+        externalLibrariesHelper.externalModulesFile = mods
+    }
+
+    def setExternalIncludesFile(String incs) {
+        externalLibrariesHelper.externalIncludesFile = incs
+    }
+
+    def getExternalModulesFile() {
+        externalLibrariesHelper.externalModulesFile
+    }
+
+    def getExternalIncludesFile() {
+        externalLibrariesHelper.externalIncludesFile
+    }
+}
+
+@Accessors
+class ExternalLibrariesHelper {
+
+    String externalModulesFile
+    String externalIncludesFile
+
+    new(String mods, String incs) {
+        externalModulesFile = mods
+        externalIncludesFile = incs
+    }
+
+    def String getExternalIncludes() {
+        getExternal(ExternalKind.EXTERNAL_INCLUDES)
+    }
+
+    def String getExternalModules() {
+        getExternal(ExternalKind.EXTERNAL_MODULES)
+    }
+
+    private def String getExternal(ExternalKind external) {
+        val IPreferencesService service = Platform.preferencesService
         val String key = if (external == ExternalKind.EXTERNAL_INCLUDES) "default_external_includes" else "default_external_modules"
         var String result = getExternal(external, service, key, "org.erlide.ui")
         if (Strings.isNullOrEmpty(result)) {
@@ -88,7 +120,7 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
         return result
     }
 
-    def private String getExternal(ExternalKind external, IPreferencesService service, String key, String pluginId) {
+    private def String getExternal(ExternalKind external, IPreferencesService service, String key, String pluginId) {
         val String global = service.getString(pluginId, key, "", null)
         val String projprefs = if (external == ExternalKind.EXTERNAL_INCLUDES)
                 externalIncludesFile
@@ -97,5 +129,19 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
         return PreferencesUtils.packArray(#[projprefs, global])
     }
 
-}
+    def Collection<ErlangLibraryProperties> build() {
 
+        // TODO fill from files + global
+        val mods = externalModules
+        val incs = externalIncludes
+
+        //        val allMods = expand(mods)
+        //        val allIncs = expand(incs)
+        // expand values and look for common prefixes to merge mod+inc in libraries
+        newArrayList()
+    }
+
+    private def expand(String string) {
+        throw new UnsupportedOperationException("TODO: auto-generated method stub")
+    }
+}
