@@ -6,38 +6,14 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.model.root.ErlProject;
 import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlProject;
-import org.erlide.engine.util.ErlideTestUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class ErlModelCacheTest {
-
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        ErlideTestUtils.initProjects();
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        ErlideTestUtils.deleteProjects();
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        ErlideTestUtils.initModulesAndIncludes();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        ErlideTestUtils.deleteModules();
-    }
+public class ErlModelCacheTest extends WorkspaceTest {
 
     @Test
     public void checkThatCachesAreEmptyWhenProjectIsRemoved() throws CoreException {
@@ -47,11 +23,10 @@ public class ErlModelCacheTest {
             // a project with a module, and some searches that fills the model
             // cache
             final String projectName = "testprojectx";
-            project = ErlideTestUtils.createProject(
-                    ErlideTestUtils.getTmpPath(projectName), projectName);
+            project = createProject(
+                    getTmpPath(projectName), projectName);
             final String moduleName = "f.erl";
-            final IErlModule module = ErlideTestUtils
-                    .createModule(
+            final IErlModule module = createModule(
                             project,
                             moduleName,
                             "-module(f).\n-include(\"a.hrl\").\n-export([f/0]).\n-record(rec2, {a, b}).\n"
@@ -65,7 +40,7 @@ public class ErlModelCacheTest {
             // .getModulesByName(ListsUtils.withoutExtension(moduleName));
             // when
             // deleting the project
-            ErlideTestUtils.deleteProject(project);
+            deleteProject(project);
             // then
             // the model cache shouldn't know about the module anymore
             assertEquals(module2, module);
@@ -75,7 +50,7 @@ public class ErlModelCacheTest {
             // assertTrue(modulesByName.isEmpty());
         } finally {
             if (project != null && project.exists()) {
-                ErlideTestUtils.deleteProject(project);
+                deleteProject(project);
             }
         }
     }
@@ -90,13 +65,13 @@ public class ErlModelCacheTest {
             // cache
             // is updated
             final String projectName = "testprojecta";
-            project = ErlideTestUtils.createProject(
-                    ErlideTestUtils.getTmpPath(projectName), projectName);
+            project = createProject(
+                    getTmpPath(projectName), projectName);
             final String externalName = "xyz.erl";
-            final File externalFile = ErlideTestUtils.createTmpFile(externalName,
+            final File externalFile = createTmpFile(externalName,
                     "-module(xyz).\nf([_ | _]=L ->\n    atom_to_list(L).\n");
             final String absolutePath = externalFile.getAbsolutePath();
-            final File externalsFile = ErlideTestUtils.createTmpFile("x.erlidex",
+            final File externalsFile = createTmpFile("x.erlidex",
                     absolutePath);
             ((ErlProject) project)
                     .setExternalModulesFile(externalsFile.getAbsolutePath());
@@ -113,9 +88,9 @@ public class ErlModelCacheTest {
             // searching
             // for it
             final String projectName2 = "testprojectb";
-            project2 = ErlideTestUtils.createProject(
-                    ErlideTestUtils.getTmpPath(projectName2), projectName2);
-            final IErlModule module = ErlideTestUtils.createModule(project2,
+            project2 = createProject(
+                    getTmpPath(projectName2), projectName2);
+            final IErlModule module = createModule(project2,
                     externalName, "-module(xyz).\n");
             final IErlModule findModule2 = model.findModuleFromProject(project,
                     externalName, null, IErlElementLocator.Scope.ALL_PROJECTS);
@@ -133,10 +108,10 @@ public class ErlModelCacheTest {
             // assertEquals(module, difference.toArray()[0]);
         } finally {
             if (project != null && project.exists()) {
-                ErlideTestUtils.deleteProject(project);
+                deleteProject(project);
             }
             if (project2 != null && project2.exists()) {
-                ErlideTestUtils.deleteProject(project2);
+                deleteProject(project2);
             }
         }
     }

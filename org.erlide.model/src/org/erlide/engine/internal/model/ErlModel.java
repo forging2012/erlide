@@ -356,7 +356,7 @@ public class ErlModel extends Openable implements IErlModel {
             if (!project.isOpen()) {
                 project.open(null);
             }
-            return findProject(project);
+            return createProject(project);
         } catch (final CoreException e) {
             throw new ErlModelException(e, new ErlModelStatus(e));
         }
@@ -1004,7 +1004,7 @@ public class ErlModel extends Openable implements IErlModel {
         if (includePath != null) {
             for (final IErlModule module2 : includes) {
                 final String path2 = module2.getFilePath();
-                if (path2 != null && includePath.equals(path2)) {
+                if (path2 != null && ResourceUtil.samePath(includePath, path2)) {
                     return module2;
                 }
             }

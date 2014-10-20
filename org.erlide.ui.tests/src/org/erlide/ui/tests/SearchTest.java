@@ -9,6 +9,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.erlang.IErlModule;
@@ -18,46 +19,20 @@ import org.erlide.engine.services.search.ErlangSearchPattern;
 import org.erlide.engine.services.search.LimitTo;
 import org.erlide.engine.services.search.SearchFor;
 import org.erlide.engine.services.search.SearchPatternFactory;
-import org.erlide.engine.util.ErlideTestUtils;
 import org.erlide.ui.internal.search.ErlSearchQuery;
 import org.erlide.ui.internal.search.ErlangSearchElement;
 import org.erlide.ui.internal.search.ErlangSearchResult;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class SearchTest {
+public class SearchTest extends WorkspaceTest {
 
-    static IErlProject projects[] = null;
-
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        ErlideTestUtils.initProjects();
-        // We set up projects here, it's quite costly
-        final String name1 = "testproject1";
-        final IErlProject erlProject1 = ErlideTestUtils.createProject(
-                ErlideTestUtils.getTmpPath(name1), name1);
-        final String name2 = "testproject2";
-        final IErlProject erlProject2 = ErlideTestUtils.createProject(
-                ErlideTestUtils.getTmpPath(name2), name2);
-        projects = new IErlProject[] { erlProject1, erlProject2 };
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        ErlideTestUtils.deleteProjects();
-    }
+    private IErlProject project;
 
     @Before
-    public void setUp() throws Exception {
-        ErlideTestUtils.initModulesAndIncludes();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        ErlideTestUtils.deleteModules();
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        project = getErlProject("testproject1");
     }
 
     @Test
@@ -80,10 +55,10 @@ public class SearchTest {
         // given
         // a module a with an exported function f
         // and a module b which calls a:f()
-        final IErlModule moduleA = ErlideTestUtils.createModule(projects[0], "a.erl",
-                "-module(a).\n-export([f/0]).\nf() ->\n    ok.\n");
-        final IErlModule moduleB = ErlideTestUtils.createModule(projects[0], "b.erl",
-                "-module(b).\n-export([f/0]).\nf() ->\n    a:f().\n");
+        final IErlModule moduleA = createModule(project, "a.erl",
+                "-module(a). -export([f/0]). f() -> ok.");
+        final IErlModule moduleB = createModule(project, "b.erl",
+                "-module(b). -export([f/0]). f() -> a:f().");
         moduleA.open(null);
         moduleB.open(null);
         // when
@@ -116,9 +91,9 @@ public class SearchTest {
         // given
         // a module a with an exported function f
         // and a module b which calls a:f()
-        final IErlModule moduleA = ErlideTestUtils.createModule(projects[0], "a.erl",
+        final IErlModule moduleA = createModule(project, "a.erl",
                 "-module(a).\n-export([f/0]).\nf() ->\n    ok.\n");
-        final IErlModule moduleB = ErlideTestUtils.createModule(projects[0], "b.erl",
+        final IErlModule moduleB = createModule(project, "b.erl",
                 "-module(b).\n-export([f/0]).\nf() ->\n    #a.b,\n    a:f().\n");
         moduleA.open(null);
         moduleB.open(null);
@@ -146,10 +121,10 @@ public class SearchTest {
         // given
         // a module a with an exported function f
         // and a module b which calls a:f()
-        final IErlModule moduleA = ErlideTestUtils.createModule(projects[0], "a.erl",
-                "-module(a).\n-export([f/1]).\nf(A) ->\n    {A}.\n");
-        final IErlModule moduleB = ErlideTestUtils.createModule(projects[0], "b.erl",
-                "-module(b).\n-export([f/0]).\nf(A) ->\n    [A].\n");
+        final IErlModule moduleA = createModule(project, "az.erl",
+                "-module(az).\n-export([f/1]).\nf(A) ->\n    {A}.\n");
+        final IErlModule moduleB = createModule(project, "bz.erl",
+                "-module(bz).\n-export([f/0]).\nf(A) ->\n    [A].\n");
         moduleA.open(null);
         moduleB.open(null);
         // when
@@ -157,8 +132,7 @@ public class SearchTest {
         final ErlangSearchPattern pattern = new SearchPatternFactory(ErlangEngine
                 .getInstance().getModelUtilService()).getSearchPattern(
                 SearchFor.VARIABLE, null, "A", 0, LimitTo.ALL_OCCURRENCES, moduleA);
-        final ErlSearchScope scope = new ErlSearchScope(moduleA);
-        scope.addModule(moduleB);
+        final ErlSearchScope scope = new ErlSearchScope(moduleA, moduleB);
         final ErlSearchScope reducedScope = pattern.reduceScope(scope);
         final ErlSearchQuery query = new ErlSearchQuery(pattern, reducedScope, "");
         query.run(new NullProgressMonitor());

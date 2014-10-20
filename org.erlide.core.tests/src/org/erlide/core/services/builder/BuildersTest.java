@@ -24,7 +24,6 @@ import org.erlide.core.internal.builder.ErlangNature;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.builder.BuilderTool;
 import org.erlide.engine.model.root.IErlProject;
-import org.erlide.engine.util.ErlideTestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +37,7 @@ public class BuildersTest extends WorkspaceTest {
     public void initialClean() throws CoreException, IOException {
         setUpProject("builders");
 
-        final IErlProject p2 = ErlideTestUtils.getExistingProject("builders");
+        final IErlProject p2 = getExistingProject("builders");
         prj = p2.getResource().getProject();
 
         final IResource ebin = prj.findMember("ebin");

@@ -27,7 +27,7 @@ public class ErlModelCache implements IDisposable {
     private static final int CACHE_SIZE = 200;
     private static final int CACHE_TIME_MINUTES = 15;
 
-    private static final boolean disabled = Boolean.valueOf(System
+    private static final boolean DISABLED = Boolean.valueOf(System
             .getProperty("erlide.noModelCache"));
     private static volatile ErlModelCache fgInstance;
 
@@ -42,7 +42,7 @@ public class ErlModelCache implements IDisposable {
 
     public static ErlModelCache getDefault() {
         if (fgInstance == null) {
-            fgInstance = disabled ? new DisabledErlModelCache() : new ErlModelCache();
+            fgInstance = DISABLED ? new DisabledErlModelCache() : new ErlModelCache();
         }
         return fgInstance;
     }
@@ -262,7 +262,7 @@ public class ErlModelCache implements IDisposable {
         }
     }
 
-    public void clearModelCache() {
+    public void clear() {
         moduleIncludeCache.invalidateAll();
         pathToModuleCache.invalidateAll();
         externalTreeCache.invalidateAll();

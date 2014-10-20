@@ -59,14 +59,15 @@ public class PreferencesProjectConfigurator implements IProjectConfigurator {
             result = getConfiguration(node);
         } else if (hasData(oldNode)) {
             result = getConfiguration(oldNode);
+            setConfiguration(result);
             try {
-                setConfiguration(result);
                 oldNode.removeNode();
                 oldNode.flush();
             } catch (final BackingStoreException e) {
                 // ignore, projects may be read-only
                 ErlLogger
-                        .warn("Could not delete old project configuration, is project read-only?");
+                        .warn("Could not delete old project configuration, is project read-only? "
+                                + e.getMessage());
             }
         } else {
             result = getConfiguration(node);
@@ -97,7 +98,8 @@ public class PreferencesProjectConfigurator implements IProjectConfigurator {
             node.flush();
         } catch (final BackingStoreException e) {
             // projects may be read-only
-            ErlLogger.warn("Could not set project configuration, is project read-only?");
+            ErlLogger.warn("Could not set project configuration, is project read-only? "
+                    + e.getMessage());
         }
     }
 
