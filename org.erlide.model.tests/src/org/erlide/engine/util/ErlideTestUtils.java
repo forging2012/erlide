@@ -310,7 +310,6 @@ public class ErlideTestUtils {
     public static void deleteModules() throws CoreException {
         final List<IErlModule> list = Lists.newArrayList(modulesAndIncludes);
         for (final IErlModule module : list) {
-            System.out.println("delete " + module);
             deleteModule(module);
         }
     }

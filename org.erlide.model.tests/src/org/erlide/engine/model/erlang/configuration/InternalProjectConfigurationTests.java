@@ -22,7 +22,7 @@ public class InternalProjectConfigurationTests extends AbstractProjectConfigurat
 
         final IProject wproject = project.getWorkspaceProject();
         final IEclipsePreferences node = new ProjectScope(wproject)
-                .getNode("org.erlide.core");
+                .getNode("org.erlide.model");
         node.put(ProjectPreferencesConstants.OUTPUT_DIR, expected);
         node.flush();
 
@@ -38,7 +38,7 @@ public class InternalProjectConfigurationTests extends AbstractProjectConfigurat
 
         final IProject wproject = project.getWorkspaceProject();
         final IEclipsePreferences node = new ProjectScope(wproject)
-                .getNode("org.erlide.core");
+                .getNode("org.erlide.model");
         node.put(ProjectPreferencesConstants.INCLUDE_DIRS, expected);
         node.flush();
 
@@ -57,7 +57,7 @@ public class InternalProjectConfigurationTests extends AbstractProjectConfigurat
 
         final IProject wproject = project.getWorkspaceProject();
         final IEclipsePreferences node = new ProjectScope(wproject)
-                .getNode("org.erlide.core");
+                .getNode("org.erlide.model");
         node.put(ProjectPreferencesConstants.SOURCE_DIRS, expected);
         node.flush();
 

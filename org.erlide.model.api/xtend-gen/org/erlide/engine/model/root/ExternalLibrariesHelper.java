@@ -43,7 +43,7 @@ public class ExternalLibrariesHelper {
       _xifexpression = "default_external_modules";
     }
     final String key = _xifexpression;
-    String result = this.getExternal(external, service, key, "org.erlide.ui");
+    String result = this.getExternal(external, service, key, "org.erlide.model");
     boolean _isNullOrEmpty = Strings.isNullOrEmpty(result);
     if (_isNullOrEmpty) {
       String _external = this.getExternal(external, service, key, "org.erlide.core");

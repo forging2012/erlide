@@ -211,7 +211,10 @@ public class IErlModelTest extends ErlModelTestBase {
         final OtpErlangTuple t = (OtpErlangTuple) pathVars2.elementAt(0);
         final String name = Util.stringValue(t.elementAt(0));
         final String value = pvm.getURIValue(name).getPath();
-        final String value2 = Util.stringValue(t.elementAt(1));
+        String value2 = Util.stringValue(t.elementAt(1));
+        if (!value2.startsWith("/")) {
+            value2 = "/" + value2;
+        }
         assertEquals(value, value2);
     }
 

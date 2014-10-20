@@ -16,7 +16,7 @@ public enum ProjectConfigType {
     // started)
 
     // @formatter:off
-    INTERNAL("org.erlide.core"),
+    INTERNAL("org.erlide.model"),
     EMAKE("Emakefile"),
     REBAR("rebar.config");
     // @formatter:on
