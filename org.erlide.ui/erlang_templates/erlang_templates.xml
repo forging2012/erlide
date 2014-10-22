@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
 <template
-	context="org.erlide.ui.editor.erlang"
-	description="Erlang case block"
-	id="org.erlide.ui.editor.case"
-	autoinsert="true"
-	name="case">case ${expr} of
+    context="org.erlide.ui.editor.erlang"
+    description="Erlang case expression"
+    id="org.erlide.ui.editor.case"
+    autoinsert="true"
+    name="case">case ${expr} of
     ${value} -&gt; ${clause};
     _ -&gt; ${default}
 end
 </template>
 <template
     context="org.erlide.ui.editor.erlang"
-    description="Erlang try/catch block"
+    description="Erlang try/catch expression"
     id="org.erlide.ui.editor.try_catch"
     autoinsert="true"
     name="try">try
@@ -24,16 +24,18 @@ end
 </template>
 <template
     context="org.erlide.ui.editor.erlang"
-    description="Erlang if block"
+    description="Erlang if expression"
     id="org.erlide.ui.editor.if"
     autoinsert="true"
-    name="if">if 
-    ${value} -&gt; ${clause}
+    name="if">if
+    ${value} -&gt; ${clause};
+    ${value1} -&gt; ${clause1};
+    _ -&gt; ${clause2}
 end
 </template>
 <template
     context="org.erlide.ui.editor.erlang"
-    description="Erlang receive block"
+    description="Erlang receive expression"
     id="org.erlide.ui.editor.receive"
     autoinsert="true"
     name="receive">receive
@@ -49,10 +51,12 @@ end
     id="org.erlide.ui.editor.receiveloop"
     autoinsert="true"
     name="loop">
-${name}() -&gt;
+${name}(${state}) -&gt;
     receive
+    stop -&gt;
+        ok;
     ${msg} -&gt;
-        ?MODULE:${name}()
+        ?MODULE:${name}(${state})
     end.
 </template>
 </templates>
