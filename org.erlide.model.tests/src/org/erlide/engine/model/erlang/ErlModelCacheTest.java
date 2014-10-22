@@ -24,7 +24,7 @@ public class ErlModelCacheTest extends WorkspaceTest {
             // cache
             final String projectName = "testprojectx";
             project = createProject(
-                    getTmpPath(projectName), projectName);
+                    projectName, getTmpPath(projectName));
             final String moduleName = "f.erl";
             final IErlModule module = createModule(
                             project,
@@ -66,7 +66,7 @@ public class ErlModelCacheTest extends WorkspaceTest {
             // is updated
             final String projectName = "testprojecta";
             project = createProject(
-                    getTmpPath(projectName), projectName);
+                    projectName, getTmpPath(projectName));
             final String externalName = "xyz.erl";
             final File externalFile = createTmpFile(externalName,
                     "-module(xyz).\nf([_ | _]=L ->\n    atom_to_list(L).\n");
@@ -89,7 +89,7 @@ public class ErlModelCacheTest extends WorkspaceTest {
             // for it
             final String projectName2 = "testprojectb";
             project2 = createProject(
-                    getTmpPath(projectName2), projectName2);
+                    projectName2, getTmpPath(projectName2));
             final IErlModule module = createModule(project2,
                     externalName, "-module(xyz).\n");
             final IErlModule findModule2 = model.findModuleFromProject(project,

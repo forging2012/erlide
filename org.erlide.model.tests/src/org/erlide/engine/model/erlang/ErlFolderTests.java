@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.internal.model.root.ErlProject;
 import org.erlide.engine.model.root.IErlFolder;
 import org.erlide.engine.model.root.IErlProject;
@@ -19,16 +20,24 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-public class ErlFolderTests extends ErlModelTestBase {
+public class ErlFolderTests extends WorkspaceTest {
 
+    protected IErlModule module;
+    protected IErlProject project;
     private IErlFolder srcFolder;
     private IErlFolder includeFolder;
     private IErlFolder ebinFolder;
     private static IErlProject project2;
 
     @Before
-    public void set_up() throws Exception {
-        project2 = projects[1];
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        setUpProject("testproject2");
+
+        project = getErlProject("testproject1");
+        project2 = getErlProject("testproject2");
+        module = getErlModule("xx.erl");
+
         final IProject workspaceProject = project2.getWorkspaceProject();
         final String src = "src";
         final IFolder folder = workspaceProject.getFolder(src);

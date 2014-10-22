@@ -9,21 +9,29 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
+import org.erlide.engine.model.root.IErlProject;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ErlCommentTests extends ErlModelTestBase {
+public class ErlCommentTests extends WorkspaceTest {
 
     private IErlModule module2;
     private IErlModule module4;
     private IErlModule module5;
+    private IErlProject project;
+
+    @Before
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        project = getErlProject("testproject1");
+    }
 
     @Before
     public void set_up() throws Exception {
-        module2 = createModule(project, "ww.erl",
-                "% header\n-module(ww).\n% comment\n");
+        module2 = createModule(project, "ww.erl", "% header\n-module(ww).\n% comment\n");
         module2.open(null);
         module4 = createModule(project, "ii.erl",
                 "-module(ii).\n% fn\n-spec fn() ->ok.\nfn() ->\n    ok.\n");

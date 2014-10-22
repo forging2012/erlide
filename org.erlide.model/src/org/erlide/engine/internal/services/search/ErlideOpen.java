@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IPath;
+import org.erlide.engine.internal.util.ModelConfig;
 import org.erlide.engine.model.SourcePathUtils;
 import org.erlide.engine.services.search.ExternalTreeEntry;
 import org.erlide.engine.services.search.OpenResult;
@@ -105,7 +106,9 @@ public class ErlideOpen implements OpenService {
     @Override
     public List<ExternalTreeEntry> getExternalModuleTree(final IOtpRpc backend,
             final String externalModules, final OtpErlangList pathVars) {
-        ErlLogger.debug("open:external_module_tree -> " + externalModules);
+        if (ModelConfig.verbose) {
+            ErlLogger.debug("open:external_module_tree -> " + externalModules);
+        }
         final Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             final OtpErlangObject res = backend.call(ERLIDE_OPEN,
@@ -128,7 +131,9 @@ public class ErlideOpen implements OpenService {
                 if (stopwatch.elapsed(TimeUnit.SECONDS) > 5) {
                     ErlLogger.warn("WARNING " + msg);
                 } else {
-                    ErlLogger.debug(msg);
+                    if (ModelConfig.verbose) {
+                        ErlLogger.debug(msg);
+                    }
                 }
                 return result;
             }

@@ -2,7 +2,6 @@ package org.erlide.engine.model.root;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
@@ -66,17 +65,7 @@ public class ExternalLibrariesHelper {
   }
   
   public Collection<ErlangLibraryProperties> build() {
-    ArrayList<ErlangLibraryProperties> _xblockexpression = null;
-    {
-      final String mods = this.getExternalModules();
-      final String incs = this.getExternalIncludes();
-      _xblockexpression = CollectionLiterals.<ErlangLibraryProperties>newArrayList();
-    }
-    return _xblockexpression;
-  }
-  
-  private void expand(final String string) {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    return CollectionLiterals.<ErlangLibraryProperties>newArrayList();
   }
   
   @Pure

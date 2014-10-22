@@ -13,17 +13,30 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
+import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.model.root.ISourceUnit;
 import org.erlide.engine.services.parsing.ErlToken;
 import org.erlide.engine.services.parsing.ScannerService;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-public class ErlModuleTests extends ErlModelTestBase {
+public class ErlModuleTests extends WorkspaceTest {
+
+    private IErlModule module;
+    private IErlProject project;
+
+    @Before
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        project = getErlProject("testproject1");
+        module = getErlModule("xx.erl");
+    }
 
     // IErlElement getElementAt(int position) throws ErlModelException;
     @Test

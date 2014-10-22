@@ -451,7 +451,7 @@ public class ModelUtilsTests extends WorkspaceTest {
             // ErlModelCache.getDefault().setNoModelCache(true);
             // ErlModelCache.getDefault().clearModelCache();
             final String projectName = "testprojectx";
-            project = createProject(getTmpPath(projectName), projectName);
+            project = createProject(projectName, getTmpPath(projectName));
             final IErlModule module = createModule(project, "a.erl",
                     "-include(\"x.hrl\").\n");
             final String includeName = "x.hrl";
@@ -494,7 +494,7 @@ public class ModelUtilsTests extends WorkspaceTest {
         // contains a record def
         try {
             final String projectName = "testprojectx";
-            project = createProject(getTmpPath(projectName), projectName);
+            project = createProject(projectName, getTmpPath(projectName));
             final IErlModule module = createModule(project, "a.erl",
                     "-include(\"x.hrl\").\n");
             final String includeName = "x.hrl";

@@ -7,21 +7,27 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
+import org.erlide.engine.model.root.IErlProject;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ErlImportExportTests extends ErlModelTestBase {
+public class ErlImportExportTests extends WorkspaceTest {
 
     private IErlModule module2;
     private List<IErlElement> imports;
     private List<IErlElement> exports;
     private IErlImport import1;
     private IErlExport export;
+    private IErlProject project;
 
     @Before
-    public void set_up() throws Exception {
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        project = getErlProject("testproject1");
+
         module2 = createModule(project, "zz0.erl",
                 "-module(z0z).\n-export([f/2, f/0]).\n"
                         + "-import(lists, [foldl/3, reverse/1, reverse/2]).\n");

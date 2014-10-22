@@ -14,20 +14,34 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.internal.model.root.ErlProject;
 import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.runtime.runtimeinfo.RuntimeInfo;
 import org.erlide.runtime.runtimeinfo.RuntimeVersion;
 import org.erlide.util.SystemConfiguration;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-public class ErlProjectTests extends ErlModelTestBase {
+public class ErlProjectTests extends WorkspaceTest {
 
     private static final String XX_ERLIDEX = "xx.erlidex";
+    private IErlModule module;
+    private IErlProject project;
+    private IErlProject project2;
+
+    @Before
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        setUpProject("testproject2");
+        project = getErlProject("testproject1");
+        project2 = getErlProject("testproject2");
+        module = getErlModule("xx.erl");
+    }
 
     // Collection<IErlModule> getModules() throws ErlModelException;
     @Test
@@ -46,27 +60,26 @@ public class ErlProjectTests extends ErlModelTestBase {
     // Collection<IErlModule> getIncludes() throws ErlModelException;
     @Test
     public void getIncludes() throws Exception {
-        createModule(projects[1], "aa.erl", "-module(aa).\n");
-        createInclude(projects[1], "bb.erl", "-module(bb).\n");
-        createModule(projects[1], "cc.hrl", "-define(A, hej).\n");
-        final IErlModule includeDD = createInclude(projects[1], "dd.hrl",
+        createModule(project2, "aa.erl", "-module(aa).\n");
+        createInclude(project2, "bb.erl", "-module(bb).\n");
+        createModule(project2, "cc.hrl", "-define(A, hej).\n");
+        final IErlModule includeDD = createInclude(project2, "dd.hrl",
                 "-define(B, du).\n");
         final List<IErlModule> expected = Lists.newArrayList(includeDD);
-        final Collection<IErlModule> includes = projects[1].getIncludes();
+        final Collection<IErlModule> includes = project2.getIncludes();
         assertEquals(expected, includes);
     }
 
     // Collection<IErlModule> getModulesAndIncludes() throws ErlModelException;
     @Test
     public void getModulesAndIncludes() throws Exception {
-        final Collection<IErlModule> original = projects[1].getModules();
-        createInclude(projects[1], "bb.erl", "-module(bb).\n");
-        createModule(projects[1], "cc.hrl", "-define(A, hej).\n");
-        final IErlModule includeD = createInclude(projects[1], "dd.hrl",
-                "-define(B, du).\n");
+        final Collection<IErlModule> original = project2.getModules();
+        createInclude(project2, "bb.erl", "-module(bb).\n");
+        createModule(project2, "cc.hrl", "-define(A, hej).\n");
+        final IErlModule includeD = createInclude(project2, "dd.hrl", "-define(B, du).\n");
         final List<IErlModule> expected = Lists.newArrayList(original);
         expected.add(includeD);
-        final Collection<IErlModule> includes = projects[1].getModulesAndIncludes();
+        final Collection<IErlModule> includes = project2.getModulesAndIncludes();
         assertEquals(expected, includes);
     }
 
@@ -77,7 +90,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     public void getExternalModules() throws Exception {
         File externalFile = null;
         File externalsFile = null;
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final String externalModulesString = aProject.getProperties()
                 .getExternalModules();
         try {
@@ -129,7 +142,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     public void getExternalIncludes() throws Exception {
         File externalFile = null;
         File externalsFile = null;
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final String externalIncludesString = aProject.getProperties()
                 .getExternalIncludes();
         try {
@@ -178,7 +191,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     @Test
     public void getExternalIncludes_includeDirs() throws Exception {
         File externalFile = null;
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final Collection<IPath> includeDirs = aProject.getProperties().getIncludeDirs();
         try {
             // given
@@ -223,7 +236,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     // String getExternalModulesString();
     @Test
     public void getExternalModulesString() throws Exception {
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final String externalIncludesString = aProject.getProperties()
                 .getExternalIncludes();
         try {
@@ -238,7 +251,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     // String getExternalIncludesString();
     @Test
     public void getExternalIncludesString() throws Exception {
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final String externalIncludesString = aProject.getProperties()
                 .getExternalIncludes();
         try {
@@ -255,7 +268,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     @Test
     public void setIncludeDirs() throws Exception {
         File externalFile = null;
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final Collection<IPath> includeDirs = aProject.getProperties().getIncludeDirs();
         try {
             // given
@@ -327,7 +340,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     // Collection<IPath> getSourceDirs();
     @Test
     public void getSourceDirs() throws Exception {
-        final Collection<IPath> sourceDirs = projects[1].getProperties().getSourceDirs();
+        final Collection<IPath> sourceDirs = project2.getProperties().getSourceDirs();
         assertEquals(1, sourceDirs.size());
         final IPath path = new Path("src");
         assertEquals(path, sourceDirs.iterator().next());
@@ -345,14 +358,14 @@ public class ErlProjectTests extends ErlModelTestBase {
     // IPath getOutputLocation();
     @Test
     public void getOutputLocation() throws Exception {
-        final IPath outputLocation = projects[1].getProperties().getOutputDir();
+        final IPath outputLocation = project2.getProperties().getOutputDir();
         assertEquals(new Path("ebin"), outputLocation);
     }
 
     // RuntimeInfo getRuntimeInfo();
     @Test
     public void getRuntimeInfo() throws Exception {
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final RuntimeInfo info = aProject.getRuntimeInfo();
         // final String expected = ResourcesPlugin.getWorkspace().getRoot()
         // .getLocation().toString();
@@ -366,7 +379,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     // RuntimeVersion getRuntimeVersion();
     @Test
     public void getRuntimeVersion() throws Exception {
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final RuntimeVersion version = aProject.getRuntimeVersion();
         assertNotNull(version);
         final int majorVersion = version.getMajor();
@@ -376,7 +389,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     // TODO check more properties than source dirs property
     @Test
     public void setProperties() throws Exception {
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final Collection<IPath> sourceDirs = aProject.getProperties().getSourceDirs();
         try {
             final ErlangProjectProperties properties = aProject.getProperties();
@@ -394,14 +407,14 @@ public class ErlProjectTests extends ErlModelTestBase {
 
     @Test
     public void getReferencedProjects() throws Exception {
-        final IProject aProject = projects[0].getWorkspaceProject();
+        final IProject aProject = project.getWorkspaceProject();
         final IProjectDescription description = aProject.getDescription();
-        final IProject[] refs = new IProject[] { projects[1].getWorkspaceProject() };
+        final IProject[] refs = new IProject[] { project2.getWorkspaceProject() };
         try {
             description.setReferencedProjects(refs);
             aProject.setDescription(description, null);
-            final List<IErlProject> expected = Lists.newArrayList(projects[1]);
-            assertEquals(expected, projects[0].getReferencedProjects());
+            final List<IErlProject> expected = Lists.newArrayList(project2);
+            assertEquals(expected, project.getReferencedProjects());
         } finally {
             description.setReferencedProjects(new IProject[0]);
             aProject.setDescription(description, null);
@@ -409,7 +422,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     }
 
     public void getProjectReferences_closedProject() throws Exception {
-        final IErlProject erlProject = projects[1];
+        final IErlProject erlProject = project2;
         final IProject aProject = erlProject.getWorkspaceProject();
         try {
             aProject.close(null);
@@ -424,7 +437,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     // IErlModule getModule(String name) throws ErlModelException;
     @Test
     public void getModule() throws Exception {
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final Collection<IPath> sourceDirs = aProject.getProperties().getSourceDirs();
         try {
             // given
@@ -465,7 +478,7 @@ public class ErlProjectTests extends ErlModelTestBase {
     // IProject getWorkspaceProject();
     @Test
     public void getWorkspaceProject() throws Exception {
-        final IErlProject aProject = projects[1];
+        final IErlProject aProject = project2;
         final IProject workspaceProject = aProject.getWorkspaceProject();
         assertNotNull(workspaceProject);
         assertEquals(aProject.getName(), workspaceProject.getName());

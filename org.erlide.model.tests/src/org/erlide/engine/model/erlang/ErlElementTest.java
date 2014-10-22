@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.model.root.ErlProject;
 import org.erlide.engine.model.ErlModelException;
@@ -27,11 +28,23 @@ import org.erlide.engine.model.root.IErlElement.AcceptFlags;
 import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlElementVisitor;
 import org.erlide.engine.model.root.IErlExternal;
+import org.erlide.engine.model.root.IErlProject;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-public class ErlElementTest extends ErlModelTestBase {
+public class ErlElementTest extends WorkspaceTest {
+
+    private IErlModule module;
+    private IErlProject project;
+
+    @Before
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        project = getErlProject("testproject1");
+        module = getErlModule("xx.erl");
+    }
 
     // boolean exists();
     @Test

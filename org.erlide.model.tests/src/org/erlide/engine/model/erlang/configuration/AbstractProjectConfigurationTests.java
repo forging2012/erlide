@@ -19,7 +19,7 @@ public abstract class AbstractProjectConfigurationTests extends WorkspaceTest {
     @Before
     public void setup() throws Exception {
         final String name = "testproject3";
-        project = createProject(getTmpPath(name), name);
+        project = createProject(name, getTmpPath(name));
         final ErlProject p = (ErlProject) project;
         p.configurationChanged();
     }

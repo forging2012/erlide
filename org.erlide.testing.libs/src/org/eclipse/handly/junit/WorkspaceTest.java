@@ -44,17 +44,22 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.Job;
 import org.erlide.engine.ErlangEngine;
+import org.erlide.engine.ModelActivator;
+import org.erlide.engine.internal.model.erlang.ErlAttribute;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
+import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.builder.BuilderTool;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlangProjectProperties;
+import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.util.ErlLogger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
+import com.ericsson.otp.erlang.OtpErlangObject;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
@@ -81,8 +86,7 @@ public abstract class WorkspaceTest {
     @Before
     public final void setUp() throws Exception {
         setAutoBuilding(false);
-        cleanUpWorkspace();
-        getModel().close();
+        tearDown();
     }
 
     /**
@@ -92,6 +96,7 @@ public abstract class WorkspaceTest {
     public final void tearDown() throws Exception {
         cleanUpWorkspace();
         getModel().close();
+        ModelActivator.cleanupStateDir();
     }
 
     /**
@@ -375,7 +380,7 @@ public abstract class WorkspaceTest {
         return file;
     }
 
-    private void deleteModule(final IErlModule module) throws CoreException {
+    public void deleteModule(final IErlModule module) throws CoreException {
         module.dispose();
 
         final String scannerName = module.getScannerName();
@@ -395,9 +400,8 @@ public abstract class WorkspaceTest {
         }
     }
 
-    public IErlProject createProject(final IPath path, final String name)
+    public IErlProject createProject(final String name, final IPath path)
             throws CoreException {
-        final IWorkspaceRoot root = getWorkspaceRoot();
         final IProject project2 = getProject(name);
         if (project2.exists()) {
             project2.delete(true, null);
@@ -473,21 +477,23 @@ public abstract class WorkspaceTest {
         model.open(null);
     }
 
-    private IErlModule createModuleFromText(final String initialText) {
+    public IErlModule createModuleFromText(final String name, final String initialText) {
         final IErlModel model = getModel();
-        final IErlModule module = model.getModuleFromText(model, "test1", initialText,
-                "test1");
+        final IErlModule module = model.getModuleFromText(model, name, initialText, name);
         return module;
     }
 
     public IErlProject createTmpErlProject(final String projectName) throws CoreException {
-        return createProject(getTmpPath(projectName), projectName);
+        return createProject(projectName, getTmpPath(projectName));
     }
 
-    private IPath[] splitPathAfter(final int i, final IPath p) {
-        final IPath last = p.removeFirstSegments(i);
-        final IPath first = p.removeLastSegments(p.segmentCount() - i);
-        return new IPath[] { first, last };
+    public IErlElement createErlAttribute(final IParent parent, final String name,
+            final OtpErlangObject value, final String extra, final int sourceRangeOffset,
+            final int sourceRangeLength) {
+        final ErlAttribute attribute = new ErlAttribute(parent, name, value, extra);
+        attribute.setSourceRangeOffset(sourceRangeOffset);
+        attribute.setSourceRangeLength(sourceRangeLength);
+        return attribute;
     }
 
 }

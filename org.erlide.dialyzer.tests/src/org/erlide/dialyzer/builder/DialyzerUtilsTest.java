@@ -165,7 +165,7 @@ public class DialyzerUtilsTest extends WorkspaceTest {
         }
     }
 
-    public void dialyzePrepareFromSelection(final boolean sources, final SEL select)
+    private void dialyzePrepareFromSelection(final boolean sources, final SEL select)
             throws Exception {
         // http://www.assembla.com/spaces/erlide/tickets/607-dialyzer---only-dialyze-on-selection
         IErlProject erlProject = null;

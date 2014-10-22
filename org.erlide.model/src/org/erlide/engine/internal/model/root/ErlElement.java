@@ -293,7 +293,7 @@ public abstract class ErlElement extends PlatformObject implements IErlElement, 
     protected void toString(final int tab, final StringBuilder buffer) {
         final Object info = this.toStringInfo(tab, buffer);
         if (tab == 0) {
-            toStringAncestors(buffer);
+            // toStringAncestors(buffer);
         }
         toStringChildren(tab, buffer, info);
     }
@@ -340,7 +340,7 @@ public abstract class ErlElement extends PlatformObject implements IErlElement, 
                 for (final IErlElement element : getChildren()) {
                     ((ErlElement) element).toString(tab + 1, buffer);
                     buffer.append(","); //$NON-NLS-1$
-                    if (++i > 3) {
+                    if (++i > 5) {
                         buffer.append("...");
                         break;
                     }

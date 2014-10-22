@@ -17,7 +17,7 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.erlide.engine.internal;x-internal:=true,
  org.erlide.engine.internal.model,
  org.erlide.engine.internal.model.cache,
- org.erlide.engine.internal.model.erlang;x-internal:=true,
+ org.erlide.engine.internal.model.erlang;x-friends:="org.erlide.testing.libs",
  org.erlide.engine.internal.model.root;x-internal:=true,
  org.erlide.engine.internal.services.cleanup;x-internal:=true,
  org.erlide.engine.internal.services.codeassist;x-internal:=true,

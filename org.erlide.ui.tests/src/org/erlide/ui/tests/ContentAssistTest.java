@@ -48,8 +48,8 @@ public class ContentAssistTest extends WorkspaceTest {
 
     @Test
     public void moduleCompletionTest() throws Exception {
-        final String name1 = "testproject1";
-        final IErlProject project = createProject(getTmpPath(name1), name1);
+        final String name1 = "completion";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
         final String initialText = "application_";
         completionTest(project, "z.erl", initialText, initialText.length(),
                 Lists.newArrayList("application_controller:", "application_master:",
@@ -58,25 +58,25 @@ public class ContentAssistTest extends WorkspaceTest {
 
     @Test
     public void moduleCompletion1Test() throws Exception {
-        final String name1 = "testproject1";
-        final IErlProject project = createProject(getTmpPath(name1), name1);
-        completionTest(project, "ay.erl", "alarm_h", 7,
+        final String name1 = "completion1";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        completionTest(project, "a.erl", "alarm_h", 7,
                 Lists.newArrayList("alarm_handler:"), false);
         completionTest(project, "azx.erl", "az", 2, Lists.newArrayList("azx:"), false);
     }
 
     @Test
     public void moduleCompletion2Test() throws Exception {
-        final String name1 = "testproject5";
-        final IErlProject project = createProject(getTmpPath(name1), name1);
+        final String name1 = "completion2";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
         completionTest(project, "a.erl", "'CosEventChannelAdmin_A", 23,
                 Lists.newArrayList("'CosEventChannelAdmin_AlreadyConnected':"), false);
     }
 
     @Test
     public void recordCompletionLettersTest() throws Exception {
-        final String name1 = "testproject1";
-        final IErlProject project = createProject(getTmpPath(name1), name1);
+        final String name1 = "completion3";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
         final String initialText = "-record(aa, {a, b}).\n-record(ab, {a, b}).\n-record(bb, {a, b}).\nf() ->\n#a";
         completionTest(project, "w.erl", initialText, initialText.length() - 1,
                 Lists.newArrayList("aa", "ab", "bb"), false);
@@ -86,8 +86,8 @@ public class ContentAssistTest extends WorkspaceTest {
 
     @Test
     public void recordCompletionSingleQuoteTest() throws Exception {
-        final String name1 = "testproject1";
-        final IErlProject project = createProject(getTmpPath(name1), name1);
+        final String name1 = "completion";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
         final String initialText = "-record('AA', {a, b}).\n-record('B', {a, b}).\n"
                 + "-record(ab, {a, b}).\nf() ->\n#'A";
         final int len = initialText.length();
@@ -101,22 +101,35 @@ public class ContentAssistTest extends WorkspaceTest {
 
     @Test
     public void caseInsensitiveProposalsTest() throws Exception {
-        final String name1 = "testproject5";
-        final IErlProject project = createProject(getTmpPath(name1), name1);
-        final String initialText1 = "-define(abc,abc).\n-define(aBc, aBc).\nf()->?ab";
-        completionTest(project, "w.erl", initialText1, initialText1.length() - 1,
+        final String name1 = "completion";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        final String initialText1 = "-define(abc,abc). -define(aBc, aBc). f()->?ab";
+        completionTest(project, "w3.erl", initialText1, initialText1.length(),
                 Lists.newArrayList("abc", "aBc"), false);
-        final String initialText2 = "-define(abc,abc).\n-define(aBc, aBc).\nf()->?aB";
-        completionTest(project, "w2.erl", initialText2, initialText2.length(),
+        final String initialText2 = "-define(abc,abc). -define(aBc, aBc). f()->?aB";
+        completionTest(project, "w4.erl", initialText2, initialText2.length(),
                 Lists.newArrayList("aBc", "abc"), false);
     }
 
-    public void completionTest(final IErlProject project, final String name,
+    @Test
+    public void caseInsensitiveProposalsTest1() throws Exception {
+        final String name1 = "completion";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        final String initialText1 = "zabc()->ok. zaBc()->ok. f()->zab";
+        completionTest(project, "w1.erl", initialText1, initialText1.length(),
+                Lists.newArrayList("zabc/0", "zaBc/0"), false);
+        final String initialText2 = "zabc()->ok. zaBc()->ok. f()->zaB";
+        completionTest(project, "w2.erl", initialText2, initialText2.length(),
+                Lists.newArrayList("zaBc/0", "zabc/0"), false);
+    }
+
+    private void completionTest(final IErlProject project, final String name,
             final String text, final int offset, final List<String> expected,
             final boolean inStrings) throws CoreException {
         final IDocument document = new StringDocument(text);
         final IErlModule module = createModule(project, name, text);
         module.open(null);
+
         final MockSourceViewer sourceViewer = new MockSourceViewer(document, offset);
         final IContentAssistProcessor p = inStrings ? new ErlStringContentAssistProcessor(
                 sourceViewer, module, project, null) : new ErlContentAssistProcessor(
@@ -138,15 +151,15 @@ public class ContentAssistTest extends WorkspaceTest {
     // completion of include and include_lib
     @Test
     public void includeCompletionTest() throws Exception {
-        final String name1 = "testproject1";
-        final IErlProject project = createProject(getTmpPath(name1), name1);
+        final String name1 = "completion";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
         createInclude(project, "a.hrl", "-define(A, a).\n");
         // check that quotes are added if needed
-        completionTest(project, "a.erl", "-include().\n", 9,
-                Lists.newArrayList("\"a.hrl\""), false);
+        completionTest(project, "a.erl", "-include(", 9, Lists.newArrayList("\"a.hrl\""),
+                false);
         // check that completion works in strings
-        completionTest(project, "b.erl", "-include(\"\").\n", 10,
-                Lists.newArrayList("a.hrl"), true);
+        completionTest(project, "b.erl", "-include(\"", 10, Lists.newArrayList("a.hrl"),
+                true);
     }
 
     private static final class MockSourceViewer implements ISourceViewer {

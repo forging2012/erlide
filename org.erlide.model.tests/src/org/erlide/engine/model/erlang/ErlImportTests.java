@@ -5,11 +5,22 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.List;
 
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
+import org.erlide.engine.model.root.IErlProject;
+import org.junit.Before;
 import org.junit.Test;
 
-public class ErlImportTests extends ErlModelTestBase {
+public class ErlImportTests extends WorkspaceTest {
+
+    private IErlProject project;
+
+    @Before
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        project = getErlProject("testproject1");
+    }
 
     // public String getImportModule();
     @Test

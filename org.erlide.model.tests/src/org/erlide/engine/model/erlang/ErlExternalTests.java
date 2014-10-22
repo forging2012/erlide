@@ -6,20 +6,29 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.internal.model.root.ErlProject;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlExternal;
+import org.erlide.engine.model.root.IErlProject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ErlExternalTests extends ErlModelTestBase {
+public class ErlExternalTests extends WorkspaceTest {
 
     private static final String XX_ERLIDEX = "xx.erlidex";
     private File externalFile;
     private File externalsFile;
     private String externalModulesString;
+    private IErlProject project;
+
+    @Before
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        project = getErlProject("testproject1");
+    }
 
     @Before
     public void set_up() throws Exception {

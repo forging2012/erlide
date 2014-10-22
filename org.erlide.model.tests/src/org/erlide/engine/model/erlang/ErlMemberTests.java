@@ -2,10 +2,20 @@ package org.erlide.engine.model.erlang;
 
 import static org.junit.Assert.assertEquals;
 
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.model.root.IErlElement;
+import org.junit.Before;
 import org.junit.Test;
 
-public class ErlMemberTests extends ErlModelTestBase {
+public class ErlMemberTests extends WorkspaceTest {
+
+    private IErlModule module;
+
+    @Before
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        module = getErlModule("xx.erl");
+    }
 
     // void setNameRange(int offset, int length);
     @Test

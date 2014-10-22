@@ -32,9 +32,9 @@ public class ErlProjectTest extends WorkspaceTest {
     public void setup() throws Exception {
         // We set up projects here, it's quite costly
         final String name1 = "testproject1";
-        final IErlProject erlProject1 = createProject(getTmpPath(name1), name1);
+        final IErlProject erlProject1 = createProject(name1, getTmpPath(name1));
         final String name2 = "testproject2";
-        final IErlProject erlProject2 = createProject(getTmpPath(name2), name2);
+        final IErlProject erlProject2 = createProject(name2, getTmpPath(name2));
         projects = new IErlProject[] { erlProject1, erlProject2 };
     }
 
@@ -76,7 +76,7 @@ public class ErlProjectTest extends WorkspaceTest {
         // a project with an include dir outside the model
         try {
             final String projectName = "testprojectx";
-            project = createProject(getTmpPath(projectName), projectName);
+            project = createProject(projectName, getTmpPath(projectName));
             final String includeName = "x01.hrl";
             externalInclude = createTmpFile(includeName,
                     "-record(rec2, {field, another=def}.");
@@ -118,9 +118,9 @@ public class ErlProjectTest extends WorkspaceTest {
         // a project with an include dir outside the model
         try {
             final String projectName = "testprojectx";
-            project = createProject(getTmpPath(projectName), projectName);
+            project = createProject(projectName, getTmpPath(projectName));
             final String projectName2 = "testprojecty";
-            project2 = createProject(getTmpPath(projectName2), projectName2);
+            project2 = createProject(projectName2, getTmpPath(projectName2));
 
             final String includeName = "x.hrl";
             externalInclude = createInclude(project2, "x.hrl",

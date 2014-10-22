@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.model.root.ErlProject;
 import org.erlide.engine.model.IErlModel;
@@ -34,15 +35,23 @@ import com.ericsson.otp.erlang.OtpErlangList;
 import com.ericsson.otp.erlang.OtpErlangTuple;
 import com.google.common.collect.Lists;
 
-public class ErlModelTest extends ErlModelTestBase {
+public class ErlModelTest extends WorkspaceTest {
 
     private static final String XX_ERLIDEX = "xx.erlidex";
     private static final String PV = "XXYYZZ";
     private IErlModel model;
+    private IErlModule module;
+    private IErlProject project;
+    private ErlProject project2;
 
     @Before
-    public void set_up() throws Exception {
-        model = ErlangEngine.getInstance().getModel();
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        setUpProject("testproject2");
+        project = getErlProject("testproject1");
+        project2 = (ErlProject) getErlProject("testproject2");
+        module = getErlModule("xx.erl");
+        model = getModel();
     }
 
     @After
@@ -104,7 +113,6 @@ public class ErlModelTest extends ErlModelTestBase {
     @Test
     public void findProject() throws Exception {
         final IProject workspaceProject = project.getWorkspaceProject();
-        final IErlProject project2 = projects[1];
         final IProject workspaceProject2 = project2.getWorkspaceProject();
         final IErlProject findProject = model.findProject(workspaceProject);
         final IErlProject findProject2 = model.findProject(workspaceProject2);
@@ -135,7 +143,7 @@ public class ErlModelTest extends ErlModelTestBase {
     // IErlModule findModule(String name) throws ErlModelException;
     @Test
     public void findModuleByName() throws Exception {
-        createModule(projects[1], "zz4.hrl", "-define(X, zz).\n");
+        createModule(project2, "zz4.hrl", "-define(X, zz).\n");
         final IErlModule findModule = model.findModule("xx");
         final IErlModule findModule2 = model.findModule("xx.erl");
         final IErlModule findModule3 = model.findModule("yy.hrl");
@@ -169,10 +177,8 @@ public class ErlModelTest extends ErlModelTestBase {
     // includePath)
     @Test
     public void findInclude() throws Exception {
-        final IErlModule module2 = createModule(projects[1], "zz5.hrl",
-                "-define(X, zz).\n");
-        final IErlModule include = createInclude(projects[1], "xx5.hrl",
-                "-define(X, xx).\n");
+        final IErlModule module2 = createModule(project2, "zz5.hrl", "-define(X, zz).\n");
+        final IErlModule include = createInclude(project2, "xx5.hrl", "-define(X, xx).\n");
         final IErlModule findInclude = model.findInclude("zz5", null);
         assertNull(findInclude);
         final IErlModule findInclude2 = model.findInclude("xx5", null);
@@ -234,7 +240,7 @@ public class ErlModelTest extends ErlModelTestBase {
     @Test
     public void findIncludeFromModule() throws Exception {
         File externalIncludeFile = null;
-        final IErlProject myProject = projects[0];
+        final IErlProject myProject = project;
         final IProject workspaceProject = myProject.getWorkspaceProject();
         final IProject[] referencedProjects = workspaceProject.getReferencedProjects();
         final Collection<IPath> includeDirs = myProject.getProperties().getIncludeDirs();
@@ -253,7 +259,7 @@ public class ErlModelTest extends ErlModelTestBase {
             ((ErlProject) myProject).setIncludeDirs(newIncludeDirs);
             final IErlModule include = createInclude(myProject, "yy8.hrl",
                     "-define(Y, include).\n");
-            final IErlProject project1 = projects[1];
+            final IErlProject project1 = project2;
             final IErlModule referencedInclude = createInclude(project1, "zz8.hrl",
                     "-define(Z, referenced).\n");
             final IErlModule includeInModuleDir = createModule(myProject, "ww.hrl",
@@ -338,7 +344,7 @@ public class ErlModelTest extends ErlModelTestBase {
     public void findModuleFromProject() throws Exception {
         File externalModuleFile = null;
         File externalsFile = null;
-        final IErlProject aProject = projects[0];
+        final IErlProject aProject = project;
         final IProject workspaceProject = aProject.getWorkspaceProject();
         final IProject[] referencedProjects = workspaceProject.getReferencedProjects();
         final String externalModulesString = aProject.getProperties()
@@ -355,7 +361,7 @@ public class ErlModelTest extends ErlModelTestBase {
                     .getAbsolutePath());
             final IErlModule aModule = createModule(aProject, "yy6.erl",
                     "-module(yy6).\n");
-            final IErlProject project1 = projects[1];
+            final IErlProject project1 = project2;
             final IErlModule referencedModule = createModule(project1, "zz6.erl",
                     "-module(zz6).\n");
             aProject.open(null);
@@ -437,7 +443,7 @@ public class ErlModelTest extends ErlModelTestBase {
     public void findModuleFromProject_preferProjectFile() throws Exception {
         File externalModuleFile = null;
         File externalsFile = null;
-        final IErlProject aProject = projects[0];
+        final IErlProject aProject = project;
         final IProject workspaceProject = aProject.getWorkspaceProject();
         final IProject[] referencedProjects = workspaceProject.getReferencedProjects();
         final String externalModulesString = aProject.getProperties()
@@ -453,7 +459,7 @@ public class ErlModelTest extends ErlModelTestBase {
             externalsFile = createTmpFile(XX_ERLIDEX, externalModulePath);
             ((ErlProject) aProject).setExternalModulesFile(externalsFile
                     .getAbsolutePath());
-            final IErlProject project1 = projects[1];
+            final IErlProject project1 = project2;
             final IErlModule referencedModule = createModule(project1, zzErl, xxxContents);
             aProject.open(null);
             // when
@@ -508,7 +514,7 @@ public class ErlModelTest extends ErlModelTestBase {
     @Test
     public void findIncludeFromProject() throws Exception {
         File externalIncludeFile = null;
-        final IErlProject aProject = projects[0];
+        final IErlProject aProject = project;
         final IProject workspaceProject = aProject.getWorkspaceProject();
         final IProject[] referencedProjects = workspaceProject.getReferencedProjects();
         final Collection<IPath> includeDirs = aProject.getProperties().getIncludeDirs();
@@ -526,7 +532,7 @@ public class ErlModelTest extends ErlModelTestBase {
             ((ErlProject) aProject).setIncludeDirs(newIncludeDirs);
             final IErlModule include = createInclude(aProject, "yy5.hrl",
                     "-define(Y, include).\n");
-            final IErlProject project1 = projects[1];
+            final IErlProject project1 = project2;
             final IErlModule referencedInclude = createInclude(project1, "zz5.hrl",
                     "-define(Z, referenced).\n");
             aProject.open(null);
@@ -604,7 +610,7 @@ public class ErlModelTest extends ErlModelTestBase {
     @Test
     public void findInclude_preferProjectFile() throws Exception {
         File externalIncludeFile = null;
-        final IErlProject aProject = projects[0];
+        final IErlProject aProject = project;
         final IProject workspaceProject = aProject.getWorkspaceProject();
         final IProject[] referencedProjects = workspaceProject.getReferencedProjects();
         final Collection<IPath> includeDirs = aProject.getProperties().getIncludeDirs();
@@ -620,7 +626,7 @@ public class ErlModelTest extends ErlModelTestBase {
             final List<IPath> newIncludeDirs = Lists.newArrayList(includeDirs);
             newIncludeDirs.add(p);
             ((ErlProject) aProject).setIncludeDirs(newIncludeDirs);
-            final IErlProject project1 = projects[1];
+            final IErlProject project1 = project2;
             final IErlModule referencedInclude = createInclude(project1, xxHrl,
                     "-define(Z, referenced).\n");
             aProject.open(null);

@@ -48,17 +48,17 @@ class ExternalLibrariesHelper {
     }
 
     def Collection<ErlangLibraryProperties> build() {
-        // TODO fill from files + global
-        val mods = externalModules
-        val incs = externalIncludes
 
+        // TODO fill from files + global
+        //        val mods = externalModules
+        //        val incs = externalIncludes
         //        val allMods = expand(mods)
         //        val allIncs = expand(incs)
         // expand values and look for common prefixes to merge mod+inc in libraries
         newArrayList()
     }
 
-    private def expand(String string) {
-        throw new UnsupportedOperationException("TODO: auto-generated method stub")
-    }
+//    private def expand(String string) {
+//        throw new UnsupportedOperationException("TODO: auto-generated method stub")
+//    }
 }

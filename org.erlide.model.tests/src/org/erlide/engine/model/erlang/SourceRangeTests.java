@@ -4,14 +4,23 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.model.root.IErlElement;
+import org.erlide.engine.model.root.IErlProject;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SourceRangeTests extends ErlModelTestBase {
+public class SourceRangeTests extends WorkspaceTest {
 
     private ISourceRange sourceRange;
     private ISourceRange sourceRange2;
+    private IErlProject project;
+
+    @Before
+    public void setup() throws Exception {
+        setUpProject("testproject1");
+        project = getErlProject("testproject1");
+    }
 
     @Before
     public void set_up() throws Exception {
