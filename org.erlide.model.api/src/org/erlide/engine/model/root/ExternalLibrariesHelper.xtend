@@ -5,6 +5,8 @@ import com.google.common.base.Strings
 import com.google.common.io.Files
 import java.io.File
 import java.util.Collection
+import org.eclipse.core.runtime.IPath
+import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.Platform
 import org.eclipse.core.runtime.preferences.IPreferencesService
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -53,36 +55,42 @@ class ExternalLibrariesHelper {
 		return PreferencesUtils.packArray(#[projprefs, global])
 	}
 
-	def Collection<ErlangLibraryProperties> build() {
+	def Collection<ErlangLibraryProperties> build(IPath baseDir) {
 
-        // TODO fill from global settings too
+		// TODO fill from global settings too
 		val mods = externalModules
 		val incs = externalIncludes
-		val allMods = expand_it(mods)
-		val allIncs = expand_it(incs)
+		val allMods = expand_it(mods, baseDir)
+		val allIncs = expand_it(incs, baseDir)
 
 		newArrayList(merge(allMods, allIncs))
 	}
 
-	def Collection<String> expand_it(String fileName) {
+	def Collection<String> expand_it(String fileName, IPath baseDir) {
 		if (Strings.isNullOrEmpty(fileName))
 			return newArrayList
-		val input = Files.readLines(new File(fileName), Charsets.UTF_8)
-		expand_it(fileName)[input]
+
+		val p = new Path(fileName)
+		val name = if(p.isAbsolute) fileName else baseDir.append(fileName).toPortableString
+		val f = new File(name)
+		println(f.absolutePath)
+		println(baseDir)
+		val input = Files.readLines(f, Charsets.UTF_8)
+		expand_it(fileName, baseDir)[input]
 	}
 
-	def Collection<String> expand_it(String fileName, (String)=>Collection<String> xexpander) {
+	def Collection<String> expand_it(String fileName, IPath baseDir, (String)=>Collection<String> xexpander) {
 		val content = xexpander.apply(fileName)
-		newArrayList(content.map[expand(xexpander)].flatten)
+		newArrayList(content.map[expand(baseDir, xexpander)].flatten)
 	}
 
-	def Collection<String> expand(String fileName, (String)=>Collection<String> xexpander) {
+	def Collection<String> expand(String fileName, IPath baseDir, (String)=>Collection<String> xexpander) {
 		val result = newArrayList()
 		if (Strings.isNullOrEmpty(fileName))
 			return result
 
 		if (fileName.endsWith(".erlidex")) {
-			val expanded = expand_it(fileName, xexpander)
+			val expanded = expand_it(fileName, baseDir, xexpander)
 			result.addAll(expanded)
 		} else {
 			result.add(fileName)
@@ -93,8 +101,8 @@ class ExternalLibrariesHelper {
 	def Collection<ErlangLibraryProperties> merge(Iterable<String> mods, Iterable<String> incs) {
 
 		// TODO implement
-        // - look for common folders in mods and incs and create a single library
-        // - library points to folders, not files
+		// - look for common folders in mods and incs and create a single library
+		// - library points to folders, not files
 		newArrayList()
 	}
 

@@ -5,6 +5,7 @@ import org.junit.Before
 import org.junit.Test
 
 import static org.junit.Assert.assertEquals
+import org.eclipse.core.runtime.Path
 
 class ExternalLibrariesHelperTests {
 
@@ -18,7 +19,7 @@ class ExternalLibrariesHelperTests {
     @Test
     def void expand_1() {
         val expected = newArrayList("z")
-        val actual = helper.expand("z")[null]
+        val actual = helper.expand("z", new Path(""))[null]
         assertEquals(expected, actual)
     }
 
@@ -26,7 +27,7 @@ class ExternalLibrariesHelperTests {
     def void expand_2() {
         val xmap = newHashMap("m.erlidex" -> newArrayList("a", "b"))
         val expected = newArrayList("a", "b")
-        val actual = helper.expand_it("m.erlidex")[xmap.get(it)]
+        val actual = helper.expand_it("m.erlidex", new Path(""))[xmap.get(it)]
         assertEquals(expected, actual)
     }
 
@@ -34,7 +35,7 @@ class ExternalLibrariesHelperTests {
     def void expand_3() {
         val xmap = newHashMap("m.erlidex" -> newArrayList("a", "b.erlidex", "c"), "b.erlidex" -> newArrayList("z", "y"))
         val expected = newArrayList("a", "z", "y", "c")
-        val actual = helper.expand_it("m.erlidex")[xmap.get(it)]
+        val actual = helper.expand_it("m.erlidex", new Path(""))[xmap.get(it)]
         assertEquals(expected, actual)
     }
 

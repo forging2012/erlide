@@ -29,8 +29,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
   
   private Collection<IPath> testDirs;
   
-  private Collection<ErlangLibraryProperties> libraries;
-  
   @Accessors(AccessorType.NONE)
   private final transient ExternalLibrariesHelper externalLibrariesHelper;
   
@@ -49,8 +47,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
       final String externalModulesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_MODULES;
       it.externalLibrariesHelper.setExternalModulesFile(externalModulesFile);
       it.externalLibrariesHelper.setExternalIncludesFile(externalIncludesFile);
-      Collection<ErlangLibraryProperties> _build = it.externalLibrariesHelper.build();
-      it.libraries = _build;
     }
   });
   
@@ -60,8 +56,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
     this.outputDir = _path;
     ArrayList<IPath> _newArrayList = CollectionLiterals.<IPath>newArrayList();
     this.testDirs = _newArrayList;
-    ArrayList<ErlangLibraryProperties> _newArrayList_1 = CollectionLiterals.<ErlangLibraryProperties>newArrayList();
-    this.libraries = _newArrayList_1;
     ExternalLibrariesHelper _externalLibrariesHelper = new ExternalLibrariesHelper("", "");
     this.externalLibrariesHelper = _externalLibrariesHelper;
   }
@@ -115,6 +109,15 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
     return this.externalLibrariesHelper.getExternalIncludesFile();
   }
   
+  public void setBaseDir(final IPath baseDir) {
+    super.setBaseDir(baseDir);
+  }
+  
+  public Collection<ErlangLibraryProperties> getLibraries() {
+    IPath _baseDir = this.getBaseDir();
+    return this.externalLibrariesHelper.build(_baseDir);
+  }
+  
   @Pure
   public IPath getOutputDir() {
     return this.outputDir;
@@ -127,15 +130,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
   @Pure
   public Collection<IPath> getTestDirs() {
     return this.testDirs;
-  }
-  
-  @Pure
-  public Collection<ErlangLibraryProperties> getLibraries() {
-    return this.libraries;
-  }
-  
-  public void setLibraries(final Collection<ErlangLibraryProperties> libraries) {
-    this.libraries = libraries;
   }
   
   @Override
@@ -160,11 +154,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
         return false;
     } else if (!this.testDirs.equals(other.testDirs))
       return false;
-    if (this.libraries == null) {
-      if (other.libraries != null)
-        return false;
-    } else if (!this.libraries.equals(other.libraries))
-      return false;
     return true;
   }
   
@@ -175,7 +164,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
     int result = super.hashCode();
     result = prime * result + ((this.outputDir== null) ? 0 : this.outputDir.hashCode());
     result = prime * result + ((this.testDirs== null) ? 0 : this.testDirs.hashCode());
-    result = prime * result + ((this.libraries== null) ? 0 : this.libraries.hashCode());
     return result;
   }
   

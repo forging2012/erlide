@@ -16,8 +16,6 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
 	IPath outputDir
 	Collection<IPath> testDirs
 
-	Collection<ErlangLibraryProperties> libraries
-
 	@Accessors(NONE)
 	val transient ExternalLibrariesHelper externalLibrariesHelper
 
@@ -31,14 +29,12 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
 		val externalModulesFile = ProjectPreferencesConstants.DEFAULT_EXTERNAL_MODULES
 		externalLibrariesHelper.externalModulesFile = externalModulesFile
 		externalLibrariesHelper.externalIncludesFile = externalIncludesFile
-		libraries = externalLibrariesHelper.build()
 	]
 
 	new() {
 		super()
 		outputDir = new Path("")
 		testDirs = newArrayList()
-		libraries = newArrayList()
 		externalLibrariesHelper = new ExternalLibrariesHelper("", "")
 	}
 
@@ -70,14 +66,10 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
 
 	def setExternalModulesFile(String mods) {
 		externalLibrariesHelper.externalModulesFile = mods
-
-	//  FIXME      libraries = externalLibrariesHelper.build()
 	}
 
 	def setExternalIncludesFile(String incs) {
 		externalLibrariesHelper.externalIncludesFile = incs
-
-	//  FIXME      libraries = externalLibrariesHelper.build()
 	}
 
 	def getExternalModulesFile() {
@@ -87,4 +79,13 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
 	def getExternalIncludesFile() {
 		externalLibrariesHelper.externalIncludesFile
 	}
+
+	override setBaseDir(IPath baseDir) {
+		super.setBaseDir(baseDir)
+	}
+
+	def Collection<ErlangLibraryProperties> getLibraries() {
+		externalLibrariesHelper.build(baseDir)
+	}
+
 }

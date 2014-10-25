@@ -12,6 +12,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.annotation.NonNull;
 import org.erlide.engine.model.root.ErlangContentDescriber;
@@ -44,7 +45,7 @@ public class FileProjectConfigurator implements IProjectConfigurator,
     }
 
     @Override
-    public ErlangProjectProperties getConfiguration() {
+    public ErlangProjectProperties getConfiguration(final IPath baseDir) {
         if (filePath == null) {
             return null;
         }

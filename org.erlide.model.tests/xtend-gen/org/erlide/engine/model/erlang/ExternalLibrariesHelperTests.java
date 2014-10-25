@@ -3,6 +3,7 @@ package org.erlide.engine.model.erlang;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.Pair;
@@ -24,12 +25,13 @@ public class ExternalLibrariesHelperTests {
   @Test
   public void expand_1() {
     final ArrayList<String> expected = CollectionLiterals.<String>newArrayList("z");
+    Path _path = new Path("");
     final Function1<String, Collection<String>> _function = new Function1<String, Collection<String>>() {
       public Collection<String> apply(final String it) {
         return null;
       }
     };
-    final Collection<String> actual = this.helper.expand("z", _function);
+    final Collection<String> actual = this.helper.expand("z", _path, _function);
     Assert.assertEquals(expected, actual);
   }
   
@@ -39,12 +41,13 @@ public class ExternalLibrariesHelperTests {
     Pair<String, ArrayList<String>> _mappedTo = Pair.<String, ArrayList<String>>of("m.erlidex", _newArrayList);
     final HashMap<String, ArrayList<String>> xmap = CollectionLiterals.<String, ArrayList<String>>newHashMap(_mappedTo);
     final ArrayList<String> expected = CollectionLiterals.<String>newArrayList("a", "b");
+    Path _path = new Path("");
     final Function1<String, ArrayList<String>> _function = new Function1<String, ArrayList<String>>() {
       public ArrayList<String> apply(final String it) {
         return xmap.get(it);
       }
     };
-    final Collection<String> actual = this.helper.expand_it("m.erlidex", _function);
+    final Collection<String> actual = this.helper.expand_it("m.erlidex", _path, _function);
     Assert.assertEquals(expected, actual);
   }
   
@@ -56,12 +59,13 @@ public class ExternalLibrariesHelperTests {
     Pair<String, ArrayList<String>> _mappedTo_1 = Pair.<String, ArrayList<String>>of("b.erlidex", _newArrayList_1);
     final HashMap<String, ArrayList<String>> xmap = CollectionLiterals.<String, ArrayList<String>>newHashMap(_mappedTo, _mappedTo_1);
     final ArrayList<String> expected = CollectionLiterals.<String>newArrayList("a", "z", "y", "c");
+    Path _path = new Path("");
     final Function1<String, ArrayList<String>> _function = new Function1<String, ArrayList<String>>() {
       public ArrayList<String> apply(final String it) {
         return xmap.get(it);
       }
     };
-    final Collection<String> actual = this.helper.expand_it("m.erlidex", _function);
+    final Collection<String> actual = this.helper.expand_it("m.erlidex", _path, _function);
     Assert.assertEquals(expected, actual);
   }
 }

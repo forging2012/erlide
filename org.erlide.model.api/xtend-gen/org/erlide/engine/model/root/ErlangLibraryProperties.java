@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.xtend.lib.annotations.Accessors;
 import org.eclipse.xtend.lib.annotations.EqualsHashCode;
 import org.eclipse.xtend.lib.annotations.ToString;
@@ -18,6 +19,8 @@ import org.erlide.runtime.runtimeinfo.RuntimeVersion;
 @ToString
 @SuppressWarnings("all")
 public class ErlangLibraryProperties {
+  private IPath baseDir;
+  
   private Collection<IPath> sourceDirs;
   
   private Collection<IPath> includeDirs;
@@ -25,6 +28,8 @@ public class ErlangLibraryProperties {
   private RuntimeVersion requiredRuntimeVersion;
   
   public ErlangLibraryProperties() {
+    Path _path = new Path("");
+    this.baseDir = _path;
     ArrayList<IPath> _newArrayList = CollectionLiterals.<IPath>newArrayList();
     this.sourceDirs = _newArrayList;
     ArrayList<IPath> _newArrayList_1 = CollectionLiterals.<IPath>newArrayList();
@@ -50,6 +55,15 @@ public class ErlangLibraryProperties {
   public void setIncludeDirs(final IPath... dirs) {
     ArrayList<IPath> _newArrayList = Lists.<IPath>newArrayList(dirs);
     this.includeDirs = _newArrayList;
+  }
+  
+  @Pure
+  public IPath getBaseDir() {
+    return this.baseDir;
+  }
+  
+  public void setBaseDir(final IPath baseDir) {
+    this.baseDir = baseDir;
   }
   
   @Pure
@@ -81,6 +95,11 @@ public class ErlangLibraryProperties {
     if (getClass() != obj.getClass())
       return false;
     ErlangLibraryProperties other = (ErlangLibraryProperties) obj;
+    if (this.baseDir == null) {
+      if (other.baseDir != null)
+        return false;
+    } else if (!this.baseDir.equals(other.baseDir))
+      return false;
     if (this.sourceDirs == null) {
       if (other.sourceDirs != null)
         return false;
@@ -104,6 +123,7 @@ public class ErlangLibraryProperties {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + ((this.baseDir== null) ? 0 : this.baseDir.hashCode());
     result = prime * result + ((this.sourceDirs== null) ? 0 : this.sourceDirs.hashCode());
     result = prime * result + ((this.includeDirs== null) ? 0 : this.includeDirs.hashCode());
     result = prime * result + ((this.requiredRuntimeVersion== null) ? 0 : this.requiredRuntimeVersion.hashCode());
@@ -114,6 +134,7 @@ public class ErlangLibraryProperties {
   @Pure
   public String toString() {
     ToStringBuilder b = new ToStringBuilder(this);
+    b.add("baseDir", this.baseDir);
     b.add("sourceDirs", this.sourceDirs);
     b.add("includeDirs", this.includeDirs);
     b.add("requiredRuntimeVersion", this.requiredRuntimeVersion);

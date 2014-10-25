@@ -7,17 +7,20 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.EqualsHashCode
 import org.eclipse.xtend.lib.annotations.ToString
 import org.erlide.runtime.runtimeinfo.RuntimeVersion
+import org.eclipse.core.runtime.Path
 
 @Accessors
 @EqualsHashCode
 @ToString
 class ErlangLibraryProperties {
+	IPath baseDir
     Collection<IPath> sourceDirs
     Collection<IPath> includeDirs
 
     RuntimeVersion requiredRuntimeVersion
 
     new() {
+    	baseDir = new Path("")
         sourceDirs = newArrayList()
         includeDirs = newArrayList()
         requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION

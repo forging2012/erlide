@@ -714,7 +714,9 @@ public class ErlProject extends Openable implements IErlProject,
 
     private ErlangProjectProperties loadProperties() {
         final IProjectConfigurator builderConfig = getConfig();
-        return builderConfig.getConfiguration();
+        final ErlangProjectProperties config = builderConfig
+                .getConfiguration(getWorkspaceProject().getLocation());
+        return config;
     }
 
     private IProjectConfigurator getConfig() {
@@ -740,12 +742,14 @@ public class ErlProject extends Openable implements IErlProject,
         } finally {
             configuring = false;
         }
+
     }
 
     private void loadAllProperties() {
         loadCoreProperties();
         loadBuilderProperties();
         properties = loadProperties();
+        properties.setBaseDir(getWorkspaceProject().getLocation());
     }
 
     @Override

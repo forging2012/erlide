@@ -46,7 +46,7 @@ class NewProjectData extends ErlangProjectProperties {
             System.out.println("» LOAD " + f.getAbsolutePath())
             val IProjectConfigurator config = factory.getConfig(getConfigType(),
                 new File(getLocation().toPortableString()))
-            val ErlangProjectProperties props = config.getConfiguration()
+            val ErlangProjectProperties props = config.getConfiguration(location)
             setOutputDir(props.getOutputDir())
             setSourceDirs(props.getSourceDirs())
             setIncludeDirs(props.getIncludeDirs())
@@ -64,7 +64,7 @@ class NewProjectData extends ErlangProjectProperties {
                 val persister = factory.getConfig(configType, directory)
                 println("PERSISTER " + persister)
                 if (persister !== null) {
-                    val props = persister.getConfiguration()
+                    val props = persister.getConfiguration(location)
                     println("detected PROPS: " + props)
                 }
             }

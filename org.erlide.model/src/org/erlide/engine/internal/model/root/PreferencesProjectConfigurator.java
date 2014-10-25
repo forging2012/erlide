@@ -1,6 +1,7 @@
 package org.erlide.engine.internal.model.root;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.annotation.NonNull;
@@ -52,7 +53,7 @@ public class PreferencesProjectConfigurator implements IProjectConfigurator {
     }
 
     @Override
-    public ErlangProjectProperties getConfiguration() {
+    public ErlangProjectProperties getConfiguration(final IPath baseDir) {
         ErlangProjectProperties result = null;
         // new config takes precedence
         if (hasData(node)) {
@@ -72,6 +73,7 @@ public class PreferencesProjectConfigurator implements IProjectConfigurator {
         } else {
             result = getConfiguration(node);
         }
+        result.setBaseDir(baseDir);
         return result;
     }
 

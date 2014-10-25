@@ -9,6 +9,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.xtend.lib.annotations.Accessors;
@@ -16,6 +18,7 @@ import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
+import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.erlide.engine.model.root.ErlangLibraryProperties;
@@ -74,20 +77,20 @@ public class ExternalLibrariesHelper {
     return PreferencesUtils.packArray(new String[] { projprefs, global });
   }
   
-  public Collection<ErlangLibraryProperties> build() {
+  public Collection<ErlangLibraryProperties> build(final IPath baseDir) {
     ArrayList<ErlangLibraryProperties> _xblockexpression = null;
     {
       final String mods = this.getExternalModules();
       final String incs = this.getExternalIncludes();
-      final Collection<String> allMods = this.expand_it(mods);
-      final Collection<String> allIncs = this.expand_it(incs);
+      final Collection<String> allMods = this.expand_it(mods, baseDir);
+      final Collection<String> allIncs = this.expand_it(incs, baseDir);
       Collection<ErlangLibraryProperties> _merge = this.merge(allMods, allIncs);
       _xblockexpression = CollectionLiterals.<ErlangLibraryProperties>newArrayList(((ErlangLibraryProperties[])Conversions.unwrapArray(_merge, ErlangLibraryProperties.class)));
     }
     return _xblockexpression;
   }
   
-  public Collection<String> expand_it(final String fileName) {
+  public Collection<String> expand_it(final String fileName, final IPath baseDir) {
     try {
       Collection<String> _xblockexpression = null;
       {
@@ -95,14 +98,27 @@ public class ExternalLibrariesHelper {
         if (_isNullOrEmpty) {
           return CollectionLiterals.<String>newArrayList();
         }
-        File _file = new File(fileName);
-        final List<String> input = Files.readLines(_file, Charsets.UTF_8);
+        final Path p = new Path(fileName);
+        String _xifexpression = null;
+        boolean _isAbsolute = p.isAbsolute();
+        if (_isAbsolute) {
+          _xifexpression = fileName;
+        } else {
+          IPath _append = baseDir.append(fileName);
+          _xifexpression = _append.toPortableString();
+        }
+        final String name = _xifexpression;
+        final File f = new File(name);
+        String _absolutePath = f.getAbsolutePath();
+        InputOutput.<String>println(_absolutePath);
+        InputOutput.<IPath>println(baseDir);
+        final List<String> input = Files.readLines(f, Charsets.UTF_8);
         final Function1<String, List<String>> _function = new Function1<String, List<String>>() {
           public List<String> apply(final String it) {
             return input;
           }
         };
-        _xblockexpression = this.expand_it(fileName, _function);
+        _xblockexpression = this.expand_it(fileName, baseDir, _function);
       }
       return _xblockexpression;
     } catch (Throwable _e) {
@@ -110,13 +126,13 @@ public class ExternalLibrariesHelper {
     }
   }
   
-  public Collection<String> expand_it(final String fileName, final Function1<? super String, ? extends Collection<String>> xexpander) {
+  public Collection<String> expand_it(final String fileName, final IPath baseDir, final Function1<? super String, ? extends Collection<String>> xexpander) {
     ArrayList<String> _xblockexpression = null;
     {
       final Collection<String> content = xexpander.apply(fileName);
       final Function1<String, Collection<String>> _function = new Function1<String, Collection<String>>() {
         public Collection<String> apply(final String it) {
-          return ExternalLibrariesHelper.this.expand(it, xexpander);
+          return ExternalLibrariesHelper.this.expand(it, baseDir, xexpander);
         }
       };
       Iterable<Collection<String>> _map = IterableExtensions.<String, Collection<String>>map(content, _function);
@@ -126,7 +142,7 @@ public class ExternalLibrariesHelper {
     return _xblockexpression;
   }
   
-  public Collection<String> expand(final String fileName, final Function1<? super String, ? extends Collection<String>> xexpander) {
+  public Collection<String> expand(final String fileName, final IPath baseDir, final Function1<? super String, ? extends Collection<String>> xexpander) {
     ArrayList<String> _xblockexpression = null;
     {
       final ArrayList<String> result = CollectionLiterals.<String>newArrayList();
@@ -136,7 +152,7 @@ public class ExternalLibrariesHelper {
       }
       boolean _endsWith = fileName.endsWith(".erlidex");
       if (_endsWith) {
-        final Collection<String> expanded = this.expand_it(fileName, xexpander);
+        final Collection<String> expanded = this.expand_it(fileName, baseDir, xexpander);
         result.addAll(expanded);
       } else {
         result.add(fileName);
