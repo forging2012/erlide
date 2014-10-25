@@ -14,32 +14,39 @@ import org.eclipse.core.runtime.Path
 @ToString
 class ErlangLibraryProperties {
 	IPath baseDir
-    Collection<IPath> sourceDirs
-    Collection<IPath> includeDirs
+	Collection<IPath> sourceDirs
+	Collection<IPath> includeDirs
 
-    RuntimeVersion requiredRuntimeVersion
+	RuntimeVersion requiredRuntimeVersion
 
-    new() {
-    	baseDir = new Path("")
-        sourceDirs = newArrayList()
-        includeDirs = newArrayList()
-        requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION
-    }
+	new() {
+		baseDir = new Path("")
+		sourceDirs = newArrayList()
+		includeDirs = newArrayList()
+		requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION
+	}
 
-    def void setSourceDirs(Collection<IPath> dirs) {
-        sourceDirs = Lists.newArrayList(dirs)
-    }
+	new(IPath baseDir, Collection<IPath> sourceDirs, Collection<IPath> includeDirs, RuntimeVersion requiredRuntimeVersion) {
+		this.baseDir = baseDir
+		this.sourceDirs = sourceDirs
+		this.includeDirs = includeDirs
+		this.requiredRuntimeVersion = requiredRuntimeVersion
+	}
 
-    def void setSourceDirs(IPath... dirs) {
-        sourceDirs = Lists.newArrayList(dirs)
-    }
+	def void setSourceDirs(Collection<IPath> dirs) {
+		sourceDirs = Lists.newArrayList(dirs)
+	}
 
-    def void setIncludeDirs(Collection<IPath> dirs) {
-        includeDirs = Lists.newArrayList(dirs)
-    }
+	def void setSourceDirs(IPath... dirs) {
+		sourceDirs = Lists.newArrayList(dirs)
+	}
 
-    def void setIncludeDirs(IPath... dirs) {
-        includeDirs = Lists.newArrayList(dirs)
-    }
+	def void setIncludeDirs(Collection<IPath> dirs) {
+		includeDirs = Lists.newArrayList(dirs)
+	}
+
+	def void setIncludeDirs(IPath... dirs) {
+		includeDirs = Lists.newArrayList(dirs)
+	}
 
 }

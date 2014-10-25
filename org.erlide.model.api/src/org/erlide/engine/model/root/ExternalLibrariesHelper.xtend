@@ -103,6 +103,15 @@ class ExternalLibrariesHelper {
 		// TODO implement
 		// - look for common folders in mods and incs and create a single library
 		// - library points to folders, not files
+		if (incs.isEmpty)
+			return mods.map[
+				new ErlangLibraryProperties(new Path(""), newArrayList(new Path(it)), newArrayList(),
+					ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION)].toList
+		if (mods.isEmpty)
+			return incs.map[
+				new ErlangLibraryProperties(new Path(""), newArrayList(), newArrayList(new Path(it)),
+					ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION)].toList
+
 		newArrayList()
 	}
 

@@ -37,6 +37,13 @@ public class ErlangLibraryProperties {
     this.requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION;
   }
   
+  public ErlangLibraryProperties(final IPath baseDir, final Collection<IPath> sourceDirs, final Collection<IPath> includeDirs, final RuntimeVersion requiredRuntimeVersion) {
+    this.baseDir = baseDir;
+    this.sourceDirs = sourceDirs;
+    this.includeDirs = includeDirs;
+    this.requiredRuntimeVersion = requiredRuntimeVersion;
+  }
+  
   public void setSourceDirs(final Collection<IPath> dirs) {
     ArrayList<IPath> _newArrayList = Lists.<IPath>newArrayList(dirs);
     this.sourceDirs = _newArrayList;

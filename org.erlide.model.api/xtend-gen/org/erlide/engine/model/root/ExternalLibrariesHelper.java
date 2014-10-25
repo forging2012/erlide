@@ -23,6 +23,7 @@ import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.erlide.engine.model.root.ErlangLibraryProperties;
 import org.erlide.engine.model.root.ExternalKind;
+import org.erlide.engine.model.root.ProjectPreferencesConstants;
 import org.erlide.util.PreferencesUtils;
 
 @Accessors
@@ -163,7 +164,41 @@ public class ExternalLibrariesHelper {
   }
   
   public Collection<ErlangLibraryProperties> merge(final Iterable<String> mods, final Iterable<String> incs) {
-    return CollectionLiterals.<ErlangLibraryProperties>newArrayList();
+    ArrayList<ErlangLibraryProperties> _xblockexpression = null;
+    {
+      boolean _isEmpty = IterableExtensions.isEmpty(incs);
+      if (_isEmpty) {
+        final Function1<String, ErlangLibraryProperties> _function = new Function1<String, ErlangLibraryProperties>() {
+          public ErlangLibraryProperties apply(final String it) {
+            Path _path = new Path("");
+            Path _path_1 = new Path(it);
+            ArrayList<IPath> _newArrayList = CollectionLiterals.<IPath>newArrayList(_path_1);
+            ArrayList<IPath> _newArrayList_1 = CollectionLiterals.<IPath>newArrayList();
+            return new ErlangLibraryProperties(_path, _newArrayList, _newArrayList_1, 
+              ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION);
+          }
+        };
+        Iterable<ErlangLibraryProperties> _map = IterableExtensions.<String, ErlangLibraryProperties>map(mods, _function);
+        return IterableExtensions.<ErlangLibraryProperties>toList(_map);
+      }
+      boolean _isEmpty_1 = IterableExtensions.isEmpty(mods);
+      if (_isEmpty_1) {
+        final Function1<String, ErlangLibraryProperties> _function_1 = new Function1<String, ErlangLibraryProperties>() {
+          public ErlangLibraryProperties apply(final String it) {
+            Path _path = new Path("");
+            ArrayList<IPath> _newArrayList = CollectionLiterals.<IPath>newArrayList();
+            Path _path_1 = new Path(it);
+            ArrayList<IPath> _newArrayList_1 = CollectionLiterals.<IPath>newArrayList(_path_1);
+            return new ErlangLibraryProperties(_path, _newArrayList, _newArrayList_1, 
+              ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION);
+          }
+        };
+        Iterable<ErlangLibraryProperties> _map_1 = IterableExtensions.<String, ErlangLibraryProperties>map(incs, _function_1);
+        return IterableExtensions.<ErlangLibraryProperties>toList(_map_1);
+      }
+      _xblockexpression = CollectionLiterals.<ErlangLibraryProperties>newArrayList();
+    }
+    return _xblockexpression;
   }
   
   @Pure
