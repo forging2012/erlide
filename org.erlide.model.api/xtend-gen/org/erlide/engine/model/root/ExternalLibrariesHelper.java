@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -23,7 +24,6 @@ import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.erlide.engine.model.root.ErlangLibraryProperties;
 import org.erlide.engine.model.root.ExternalKind;
-import org.erlide.engine.model.root.ProjectPreferencesConstants;
 import org.erlide.util.PreferencesUtils;
 
 @Accessors
@@ -166,35 +166,24 @@ public class ExternalLibrariesHelper {
   public Collection<ErlangLibraryProperties> merge(final Iterable<String> mods, final Iterable<String> incs) {
     ArrayList<ErlangLibraryProperties> _xblockexpression = null;
     {
-      boolean _isEmpty = IterableExtensions.isEmpty(incs);
-      if (_isEmpty) {
-        final Function1<String, ErlangLibraryProperties> _function = new Function1<String, ErlangLibraryProperties>() {
-          public ErlangLibraryProperties apply(final String it) {
-            Path _path = new Path("");
-            Path _path_1 = new Path(it);
-            ArrayList<IPath> _newArrayList = CollectionLiterals.<IPath>newArrayList(_path_1);
-            ArrayList<IPath> _newArrayList_1 = CollectionLiterals.<IPath>newArrayList();
-            return new ErlangLibraryProperties(_path, _newArrayList, _newArrayList_1, 
-              ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION);
+      final Map<IPath, List<IPath>> grouped = CollectionLiterals.<IPath, List<IPath>>newHashMap();
+      for (final String mod : mods) {
+        {
+          final Path mpath = new Path(mod);
+          final IPath mroot = mpath.removeLastSegments(1);
+          final List<IPath> matching = CollectionLiterals.<IPath>newArrayList();
+          for (final String inc : incs) {
+            {
+              final Path ipath = new Path(inc);
+              final IPath iroot = ipath.removeLastSegments(1);
+              boolean _equals = Objects.equal(mroot, iroot);
+              if (_equals) {
+                matching.add(ipath);
+              }
+            }
           }
-        };
-        Iterable<ErlangLibraryProperties> _map = IterableExtensions.<String, ErlangLibraryProperties>map(mods, _function);
-        return IterableExtensions.<ErlangLibraryProperties>toList(_map);
-      }
-      boolean _isEmpty_1 = IterableExtensions.isEmpty(mods);
-      if (_isEmpty_1) {
-        final Function1<String, ErlangLibraryProperties> _function_1 = new Function1<String, ErlangLibraryProperties>() {
-          public ErlangLibraryProperties apply(final String it) {
-            Path _path = new Path("");
-            ArrayList<IPath> _newArrayList = CollectionLiterals.<IPath>newArrayList();
-            Path _path_1 = new Path(it);
-            ArrayList<IPath> _newArrayList_1 = CollectionLiterals.<IPath>newArrayList(_path_1);
-            return new ErlangLibraryProperties(_path, _newArrayList, _newArrayList_1, 
-              ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION);
-          }
-        };
-        Iterable<ErlangLibraryProperties> _map_1 = IterableExtensions.<String, ErlangLibraryProperties>map(incs, _function_1);
-        return IterableExtensions.<ErlangLibraryProperties>toList(_map_1);
+          grouped.put(mpath, matching);
+        }
       }
       _xblockexpression = CollectionLiterals.<ErlangLibraryProperties>newArrayList();
     }

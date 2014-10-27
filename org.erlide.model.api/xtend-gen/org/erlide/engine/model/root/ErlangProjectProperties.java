@@ -25,8 +25,6 @@ import org.erlide.runtime.runtimeinfo.RuntimeVersion;
 @ToString
 @SuppressWarnings("all")
 public class ErlangProjectProperties extends ErlangLibraryProperties {
-  private IPath outputDir;
-  
   private Collection<IPath> testDirs;
   
   @Accessors(AccessorType.NONE)
@@ -37,7 +35,7 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
       Collection<IPath> _unpackList = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_SOURCE_DIRS);
       it.setSourceDirs(_unpackList);
       Path _path = new Path(ProjectPreferencesConstants.DEFAULT_OUTPUT_DIR);
-      it.outputDir = _path;
+      it.setEbinDir(_path);
       Collection<IPath> _unpackList_1 = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_INCLUDE_DIRS);
       it.setIncludeDirs(_unpackList_1);
       Collection<IPath> _unpackList_2 = PathSerializer.unpackList(ProjectPreferencesConstants.DEFAULT_TEST_DIRS);
@@ -52,8 +50,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
   
   public ErlangProjectProperties() {
     super();
-    Path _path = new Path("");
-    this.outputDir = _path;
     ArrayList<IPath> _newArrayList = CollectionLiterals.<IPath>newArrayList();
     this.testDirs = _newArrayList;
     ExternalLibrariesHelper _externalLibrariesHelper = new ExternalLibrariesHelper("", "");
@@ -66,7 +62,8 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
     this.testDirs = props.testDirs;
     Collection<IPath> _sourceDirs = props.getSourceDirs();
     this.setSourceDirs(_sourceDirs);
-    this.outputDir = props.outputDir;
+    IPath _ebinDir = props.getEbinDir();
+    this.setEbinDir(_ebinDir);
     RuntimeVersion _requiredRuntimeVersion = props.getRequiredRuntimeVersion();
     this.setRequiredRuntimeVersion(_requiredRuntimeVersion);
     String _externalIncludesFile = props.getExternalIncludesFile();
@@ -118,13 +115,12 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
     return this.externalLibrariesHelper.build(_baseDir);
   }
   
-  @Pure
   public IPath getOutputDir() {
-    return this.outputDir;
+    return this.getEbinDir();
   }
   
-  public void setOutputDir(final IPath outputDir) {
-    this.outputDir = outputDir;
+  public void setOutputDir(final IPath dir) {
+    this.setEbinDir(dir);
   }
   
   @Pure
@@ -144,11 +140,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
     if (!super.equals(obj))
       return false;
     ErlangProjectProperties other = (ErlangProjectProperties) obj;
-    if (this.outputDir == null) {
-      if (other.outputDir != null)
-        return false;
-    } else if (!this.outputDir.equals(other.outputDir))
-      return false;
     if (this.testDirs == null) {
       if (other.testDirs != null)
         return false;
@@ -162,7 +153,6 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((this.outputDir== null) ? 0 : this.outputDir.hashCode());
     result = prime * result + ((this.testDirs== null) ? 0 : this.testDirs.hashCode());
     return result;
   }

@@ -13,40 +13,44 @@ import org.eclipse.core.runtime.Path
 @EqualsHashCode
 @ToString
 class ErlangLibraryProperties {
-	IPath baseDir
-	Collection<IPath> sourceDirs
-	Collection<IPath> includeDirs
+    IPath baseDir
+    Collection<IPath> sourceDirs
+    Collection<IPath> includeDirs
+    IPath ebinDir
 
-	RuntimeVersion requiredRuntimeVersion
+    RuntimeVersion requiredRuntimeVersion
 
-	new() {
-		baseDir = new Path("")
-		sourceDirs = newArrayList()
-		includeDirs = newArrayList()
-		requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION
-	}
+    new() {
+        baseDir = new Path("")
+        sourceDirs = newArrayList()
+        includeDirs = newArrayList()
+        ebinDir = new Path("")
+        requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION
+    }
 
-	new(IPath baseDir, Collection<IPath> sourceDirs, Collection<IPath> includeDirs, RuntimeVersion requiredRuntimeVersion) {
-		this.baseDir = baseDir
-		this.sourceDirs = sourceDirs
-		this.includeDirs = includeDirs
-		this.requiredRuntimeVersion = requiredRuntimeVersion
-	}
+    new(IPath baseDir, Collection<IPath> sourceDirs, Collection<IPath> includeDirs, IPath ebinDir,
+        RuntimeVersion requiredRuntimeVersion) {
+        this.baseDir = baseDir
+        this.sourceDirs = sourceDirs
+        this.includeDirs = includeDirs
+        this.ebinDir = ebinDir
+        this.requiredRuntimeVersion = requiredRuntimeVersion
+    }
 
-	def void setSourceDirs(Collection<IPath> dirs) {
-		sourceDirs = Lists.newArrayList(dirs)
-	}
+    def void setSourceDirs(Collection<IPath> dirs) {
+        sourceDirs = Lists.newArrayList(dirs)
+    }
 
-	def void setSourceDirs(IPath... dirs) {
-		sourceDirs = Lists.newArrayList(dirs)
-	}
+    def void setSourceDirs(IPath... dirs) {
+        sourceDirs = Lists.newArrayList(dirs)
+    }
 
-	def void setIncludeDirs(Collection<IPath> dirs) {
-		includeDirs = Lists.newArrayList(dirs)
-	}
+    def void setIncludeDirs(Collection<IPath> dirs) {
+        includeDirs = Lists.newArrayList(dirs)
+    }
 
-	def void setIncludeDirs(IPath... dirs) {
-		includeDirs = Lists.newArrayList(dirs)
-	}
+    def void setIncludeDirs(IPath... dirs) {
+        includeDirs = Lists.newArrayList(dirs)
+    }
 
 }

@@ -25,6 +25,8 @@ public class ErlangLibraryProperties {
   
   private Collection<IPath> includeDirs;
   
+  private IPath ebinDir;
+  
   private RuntimeVersion requiredRuntimeVersion;
   
   public ErlangLibraryProperties() {
@@ -34,13 +36,16 @@ public class ErlangLibraryProperties {
     this.sourceDirs = _newArrayList;
     ArrayList<IPath> _newArrayList_1 = CollectionLiterals.<IPath>newArrayList();
     this.includeDirs = _newArrayList_1;
+    Path _path_1 = new Path("");
+    this.ebinDir = _path_1;
     this.requiredRuntimeVersion = ProjectPreferencesConstants.DEFAULT_RUNTIME_VERSION;
   }
   
-  public ErlangLibraryProperties(final IPath baseDir, final Collection<IPath> sourceDirs, final Collection<IPath> includeDirs, final RuntimeVersion requiredRuntimeVersion) {
+  public ErlangLibraryProperties(final IPath baseDir, final Collection<IPath> sourceDirs, final Collection<IPath> includeDirs, final IPath ebinDir, final RuntimeVersion requiredRuntimeVersion) {
     this.baseDir = baseDir;
     this.sourceDirs = sourceDirs;
     this.includeDirs = includeDirs;
+    this.ebinDir = ebinDir;
     this.requiredRuntimeVersion = requiredRuntimeVersion;
   }
   
@@ -84,6 +89,15 @@ public class ErlangLibraryProperties {
   }
   
   @Pure
+  public IPath getEbinDir() {
+    return this.ebinDir;
+  }
+  
+  public void setEbinDir(final IPath ebinDir) {
+    this.ebinDir = ebinDir;
+  }
+  
+  @Pure
   public RuntimeVersion getRequiredRuntimeVersion() {
     return this.requiredRuntimeVersion;
   }
@@ -117,6 +131,11 @@ public class ErlangLibraryProperties {
         return false;
     } else if (!this.includeDirs.equals(other.includeDirs))
       return false;
+    if (this.ebinDir == null) {
+      if (other.ebinDir != null)
+        return false;
+    } else if (!this.ebinDir.equals(other.ebinDir))
+      return false;
     if (this.requiredRuntimeVersion == null) {
       if (other.requiredRuntimeVersion != null)
         return false;
@@ -133,6 +152,7 @@ public class ErlangLibraryProperties {
     result = prime * result + ((this.baseDir== null) ? 0 : this.baseDir.hashCode());
     result = prime * result + ((this.sourceDirs== null) ? 0 : this.sourceDirs.hashCode());
     result = prime * result + ((this.includeDirs== null) ? 0 : this.includeDirs.hashCode());
+    result = prime * result + ((this.ebinDir== null) ? 0 : this.ebinDir.hashCode());
     result = prime * result + ((this.requiredRuntimeVersion== null) ? 0 : this.requiredRuntimeVersion.hashCode());
     return result;
   }
@@ -144,6 +164,7 @@ public class ErlangLibraryProperties {
     b.add("baseDir", this.baseDir);
     b.add("sourceDirs", this.sourceDirs);
     b.add("includeDirs", this.includeDirs);
+    b.add("ebinDir", this.ebinDir);
     b.add("requiredRuntimeVersion", this.requiredRuntimeVersion);
     return b.toString();
   }
