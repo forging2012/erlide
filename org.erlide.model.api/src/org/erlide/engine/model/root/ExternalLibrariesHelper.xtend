@@ -62,8 +62,8 @@ class ExternalLibrariesHelper {
         // TODO fill from global settings too
         val mods = externalModules
         val incs = externalIncludes
-        val allMods = expand_it(mods, baseDir)
-        val allIncs = expand_it(incs, baseDir)
+        val allMods = justFolders(expand_it(mods, baseDir))
+        val allIncs = justFolders(expand_it(incs, baseDir))
 
         newArrayList(merge(allMods, allIncs))
     }
@@ -72,22 +72,21 @@ class ExternalLibrariesHelper {
         if (Strings.isNullOrEmpty(fileName))
             return newArrayList
 
-        val p = new Path(fileName)
-        val name = if (p.isAbsolute) fileName else baseDir.append(fileName).toPortableString
-        val f = new File(name)
-        println(f.absolutePath)
-        println(baseDir)
-        val input = Files.readLines(f, Charsets.UTF_8)
-        expand_it(fileName, baseDir)[input]
+        expand_it(fileName, baseDir) [
+            val p = new Path(fileName)
+            val name = if (p.isAbsolute) fileName else baseDir.append(fileName).toPortableString
+            val f = new File(name)
+            Files.readLines(f, Charsets.UTF_8)
+        ]
     }
 
     def Collection<String> expand_it(String fileName, IPath baseDir, (String)=>Collection<String> xexpander) {
         val content = xexpander.apply(fileName)
-        newArrayList(content.map[expand(baseDir, xexpander)].flatten)
+        newLinkedHashSet(content.map[expand(baseDir, xexpander)].flatten)
     }
 
     def Collection<String> expand(String fileName, IPath baseDir, (String)=>Collection<String> xexpander) {
-        val result = newArrayList()
+        val result = newArrayList
         if (Strings.isNullOrEmpty(fileName))
             return result
 
@@ -100,28 +99,36 @@ class ExternalLibrariesHelper {
         result
     }
 
-    def Collection<ErlangLibraryProperties> merge(Iterable<String> mods, Iterable<String> incs) {
+    def Collection<IPath> justFolders(Iterable<String> files) {
+        newLinkedHashSet(files.map[new Path(it).removeLastSegments(1)])
+    }
+
+    def group(Iterable<IPath> paths) {
+        paths.groupBy [
+            removeLastSegments(1)
+        ]
+    }
+
+    def Collection<ErlangLibraryProperties> merge(Iterable<IPath> mods, Iterable<IPath> incs) {
 
         // TODO implement
         // - look for common folders in mods and incs and create a single library
         // - library points to folders, not files
         val Map<IPath, List<IPath>> grouped = newHashMap()
-        for (String mod : mods) {
-            val mpath = new Path(mod)
-            val mroot = mpath.removeLastSegments(1)
-            val List<IPath> matching = newArrayList()
-            for (String inc : incs) {
-                val ipath = new Path(inc)
-                val iroot = ipath.removeLastSegments(1)
+        for (IPath mod : mods) {
+            val mroot = mod.removeLastSegments(1)
+            val List<IPath> matching = newArrayList
+            for (IPath inc : incs) {
+                val iroot = inc.removeLastSegments(1)
                 if (mroot == iroot) {
-                    matching.add(ipath)
+                    matching.add(inc)
                 }
             }
-            grouped.put(mpath, matching)
+            grouped.put(mod, matching)
         }
 
         // TODO what about non-matched includes?
-        newArrayList()
+        newArrayList
     }
 
 }

@@ -84,7 +84,7 @@ public class ModuleLocatorTests extends WorkspaceTest {
     private void checkModuleNamesInList(final String[] mods,
             final Collection<IErlModule> list) {
         for (final String name : mods) {
-            assertThat(name, hasModWithName(list, name));
+            assertThat("not found: " + name, hasModWithName(list, name));
         }
     }
 

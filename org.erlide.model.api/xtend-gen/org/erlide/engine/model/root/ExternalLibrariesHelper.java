@@ -8,6 +8,7 @@ import com.google.common.io.Files;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.core.runtime.IPath;
@@ -19,7 +20,6 @@ import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.erlide.engine.model.root.ErlangLibraryProperties;
@@ -83,8 +83,10 @@ public class ExternalLibrariesHelper {
     {
       final String mods = this.getExternalModules();
       final String incs = this.getExternalIncludes();
-      final Collection<String> allMods = this.expand_it(mods, baseDir);
-      final Collection<String> allIncs = this.expand_it(incs, baseDir);
+      Collection<String> _expand_it = this.expand_it(mods, baseDir);
+      final Collection<IPath> allMods = this.justFolders(_expand_it);
+      Collection<String> _expand_it_1 = this.expand_it(incs, baseDir);
+      final Collection<IPath> allIncs = this.justFolders(_expand_it_1);
       Collection<ErlangLibraryProperties> _merge = this.merge(allMods, allIncs);
       _xblockexpression = CollectionLiterals.<ErlangLibraryProperties>newArrayList(((ErlangLibraryProperties[])Conversions.unwrapArray(_merge, ErlangLibraryProperties.class)));
     }
@@ -92,43 +94,43 @@ public class ExternalLibrariesHelper {
   }
   
   public Collection<String> expand_it(final String fileName, final IPath baseDir) {
-    try {
-      Collection<String> _xblockexpression = null;
-      {
-        boolean _isNullOrEmpty = Strings.isNullOrEmpty(fileName);
-        if (_isNullOrEmpty) {
-          return CollectionLiterals.<String>newArrayList();
-        }
-        final Path p = new Path(fileName);
-        String _xifexpression = null;
-        boolean _isAbsolute = p.isAbsolute();
-        if (_isAbsolute) {
-          _xifexpression = fileName;
-        } else {
-          IPath _append = baseDir.append(fileName);
-          _xifexpression = _append.toPortableString();
-        }
-        final String name = _xifexpression;
-        final File f = new File(name);
-        String _absolutePath = f.getAbsolutePath();
-        InputOutput.<String>println(_absolutePath);
-        InputOutput.<IPath>println(baseDir);
-        final List<String> input = Files.readLines(f, Charsets.UTF_8);
-        final Function1<String, List<String>> _function = new Function1<String, List<String>>() {
-          public List<String> apply(final String it) {
-            return input;
-          }
-        };
-        _xblockexpression = this.expand_it(fileName, baseDir, _function);
+    Collection<String> _xblockexpression = null;
+    {
+      boolean _isNullOrEmpty = Strings.isNullOrEmpty(fileName);
+      if (_isNullOrEmpty) {
+        return CollectionLiterals.<String>newArrayList();
       }
-      return _xblockexpression;
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
+      final Function1<String, List<String>> _function = new Function1<String, List<String>>() {
+        public List<String> apply(final String it) {
+          try {
+            List<String> _xblockexpression = null;
+            {
+              final Path p = new Path(fileName);
+              String _xifexpression = null;
+              boolean _isAbsolute = p.isAbsolute();
+              if (_isAbsolute) {
+                _xifexpression = fileName;
+              } else {
+                IPath _append = baseDir.append(fileName);
+                _xifexpression = _append.toPortableString();
+              }
+              final String name = _xifexpression;
+              final File f = new File(name);
+              _xblockexpression = Files.readLines(f, Charsets.UTF_8);
+            }
+            return _xblockexpression;
+          } catch (Throwable _e) {
+            throw Exceptions.sneakyThrow(_e);
+          }
+        }
+      };
+      _xblockexpression = this.expand_it(fileName, baseDir, _function);
     }
+    return _xblockexpression;
   }
   
   public Collection<String> expand_it(final String fileName, final IPath baseDir, final Function1<? super String, ? extends Collection<String>> xexpander) {
-    ArrayList<String> _xblockexpression = null;
+    LinkedHashSet<String> _xblockexpression = null;
     {
       final Collection<String> content = xexpander.apply(fileName);
       final Function1<String, Collection<String>> _function = new Function1<String, Collection<String>>() {
@@ -138,7 +140,7 @@ public class ExternalLibrariesHelper {
       };
       Iterable<Collection<String>> _map = IterableExtensions.<String, Collection<String>>map(content, _function);
       Iterable<String> _flatten = Iterables.<String>concat(_map);
-      _xblockexpression = CollectionLiterals.<String>newArrayList(((String[])Conversions.unwrapArray(_flatten, String.class)));
+      _xblockexpression = CollectionLiterals.<String>newLinkedHashSet(((String[])Conversions.unwrapArray(_flatten, String.class)));
     }
     return _xblockexpression;
   }
@@ -163,26 +165,44 @@ public class ExternalLibrariesHelper {
     return _xblockexpression;
   }
   
-  public Collection<ErlangLibraryProperties> merge(final Iterable<String> mods, final Iterable<String> incs) {
+  public Collection<IPath> justFolders(final Iterable<String> files) {
+    final Function1<String, IPath> _function = new Function1<String, IPath>() {
+      public IPath apply(final String it) {
+        Path _path = new Path(it);
+        return _path.removeLastSegments(1);
+      }
+    };
+    Iterable<IPath> _map = IterableExtensions.<String, IPath>map(files, _function);
+    return CollectionLiterals.<IPath>newLinkedHashSet(((IPath[])Conversions.unwrapArray(_map, IPath.class)));
+  }
+  
+  public Map<IPath, List<IPath>> group(final Iterable<IPath> paths) {
+    final Function1<IPath, IPath> _function = new Function1<IPath, IPath>() {
+      public IPath apply(final IPath it) {
+        return it.removeLastSegments(1);
+      }
+    };
+    return IterableExtensions.<IPath, IPath>groupBy(paths, _function);
+  }
+  
+  public Collection<ErlangLibraryProperties> merge(final Iterable<IPath> mods, final Iterable<IPath> incs) {
     ArrayList<ErlangLibraryProperties> _xblockexpression = null;
     {
       final Map<IPath, List<IPath>> grouped = CollectionLiterals.<IPath, List<IPath>>newHashMap();
-      for (final String mod : mods) {
+      for (final IPath mod : mods) {
         {
-          final Path mpath = new Path(mod);
-          final IPath mroot = mpath.removeLastSegments(1);
+          final IPath mroot = mod.removeLastSegments(1);
           final List<IPath> matching = CollectionLiterals.<IPath>newArrayList();
-          for (final String inc : incs) {
+          for (final IPath inc : incs) {
             {
-              final Path ipath = new Path(inc);
-              final IPath iroot = ipath.removeLastSegments(1);
+              final IPath iroot = inc.removeLastSegments(1);
               boolean _equals = Objects.equal(mroot, iroot);
               if (_equals) {
-                matching.add(ipath);
+                matching.add(inc);
               }
             }
           }
-          grouped.put(mpath, matching);
+          grouped.put(mod, matching);
         }
       }
       _xblockexpression = CollectionLiterals.<ErlangLibraryProperties>newArrayList();

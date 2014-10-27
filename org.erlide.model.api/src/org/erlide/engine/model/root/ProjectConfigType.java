@@ -12,9 +12,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public enum ProjectConfigType {
-    // FIXME this is kind of an indirect dep on core plugin (needs to be
-    // started)
-
     // @formatter:off
     INTERNAL("org.erlide.model"),
     EMAKE("Emakefile"),
