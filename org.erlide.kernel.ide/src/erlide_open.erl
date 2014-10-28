@@ -10,10 +10,7 @@
 -export([open/3,
          find_first_var/2,
          get_source_from_module/2,
-         get_external_modules/2,
-         get_external_module/2,
          get_external_module_tree/1,
-         get_external_1/3,
          get_otp_lib_structure/1,
          get_lib_files/1,
          get_hrls_in_dir/1
@@ -162,27 +159,8 @@ try_open_aux(Offset, Tokens, BeforeReversed, Context) ->
             ok
     end.
 
-has_prefix(Prefix, FileName) ->
-    lists:prefix(Prefix, filename:basename(FileName)).
-
-has_name(Name, FileName) ->
-    Name == filename:rootname(filename:basename(FileName)).
-
-get_external_modules(Prefix, #open_context{externalModules=ExternalModulesFiles, pathVars=PathVars}) ->
-    ExternalModules = get_external_modules_files(ExternalModulesFiles, PathVars),
-    {ok, [XM || XM <- ExternalModules, has_prefix(Prefix, XM)]}.
-
 get_external_module_tree(#open_context{externalModules=ExternalModulesFiles, pathVars=PathVars}) ->
     {ok, get_external_module_tree(ExternalModulesFiles, PathVars)}.
-
-get_external_module(Name, #open_context{externalModules=ExternalModulesFiles, pathVars=PathVars}) ->
-    ExternalModules = get_external_modules_files(ExternalModulesFiles, PathVars),
-    case [XM || XM <- ExternalModules, has_name(Name, XM)] of
-        [Path | _] ->
-            {ok, Path};
-        _ ->
-            not_found
-    end.
 
 get_external_module_tree(PackedFileNames, PathVars) ->
     Fun = fun(Parent, FileName, Acc) -> [{Parent, replace_path_var(FileName, PathVars), module} | Acc] end,
