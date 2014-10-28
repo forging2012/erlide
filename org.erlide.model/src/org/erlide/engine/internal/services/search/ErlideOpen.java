@@ -147,7 +147,7 @@ public class ErlideOpen implements OpenService {
     @Override
     public OtpErlangList getOtpLibStructure(final IOtpRpc backend) {
         try {
-            final OtpErlangObject res = backend.call(ERLIDE_OPEN,
+            final OtpErlangObject res = backend.call("erlide_libraries",
                     "get_otp_lib_structure", "s", stateDir);
             if (Util.isOk(res)) {
                 final OtpErlangTuple tres = (OtpErlangTuple) res;
@@ -164,8 +164,8 @@ public class ErlideOpen implements OpenService {
     @Override
     public List<String> getLibFiles(final String entry) {
         try {
-            final OtpErlangObject res = ideBackend.call(ERLIDE_OPEN, "get_lib_files",
-                    "ss", entry, stateDir);
+            final OtpErlangObject res = ideBackend.call("erlide_libraries",
+                    "get_lib_files", "ss", entry, stateDir);
             if (Util.isOk(res)) {
                 final OtpErlangTuple t = (OtpErlangTuple) res;
                 final OtpErlangList l = (OtpErlangList) t.elementAt(1);
