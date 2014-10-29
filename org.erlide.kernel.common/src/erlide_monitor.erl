@@ -57,7 +57,7 @@ init([HeapWarnLimit, HeapKillLimit]) ->
         warnLimit = HeapWarnLimit*1000000,
         killLimit = HeapKillLimit*1000000
          },
-  erlide_log:log({"Start monitor process: ", State#state.warnLimit, State#state.killLimit}),
+  erlide_log:logp("Monitor processes: warn ~wMB, kill ~wMB", [HeapWarnLimit, HeapKillLimit]),
   erlang:send_after(?INTERVAL, self(), notify),
   {ok, State}.
 
