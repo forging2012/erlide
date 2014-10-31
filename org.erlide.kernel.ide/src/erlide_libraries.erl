@@ -89,7 +89,6 @@ get_lib_dir(Dir) ->
     end.
 
 get_external_modules_files(PackedFileNames, PathVars) ->
-    ?D(PackedFileNames),
     Fun = fun(_Parent, FileName, Acc) -> [replace_path_var(FileName, PathVars) | Acc] end,
     Fun2 = fun(_Parent, _FileName, Acc) -> Acc end,
     FileNames = erlide_util:unpack(PackedFileNames),
@@ -165,3 +164,13 @@ fx2(FN, Fun, Fun2, PathVars, Parent, Done, Acc) ->
             {Done, Acc}
     end.
 
+-ifdef(TEST).
+
+-include_lib("eunit/include/eunit.hrl").
+
+demo_test_() ->
+    [
+        ?_assertEqual(1, 1)
+     ].
+
+-endif.
