@@ -192,4 +192,33 @@ public class RuntimeVersionTest {
     // final RuntimeVersion test2 = RuntimeVersion.Serializer.parse("17.0.0");
     // assertThat(test1.compareTo(test2), is(lessThan(0)));
     // }
+
+    @Test
+    public void compare_12a() {
+        final RuntimeVersion test1 = RuntimeVersion.Serializer.parse("R14");
+        final RuntimeVersion test2 = RuntimeVersion.Serializer.parse("R15");
+        assertThat(test1.isReleaseCompatible(test2), is(false));
+    }
+
+    @Test
+    public void compare_12a1() {
+        final RuntimeVersion test1 = RuntimeVersion.Serializer.parse("R14");
+        final RuntimeVersion test2 = RuntimeVersion.Serializer.parse("17");
+        assertThat(test1.isReleaseCompatible(test2), is(false));
+    }
+
+    @Test
+    public void compare_12b() {
+        final RuntimeVersion test1 = RuntimeVersion.Serializer.parse("R15B"); 
+        final RuntimeVersion test2 = RuntimeVersion.Serializer.parse("R15");
+        assertThat(test2.isReleaseCompatible(test1), is(true));
+    }
+
+    @Test
+    public void compare_12b1() {
+        final RuntimeVersion test1 = RuntimeVersion.Serializer.parse("R14");
+        final RuntimeVersion test2 = RuntimeVersion.Serializer.parse("R14B");
+        assertThat(test2.isReleaseCompatible(test1), is(true));
+    }
+
 }
