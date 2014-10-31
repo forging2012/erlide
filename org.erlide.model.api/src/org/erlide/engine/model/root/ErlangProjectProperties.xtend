@@ -33,7 +33,7 @@ class ErlangProjectProperties extends ErlangLibraryProperties {
     new() {
         super()
         testDirs = newArrayList()
-        externalLibrariesHelper = new ExternalLibrariesHelper("", "")
+        externalLibrariesHelper = new ExternalLibrariesHelper()
     }
 
     def void copyFrom(ErlangProjectProperties props) {

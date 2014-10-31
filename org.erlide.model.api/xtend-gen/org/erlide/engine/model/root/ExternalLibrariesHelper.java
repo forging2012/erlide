@@ -33,9 +33,9 @@ public class ExternalLibrariesHelper {
   
   private String externalIncludesFile;
   
-  public ExternalLibrariesHelper(final String mods, final String incs) {
-    this.externalModulesFile = mods;
-    this.externalIncludesFile = incs;
+  public ExternalLibrariesHelper() {
+    this.externalModulesFile = "";
+    this.externalIncludesFile = "";
   }
   
   public String getExternalIncludes() {

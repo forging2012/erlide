@@ -20,9 +20,9 @@ class ExternalLibrariesHelper {
     String externalModulesFile
     String externalIncludesFile
 
-    new(String mods, String incs) {
-        externalModulesFile = mods
-        externalIncludesFile = incs
+    new() {
+        externalModulesFile = ""
+        externalIncludesFile = ""
     }
 
     def String getExternalIncludes() {

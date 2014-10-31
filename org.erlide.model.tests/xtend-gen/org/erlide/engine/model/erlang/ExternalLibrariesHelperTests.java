@@ -21,7 +21,7 @@ public class ExternalLibrariesHelperTests {
   
   @Before
   public void setup() {
-    ExternalLibrariesHelper _externalLibrariesHelper = new ExternalLibrariesHelper("", "");
+    ExternalLibrariesHelper _externalLibrariesHelper = new ExternalLibrariesHelper();
     this.helper = _externalLibrariesHelper;
   }
   

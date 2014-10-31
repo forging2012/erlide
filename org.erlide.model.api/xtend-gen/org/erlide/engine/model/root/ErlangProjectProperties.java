@@ -52,7 +52,7 @@ public class ErlangProjectProperties extends ErlangLibraryProperties {
     super();
     ArrayList<IPath> _newArrayList = CollectionLiterals.<IPath>newArrayList();
     this.testDirs = _newArrayList;
-    ExternalLibrariesHelper _externalLibrariesHelper = new ExternalLibrariesHelper("", "");
+    ExternalLibrariesHelper _externalLibrariesHelper = new ExternalLibrariesHelper();
     this.externalLibrariesHelper = _externalLibrariesHelper;
   }
   

@@ -15,7 +15,7 @@ class ExternalLibrariesHelperTests {
 
     @Before
     def void setup() {
-        helper = new ExternalLibrariesHelper("", "")
+        helper = new ExternalLibrariesHelper()
     }
 
     @Test
