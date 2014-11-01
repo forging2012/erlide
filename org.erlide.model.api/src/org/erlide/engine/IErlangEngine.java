@@ -14,7 +14,6 @@ import org.erlide.engine.services.parsing.SimpleParserService;
 import org.erlide.engine.services.parsing.SimpleScannerService;
 import org.erlide.engine.services.proclist.ProclistService;
 import org.erlide.engine.services.search.ModelFindService;
-import org.erlide.engine.services.search.ModelSearcherService;
 import org.erlide.engine.services.search.ModelUtilService;
 import org.erlide.engine.services.search.SearchServerService;
 
@@ -53,8 +52,6 @@ public interface IErlangEngine {
     SimpleParserService getSimpleParserService();
 
     ModelFindService getModelFindService();
-
-    ModelSearcherService getModelSearcherService();
 
     IProjectConfiguratorFactory getProjectConfiguratorFactory();
 

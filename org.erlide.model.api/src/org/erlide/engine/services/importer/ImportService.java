@@ -2,7 +2,9 @@ package org.erlide.engine.services.importer;
 
 import java.util.List;
 
-public interface ImportService {
+import org.erlide.engine.services.ErlangService;
+
+public interface ImportService extends ErlangService {
 
     /**
      * Filter import parameters for newly imported erlang project

@@ -291,8 +291,15 @@ public class ErlTextHover implements ITextHover, IInformationProviderExtension2,
             final OtpErlangTuple t = (OtpErlangTuple) ErlangEngine
                     .getInstance()
                     .getService(OtpDocService.class)
-                    .getOtpDoc(backend, offset, stateDir, editor.getScannerName(),
-                            fImports, externalModulesString, model.getPathVars());
+                    .getOtpDoc(
+                            backend,
+                            offset,
+                            stateDir,
+                            editor.getScannerName(),
+                            fImports,
+                            externalModulesString,
+                            model.getPathVars(editor.getModule()
+                                    .getCorrespondingResource()));
             ErlLogger.debug("otp doc %s", t);
             if (Util.isOk(t)) {
                 element = new OpenResult(t.elementAt(2));

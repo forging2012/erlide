@@ -15,8 +15,11 @@ public class ErlSearchScope {
         modules = Sets.newHashSet();
     }
 
-    public ErlSearchScope(final IErlModule module) {
-        modules = Sets.newHashSet(module);
+    public ErlSearchScope(final IErlModule... ms) {
+        modules = Sets.newHashSet();
+        for (final IErlModule module : ms) {
+            modules.add(module);
+        }
     }
 
     public void addModule(final IErlModule module) {

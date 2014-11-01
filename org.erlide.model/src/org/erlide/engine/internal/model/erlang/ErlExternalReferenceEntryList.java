@@ -18,8 +18,8 @@ import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlExternal;
 import org.erlide.engine.model.root.IErlExternalRoot;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.engine.services.search.ExternalTreeEntry;
 import org.erlide.engine.services.search.OpenService;
-import org.erlide.engine.services.search.OpenService.ExternalTreeEntry;
 import org.erlide.engine.util.OtpRpcFactory;
 import org.erlide.runtime.api.IOtpRpc;
 
@@ -60,7 +60,7 @@ public class ErlExternalReferenceEntryList extends Openable implements IErlExter
                 .getExternalTree(externalIncludes);
         if (externalModuleTree == null || externalIncludeTree == null) {
             final OtpErlangList pathVars = ErlangEngine.getInstance().getModel()
-                    .getPathVars();
+                    .getPathVars(project.getWorkspaceProject());
             final IOtpRpc backend = OtpRpcFactory.getOtpRpcForProject(project);
             if (externalModuleTree == null && externalModules.length() > 0) {
                 if (pm != null) {

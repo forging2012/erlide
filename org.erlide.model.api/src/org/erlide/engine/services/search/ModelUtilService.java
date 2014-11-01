@@ -13,10 +13,11 @@ import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.engine.services.ErlangService;
 
 import com.ericsson.otp.erlang.OtpErlangObject;
 
-public interface ModelUtilService {
+public interface ModelUtilService extends ErlangService {
 
     Object getTarget(final IContainer container, final IPath path,
             final boolean checkResourceExistence);

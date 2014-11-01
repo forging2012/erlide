@@ -68,12 +68,7 @@ public final class ErlParser implements ParserService {
         public int compare(final ISourceReference o1, final ISourceReference o2) {
             final int offset1 = o1.getSourceRange().getOffset();
             final int offset2 = o2.getSourceRange().getOffset();
-            if (offset1 < offset2) {
-                return -1;
-            } else if (offset1 > offset2) {
-                return 1;
-            }
-            return 0;
+            return offset1 - offset2;
         }
     }
 

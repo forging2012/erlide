@@ -48,7 +48,7 @@ class ErlideEventTracer implements IDisposable {
         traceOperationEnd(id.class.simpleName, id)
     }
 
-    def private void trace(ErlideEvent event) {
+    private def void trace(ErlideEvent event) {
         handler.handle(event)
     }
 

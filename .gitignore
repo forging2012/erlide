@@ -46,3 +46,4 @@ junit.xml
 .eunit
 org.erlide.ui.tests/projects/main_prj/rebar.config
 *.pmd
+*.coverage.xml

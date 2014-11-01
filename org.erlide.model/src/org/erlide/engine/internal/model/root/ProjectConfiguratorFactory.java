@@ -33,7 +33,11 @@ public class ProjectConfiguratorFactory implements IProjectConfiguratorFactory {
             final String configName = configType.getConfigName();
             final IEclipsePreferences node = new ProjectScope(
                     project.getWorkspaceProject()).getNode(configName);
-            result = new PreferencesProjectConfigurator(node);
+            // TODO remove later
+            // (shade legacy projects, how long to support them?)
+            final IEclipsePreferences oldNode = new ProjectScope(
+                    project.getWorkspaceProject()).getNode("org.erlide.core");
+            result = new PreferencesProjectConfigurator(node, oldNode);
             break;
         case REBAR:
         case EMAKE:
@@ -49,7 +53,7 @@ public class ProjectConfiguratorFactory implements IProjectConfiguratorFactory {
         IProjectConfigurator result = null;
         switch (configType) {
         case INTERNAL:
-            result = new PreferencesProjectConfigurator(null);
+            result = new PreferencesProjectConfigurator(null, null);
             break;
         case REBAR:
         case EMAKE:

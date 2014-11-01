@@ -1,12 +1,13 @@
 package org.erlide.engine.services.search;
 
+import org.erlide.engine.services.ErlangService;
 import org.erlide.runtime.rpc.IRpcResultCallback;
 import org.erlide.runtime.rpc.RpcException;
 
 import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangPid;
 
-public interface SearchServerService {
+public interface SearchServerService extends ErlangService {
 
     public abstract void startFindRefs(ErlangSearchPattern pattern, ErlSearchScope scope,
             String stateDir, IRpcResultCallback callback, boolean updateSearchServer)

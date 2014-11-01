@@ -133,7 +133,7 @@ public class OpenAction extends SelectionDispatchAction {
                                 ErlangEngine.getInstance().getModelUtilService()
                                         .getImportsAsList(module),
                                 project.getProperties().getExternalModules(),
-                                model.getPathVars());
+                                model.getPathVars(module.getCorrespondingResource()));
                 ErlLogger.debug("open " + openResult);
                 element = editor.getElementAt(offset, true);
             } else if (activeEditor instanceof ITextEditor) {

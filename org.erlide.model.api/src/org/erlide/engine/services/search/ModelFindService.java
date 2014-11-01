@@ -14,10 +14,11 @@ import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.engine.services.ErlangService;
 
 import com.ericsson.otp.erlang.OtpErlangRangeException;
 
-public interface ModelFindService {
+public interface ModelFindService extends ErlangService {
     ISourceRange findVariable(ISourceRange range, String variableName, String elementText)
             throws OtpErlangRangeException;
 
@@ -49,5 +50,7 @@ public interface ModelFindService {
             throws CoreException;
 
     String resolveMacroValue(final String definedName, final IErlModule module);
+
+    Collection<IErlModule> findAllIncludedFiles(IErlModule module) throws CoreException;
 
 }

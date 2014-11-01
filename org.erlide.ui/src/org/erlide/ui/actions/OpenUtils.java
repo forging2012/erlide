@@ -117,7 +117,9 @@ public class OpenUtils {
             res2 = ErlangEngine
                     .getInstance()
                     .getService(OpenService.class)
-                    .getSourceFromModule(model.getPathVars(), moduleName,
+                    .getSourceFromModule(
+                            model.getPathVars(erlProject.getCorrespondingResource()),
+                            moduleName,
                             erlProject.getProperties().getExternalModules());
         }
         if (res2 instanceof OtpErlangString && moduleName != null) {
@@ -130,7 +132,7 @@ public class OpenUtils {
         }
         // functions defined in include files
         final Collection<IErlModule> allIncludedFiles = ErlangEngine.getInstance()
-                .getModelSearcherService().findAllIncludedFiles(module);
+                .getModelFindService().findAllIncludedFiles(module);
         for (final IErlModule includedModule : allIncludedFiles) {
             final IErlFunction function = includedModule.findFunction(res.getFunction());
             if (function != null) {

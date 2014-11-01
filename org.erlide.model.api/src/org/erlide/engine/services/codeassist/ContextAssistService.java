@@ -2,11 +2,12 @@ package org.erlide.engine.services.codeassist;
 
 import java.util.Collection;
 
+import org.erlide.engine.services.ErlangService;
 import org.erlide.runtime.api.IOtpRpc;
 
 import com.ericsson.otp.erlang.OtpErlangList;
 
-public interface ContextAssistService {
+public interface ContextAssistService extends ErlangService {
 
     // -define(NO_RECORD, 0).
     // -define(RECORD_NAME, 1).

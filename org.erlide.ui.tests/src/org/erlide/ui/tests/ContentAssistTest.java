@@ -3,6 +3,7 @@ package org.erlide.ui.tests;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.eclipse.jface.text.IAutoIndentStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IEventConsumer;
@@ -34,147 +35,101 @@ import org.eclipse.xtext.xbase.lib.Functions;
 import org.eclipse.xtext.xbase.lib.ListExtensions;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.IErlProject;
-import org.erlide.engine.util.ErlideTestUtils;
 import org.erlide.ui.editors.erl.completion.ErlContentAssistProcessor;
 import org.erlide.ui.editors.erl.completion.ErlStringContentAssistProcessor;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
 @SuppressWarnings("deprecation")
-public class ContentAssistTest {
-
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        ErlideTestUtils.initModulesAndIncludes();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        ErlideTestUtils.deleteModules();
-    }
+public class ContentAssistTest extends WorkspaceTest {
 
     @Test
     public void moduleCompletionTest() throws Exception {
-        ErlideTestUtils.initProjects();
-        final String name1 = "testproject1";
-        final IErlProject project = ErlideTestUtils.createProject(
-                ErlideTestUtils.getTmpPath(name1), name1);
-        try {
-            final String initialText = "application_";
-            completionTest(project, "z.erl", initialText, initialText.length(),
-                    Lists.newArrayList("application_controller:", "application_master:",
-                            "application_starter:"), false);
-        } finally {
-            ErlideTestUtils.deleteProjects();
-        }
+        final String name1 = "completion";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        final String initialText = "application_";
+        completionTest(project, "z.erl", initialText, initialText.length(),
+                Lists.newArrayList("application_controller:", "application_master:",
+                        "application_starter:"), false);
     }
 
     @Test
     public void moduleCompletion1Test() throws Exception {
-        ErlideTestUtils.initProjects();
-        final String name1 = "testproject1";
-        final IErlProject project = ErlideTestUtils.createProject(
-                ErlideTestUtils.getTmpPath(name1), name1);
-        try {
-            completionTest(project, "ay.erl", "alarm_h", 7,
-                    Lists.newArrayList("alarm_handler:"), false);
-            completionTest(project, "azx.erl", "az", 2, Lists.newArrayList("azx:"), false);
-        } finally {
-            ErlideTestUtils.deleteProjects();
-        }
+        final String name1 = "completion1";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        completionTest(project, "a.erl", "alarm_h", 7,
+                Lists.newArrayList("alarm_handler:"), false);
+        completionTest(project, "azx.erl", "az", 2, Lists.newArrayList("azx:"), false);
     }
 
     @Test
     public void moduleCompletion2Test() throws Exception {
-        ErlideTestUtils.initProjects();
-        final String name1 = "testproject1";
-        final IErlProject project = ErlideTestUtils.createProject(
-                ErlideTestUtils.getTmpPath(name1), name1);
-        try {
-            completionTest(project, "a.erl", "'CosEventChannelAdmin_A", 23,
-                    Lists.newArrayList("'CosEventChannelAdmin_AlreadyConnected':"), false);
-        } finally {
-            ErlideTestUtils.deleteProjects();
-        }
+        final String name1 = "completion2";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        completionTest(project, "a.erl", "'CosEventChannelAdmin_A", 23,
+                Lists.newArrayList("'CosEventChannelAdmin_AlreadyConnected':"), false);
     }
 
     @Test
     public void recordCompletionLettersTest() throws Exception {
-        ErlideTestUtils.initProjects();
-        final String name1 = "testproject1";
-        final IErlProject project = ErlideTestUtils.createProject(
-                ErlideTestUtils.getTmpPath(name1), name1);
-        try {
-            final String initialText = "-record(aa, {a, b}).\n-record(ab, {a, b}).\n-record(bb, {a, b}).\nf() ->\n#a";
-            completionTest(project, "w.erl", initialText, initialText.length() - 1,
-                    Lists.newArrayList("aa", "ab", "bb"), false);
-            completionTest(project, "w2.erl", initialText, initialText.length(),
-                    Lists.newArrayList("aa", "ab"), false);
-        } finally {
-            ErlideTestUtils.deleteProjects();
-        }
+        final String name1 = "completion3";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        final String initialText = "-record(aa, {a, b}).\n-record(ab, {a, b}).\n-record(bb, {a, b}).\nf() ->\n#a";
+        completionTest(project, "w.erl", initialText, initialText.length() - 1,
+                Lists.newArrayList("aa", "ab", "bb"), false);
+        completionTest(project, "w2.erl", initialText, initialText.length(),
+                Lists.newArrayList("aa", "ab"), false);
     }
 
     @Test
     public void recordCompletionSingleQuoteTest() throws Exception {
-        ErlideTestUtils.initProjects();
-        final String name1 = "testproject1";
-        final IErlProject project = ErlideTestUtils.createProject(
-                ErlideTestUtils.getTmpPath(name1), name1);
-        try {
-            final String initialText = "-record('AA', {a, b}).\n-record('B', {a, b}).\n"
-                    + "-record(ab, {a, b}).\nf() ->\n#'A";
-            final int len = initialText.length();
-            completionTest(project, "a1.erl", initialText, len - 2,
-                    Lists.newArrayList("'AA'", "'B'", "ab"), false);
-            completionTest(project, "a2.erl", initialText, len - 1,
-                    Lists.newArrayList("'AA'", "'B'"), false);
-            completionTest(project, "a3.erl", initialText, len,
-                    Lists.newArrayList("'AA'"), false);
-        } finally {
-            ErlideTestUtils.deleteProjects();
-        }
+        final String name1 = "completion";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        final String initialText = "-record('AA', {a, b}).\n-record('B', {a, b}).\n"
+                + "-record(ab, {a, b}).\nf() ->\n#'A";
+        final int len = initialText.length();
+        completionTest(project, "a1.erl", initialText, len - 2,
+                Lists.newArrayList("'AA'", "'B'", "ab"), false);
+        completionTest(project, "a2.erl", initialText, len - 1,
+                Lists.newArrayList("'AA'", "'B'"), false);
+        completionTest(project, "a3.erl", initialText, len, Lists.newArrayList("'AA'"),
+                false);
     }
 
     @Test
     public void caseInsensitiveProposalsTest() throws Exception {
-        ErlideTestUtils.initProjects();
-        final String name1 = "testproject1";
-        final IErlProject project = ErlideTestUtils.createProject(
-                ErlideTestUtils.getTmpPath(name1), name1);
-        try {
-            final String initialText1 = "-define(abc,abc).\n-define(aBc, aBc).\nf()->?ab";
-            completionTest(project, "w.erl", initialText1, initialText1.length() - 1,
-                    Lists.newArrayList("abc", "aBc"), false);
-            final String initialText2 = "-define(abc,abc).\n-define(aBc, aBc).\nf()->?aB";
-            completionTest(project, "w2.erl", initialText2, initialText2.length(),
-                    Lists.newArrayList("aBc", "abc"), false);
-        } finally {
-            ErlideTestUtils.deleteProjects();
-        }
+        final String name1 = "completion";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        final String initialText1 = "-define(abc,abc). -define(aBc, aBc). f()->?ab";
+        completionTest(project, "w3.erl", initialText1, initialText1.length(),
+                Lists.newArrayList("abc", "aBc"), false);
+        final String initialText2 = "-define(abc,abc). -define(aBc, aBc). f()->?aB";
+        completionTest(project, "w4.erl", initialText2, initialText2.length(),
+                Lists.newArrayList("aBc", "abc"), false);
     }
 
-    public void completionTest(final IErlProject project, final String name,
+    @Test
+    public void caseInsensitiveProposalsTest1() throws Exception {
+        final String name1 = "completion";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        final String initialText1 = "zabc()->ok. zaBc()->ok. f()->zab";
+        completionTest(project, "w1.erl", initialText1, initialText1.length(),
+                Lists.newArrayList("zabc/0", "zaBc/0"), false);
+        final String initialText2 = "zabc()->ok. zaBc()->ok. f()->zaB";
+        completionTest(project, "w2.erl", initialText2, initialText2.length(),
+                Lists.newArrayList("zaBc/0", "zabc/0"), false);
+    }
+
+    private void completionTest(final IErlProject project, final String name,
             final String text, final int offset, final List<String> expected,
             final boolean inStrings) throws CoreException {
         final IDocument document = new StringDocument(text);
-        final IErlModule module = ErlideTestUtils.createModule(project, name, text);
+        final IErlModule module = createModule(project, name, text);
         module.open(null);
+
         final MockSourceViewer sourceViewer = new MockSourceViewer(document, offset);
         final IContentAssistProcessor p = inStrings ? new ErlStringContentAssistProcessor(
                 sourceViewer, module, project, null) : new ErlContentAssistProcessor(
@@ -196,21 +151,15 @@ public class ContentAssistTest {
     // completion of include and include_lib
     @Test
     public void includeCompletionTest() throws Exception {
-        ErlideTestUtils.initProjects();
-        final String name1 = "testproject1";
-        final IErlProject project = ErlideTestUtils.createProject(
-                ErlideTestUtils.getTmpPath(name1), name1);
-        try {
-            ErlideTestUtils.createInclude(project, "a.hrl", "-define(A, a).\n");
-            // check that quotes are added if needed
-            completionTest(project, "a.erl", "-include().\n", 9,
-                    Lists.newArrayList("\"a.hrl\""), false);
-            // check that completion works in strings
-            completionTest(project, "b.erl", "-include(\"\").\n", 10,
-                    Lists.newArrayList("a.hrl"), true);
-        } finally {
-            ErlideTestUtils.deleteProjects();
-        }
+        final String name1 = "completion";
+        final IErlProject project = createProject(name1, getTmpPath(name1));
+        createInclude(project, "a.hrl", "-define(A, a).\n");
+        // check that quotes are added if needed
+        completionTest(project, "a.erl", "-include(", 9, Lists.newArrayList("\"a.hrl\""),
+                false);
+        // check that completion works in strings
+        completionTest(project, "b.erl", "-include(\"", 10, Lists.newArrayList("a.hrl"),
+                true);
     }
 
     private static final class MockSourceViewer implements ISourceViewer {

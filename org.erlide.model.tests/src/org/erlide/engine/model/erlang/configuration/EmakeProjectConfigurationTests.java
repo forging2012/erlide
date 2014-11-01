@@ -41,7 +41,8 @@ public class EmakeProjectConfigurationTests extends AbstractProjectConfiguration
                 .getConfig(project.getConfigType(), project);
 
         final ErlangProjectProperties expected = ErlangProjectProperties.DEFAULT;
-        final ErlangProjectProperties actual = config.getConfiguration();
+        final ErlangProjectProperties actual = config.getConfiguration(project
+                .getWorkspaceProject().getLocation());
 
         assertThat(actual, is(ErlangProjectPropertiesMatcher.sameAs(expected)));
     }

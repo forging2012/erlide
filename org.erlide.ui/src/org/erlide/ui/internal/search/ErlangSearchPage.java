@@ -612,8 +612,10 @@ public class ErlangSearchPage extends DialogPage implements ISearchPage {
                         .open(module.getScannerName(),
                                 offset,
                                 ErlangEngine.getInstance().getModelUtilService()
-                                        .getImportsAsList(module), "",
-                                ErlangEngine.getInstance().getModel().getPathVars());
+                                        .getImportsAsList(module),
+                                "",
+                                ErlangEngine.getInstance().getModel()
+                                        .getPathVars(module.getCorrespondingResource()));
             } catch (final RpcException e) {
                 res = null;
             }

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.erlide.engine.internal.model.erlang;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.erlide.engine.model.IParent;
@@ -21,7 +20,6 @@ import org.erlide.engine.model.root.IErlElement;
 import org.erlide.util.Util;
 
 import com.ericsson.otp.erlang.OtpErlangList;
-import com.ericsson.otp.erlang.OtpErlangObject;
 
 public class ErlFunctionClause extends ErlMember implements IErlFunctionClause {
 
@@ -36,11 +34,7 @@ public class ErlFunctionClause extends ErlMember implements IErlFunctionClause {
     }
 
     public static List<String> getParameters(final OtpErlangList parameters) {
-        final List<String> pars = new ArrayList<String>(parameters.arity());
-        for (final OtpErlangObject i : parameters) {
-            pars.add(Util.stringValue(i));
-        }
-        return pars;
+        return Util.asStringList(parameters);
     }
 
     @Override

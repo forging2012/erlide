@@ -216,8 +216,10 @@ public abstract class FindAction extends SelectionDispatchAction {
                     .open(module.getScannerName(),
                             offset,
                             ErlangEngine.getInstance().getModelUtilService()
-                                    .getImportsAsList(module), "",
-                            ErlangEngine.getInstance().getModel().getPathVars());
+                                    .getImportsAsList(module),
+                            "",
+                            ErlangEngine.getInstance().getModel()
+                                    .getPathVars(module.getCorrespondingResource()));
             ErlLogger.debug("find " + res);
             final ErlangSearchPattern ref = SearchUtil
                     .getSearchPatternFromOpenResultAndLimitTo(module, offset, res,

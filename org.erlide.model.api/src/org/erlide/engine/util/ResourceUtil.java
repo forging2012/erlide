@@ -6,6 +6,11 @@
  */
 package org.erlide.engine.util;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +26,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Path;
 
 /**
  * <p>
@@ -103,10 +109,17 @@ public class ResourceUtil {
     }
 
     public static boolean samePath(final String p1, final String p2) {
-        if (EFS.getLocalFileSystem().isCaseSensitive()) {
-            return p1.equals(p2);
+        assertThat(p1, is(not(nullValue())));
+        assertThat(p2, is(not(nullValue())));
+        String p1a = p1;
+        String p2a = p2;
+        if (!EFS.getLocalFileSystem().isCaseSensitive()) {
+            p1a = p1.toLowerCase();
+            p2a = p2.toLowerCase();
         }
-        return p1.equalsIgnoreCase(p2);
+        final Path path1 = new Path(p1a);
+        final Path path2 = new Path(p2a);
+        return path1.equals(path2);
     }
 
     private final static class FindResourceVisitor implements IResourceVisitor {

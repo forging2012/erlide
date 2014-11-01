@@ -81,7 +81,7 @@ public class NewProjectData extends ErlangProjectProperties {
       String _portableString_1 = _location_1.toPortableString();
       File _file = new File(_portableString_1);
       final IProjectConfigurator config = this.factory.getConfig(_configType_1, _file);
-      final ErlangProjectProperties props = config.getConfiguration();
+      final ErlangProjectProperties props = config.getConfiguration(this.location);
       IPath _outputDir = props.getOutputDir();
       this.setOutputDir(_outputDir);
       Collection<IPath> _sourceDirs = props.getSourceDirs();
@@ -124,7 +124,7 @@ public class NewProjectData extends ErlangProjectProperties {
               if (_tripleNotEquals_1) {
                 String _xblockexpression_3 = null;
                 {
-                  final ErlangProjectProperties props = persister.getConfiguration();
+                  final ErlangProjectProperties props = persister.getConfiguration(this.location);
                   _xblockexpression_3 = InputOutput.<String>println(("detected PROPS: " + props));
                 }
                 _xifexpression_2 = _xblockexpression_3;

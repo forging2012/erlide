@@ -27,7 +27,6 @@ import org.erlide.engine.internal.services.search.ErlangXref;
 import org.erlide.engine.internal.services.search.ErlideDoc;
 import org.erlide.engine.internal.services.search.ErlideOpen;
 import org.erlide.engine.internal.services.search.ErlideSearchServer;
-import org.erlide.engine.internal.services.search.ModelSearcher;
 import org.erlide.engine.internal.services.text.ErlideIndent;
 import org.erlide.engine.model.IBeamLocator;
 import org.erlide.engine.model.IErlModel;
@@ -46,7 +45,6 @@ import org.erlide.engine.services.parsing.SimpleParserService;
 import org.erlide.engine.services.parsing.SimpleScannerService;
 import org.erlide.engine.services.proclist.ProclistService;
 import org.erlide.engine.services.search.ModelFindService;
-import org.erlide.engine.services.search.ModelSearcherService;
 import org.erlide.engine.services.search.ModelUtilService;
 import org.erlide.engine.services.search.OpenService;
 import org.erlide.engine.services.search.OtpDocService;
@@ -222,11 +220,6 @@ public class DefaultErlangEngine implements IErlangEngine, IExecutableExtension 
     @Override
     public SimpleParserService getSimpleParserService() {
         return new ErlideParser(backend);
-    }
-
-    @Override
-    public ModelSearcherService getModelSearcherService() {
-        return new ModelSearcher();
     }
 
     @Override

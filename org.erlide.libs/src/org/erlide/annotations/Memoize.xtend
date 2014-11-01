@@ -65,21 +65,21 @@ abstract class MethodMemoizer {
         ]
     }
 
-    def protected final wrappedReturnType() {
+    protected def final wrappedReturnType() {
         method.returnType.wrapperIfPrimitive
     }
 
-    def protected final initMethodName() {
+    protected def final initMethodName() {
         method.simpleName + "_init"
     }
 
-    def protected final String cacheFieldName() '''cache«index»_«method.simpleName»'''
+    protected def final String cacheFieldName() '''cache«index»_«method.simpleName»'''
 
-    def protected CharSequence cacheCall(CompilationContext context)
+    protected def CharSequence cacheCall(CompilationContext context)
 
-    def protected TypeReference cacheFieldType()
+    protected def TypeReference cacheFieldType()
 
-    def protected CharSequence cacheFieldInit(CompilationContext context)
+    protected def CharSequence cacheFieldInit(CompilationContext context)
 }
 
 class ParamterlessMethodMemoizer extends MethodMemoizer {
@@ -149,11 +149,11 @@ abstract class ParametrizedMethodMemoizer extends MethodMemoizer {
         }
     '''
 
-    def protected TypeReference cacheKeyType()
+    protected def TypeReference cacheKeyType()
 
-    def protected CharSequence parametersToCacheKey(CompilationContext context)
+    protected def CharSequence parametersToCacheKey(CompilationContext context)
 
-    def protected CharSequence cacheKeyToParameters(CompilationContext context)
+    protected def CharSequence cacheKeyToParameters(CompilationContext context)
 }
 
 class SingleParameterMethodMemoizer extends ParametrizedMethodMemoizer {
@@ -171,7 +171,7 @@ class SingleParameterMethodMemoizer extends ParametrizedMethodMemoizer {
         parameter.type.wrapperIfPrimitive
     }
 
-    def private parameter() {
+    private def parameter() {
         method.parameters.head
     }
 }

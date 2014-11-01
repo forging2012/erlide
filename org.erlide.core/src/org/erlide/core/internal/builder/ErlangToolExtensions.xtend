@@ -12,7 +12,7 @@ import org.eclipse.core.runtime.NullProgressMonitor
 
 class ErlangToolExtensions {
 
-    def private static hasTopFile(IContainer container, String filename) {
+    private def static hasTopFile(IContainer container, String filename) {
         return getTopFile(container, filename) !== null
     }
 
@@ -41,7 +41,7 @@ class ErlangToolExtensions {
         lines.map[if(hasTarget) split(":").head else null].filterNull
     }
 
-    def private static hasTarget(String line) {
+    private def static hasTarget(String line) {
         line.matches("[a-z0-9_-]+:.*")
     }
 
