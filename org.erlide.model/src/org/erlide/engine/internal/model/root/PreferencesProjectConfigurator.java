@@ -1,6 +1,7 @@
 package org.erlide.engine.internal.model.root;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.annotation.NonNull;
@@ -15,37 +16,64 @@ import org.osgi.service.prefs.BackingStoreException;
 public class PreferencesProjectConfigurator implements IProjectConfigurator {
     @NonNull
     private final IEclipsePreferences node;
+    private final IEclipsePreferences oldNode;
 
-    public PreferencesProjectConfigurator(final IEclipsePreferences node) {
+    public PreferencesProjectConfigurator(final IEclipsePreferences node,
+            final IEclipsePreferences oldNode) {
         Assert.isNotNull(node);
         this.node = node;
+        this.oldNode = oldNode;
     }
 
-    @Override
-    public ErlangProjectProperties getConfiguration() {
+    public ErlangProjectProperties getConfiguration(final IEclipsePreferences aNode) {
         final ErlangProjectProperties result = new ErlangProjectProperties();
 
-        final String sourceDirsStr = node.get(ProjectPreferencesConstants.SOURCE_DIRS,
+        final String sourceDirsStr = aNode.get(ProjectPreferencesConstants.SOURCE_DIRS,
                 ProjectPreferencesConstants.DEFAULT_SOURCE_DIRS);
         result.setSourceDirs(PathSerializer.unpackList(sourceDirsStr));
-        final String includeDirsStr = node.get(ProjectPreferencesConstants.INCLUDE_DIRS,
+        final String includeDirsStr = aNode.get(ProjectPreferencesConstants.INCLUDE_DIRS,
                 ProjectPreferencesConstants.DEFAULT_INCLUDE_DIRS);
         result.setIncludeDirs(PathSerializer.unpackList(includeDirsStr));
-        final String outputDirStr = node.get(ProjectPreferencesConstants.OUTPUT_DIR,
+        final String outputDirStr = aNode.get(ProjectPreferencesConstants.OUTPUT_DIR,
                 ProjectPreferencesConstants.DEFAULT_OUTPUT_DIR);
         final String outputStr = outputDirStr.replaceAll(";", "");
         result.setOutputDir(new Path(outputStr));
-        result.setRequiredRuntimeVersion(RuntimeVersion.Serializer.parse(node.get(
+        result.setRequiredRuntimeVersion(RuntimeVersion.Serializer.parse(aNode.get(
                 ProjectPreferencesConstants.RUNTIME_VERSION, null)));
         if (!result.getRequiredRuntimeVersion().isDefined()) {
             result.setRequiredRuntimeVersion(ProjectPreferencesConstants.FALLBACK_RUNTIME_VERSION);
         }
-        result.setExternalModulesFile(node.get(
+        result.setExternalModulesFile(aNode.get(
                 ProjectPreferencesConstants.PROJECT_EXTERNAL_MODULES,
                 ProjectPreferencesConstants.DEFAULT_EXTERNAL_MODULES));
-        result.setExternalIncludesFile(node.get(
+        result.setExternalIncludesFile(aNode.get(
                 ProjectPreferencesConstants.EXTERNAL_INCLUDES,
                 ProjectPreferencesConstants.DEFAULT_EXTERNAL_INCLUDES));
+        return result;
+    }
+
+    @Override
+    public ErlangProjectProperties getConfiguration(final IPath baseDir) {
+        ErlangProjectProperties result = null;
+        // new config takes precedence
+        if (hasData(node)) {
+            result = getConfiguration(node);
+        } else if (hasData(oldNode)) {
+            result = getConfiguration(oldNode);
+            setConfiguration(result);
+            try {
+                oldNode.removeNode();
+                oldNode.flush();
+            } catch (final BackingStoreException e) {
+                // ignore, projects may be read-only
+                ErlLogger
+                        .warn("Could not delete old project configuration, is project read-only? "
+                                + e.getMessage());
+            }
+        } else {
+            result = getConfiguration(node);
+        }
+        result.setBaseDir(baseDir);
         return result;
     }
 
@@ -71,7 +99,13 @@ public class PreferencesProjectConfigurator implements IProjectConfigurator {
         try {
             node.flush();
         } catch (final BackingStoreException e) {
-            ErlLogger.warn(e);
+            // projects may be read-only
+            ErlLogger.warn("Could not set project configuration, is project read-only? "
+                    + e.getMessage());
         }
+    }
+
+    private boolean hasData(final IEclipsePreferences aNode) {
+        return aNode.get(ProjectPreferencesConstants.SOURCE_DIRS, null) != null;
     }
 }

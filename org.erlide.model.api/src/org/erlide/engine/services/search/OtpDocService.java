@@ -20,6 +20,7 @@ public interface OtpDocService extends ErlangService {
 
     OtpErlangObject getOtpDoc(IOtpRpc b, ErlangFunctionCall functionCall, String stateDir);
 
+    // TODO externals
     OtpErlangObject getOtpDoc(IOtpRpc b, int offset, String stateDir, String module,
             Collection<OtpErlangObject> imports, String externalModules,
             OtpErlangList pathVars);

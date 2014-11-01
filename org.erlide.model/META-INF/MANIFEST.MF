@@ -10,13 +10,14 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.7.0",
  org.erlide.model.api,
  org.erlide.runtime,
  org.erlide.util,
- org.erlide.libs
+ org.erlide.libs,
+ org.erlide.util_eclipse
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: org.erlide.engine.internal;x-internal:=true,
  org.erlide.engine.internal.model,
  org.erlide.engine.internal.model.cache,
- org.erlide.engine.internal.model.erlang;x-internal:=true,
+ org.erlide.engine.internal.model.erlang;x-friends:="org.erlide.testing.libs",
  org.erlide.engine.internal.model.root;x-internal:=true,
  org.erlide.engine.internal.services.cleanup;x-internal:=true,
  org.erlide.engine.internal.services.codeassist;x-internal:=true,

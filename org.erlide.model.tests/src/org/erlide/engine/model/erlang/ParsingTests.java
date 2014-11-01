@@ -10,14 +10,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IErlModel;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.services.parsing.InternalScanner;
 import org.erlide.engine.services.parsing.ParserService;
-import org.erlide.engine.util.TestingSupport;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,7 +23,7 @@ import org.junit.Test;
  * @author jakob
  *
  */
-public class ParsingTests {
+public class ParsingTests extends WorkspaceTest {
 
     IErlModule module;
 
@@ -33,18 +31,8 @@ public class ParsingTests {
      * @throws java.lang.Exception
      */
     @Before
-    public void setUp() throws Exception {
-        final IErlModel model = ErlangEngine.getInstance().getModel();
-        module = model.getModuleFromText(model, "testing", "", null);
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-        module.dispose();
-        module = null;
+    public void setup() throws Exception {
+        module = createModuleFromText("testing", "");
     }
 
     private boolean parse(final String s) {
@@ -71,8 +59,8 @@ public class ParsingTests {
         final String sourceContent = "[inline,{hipe,[{regalloc,linear_scan}]}]";
         final String source = "-compile(" + sourceContent + ").";
         assertTrue(parse(source));
-        final IErlElement attribute = TestingSupport.createErlAttribute(module,
-                "compile", null, sourceContent, 0, 50);
+        final IErlElement attribute = createErlAttribute(module, "compile", null,
+                sourceContent, 0, 50);
         final List<IErlElement> expected = new ArrayList<IErlElement>(1);
         expected.add(attribute);
         final Collection<IErlElement> actual = module.getChildren();

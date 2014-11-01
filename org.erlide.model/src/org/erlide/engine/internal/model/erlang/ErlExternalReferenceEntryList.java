@@ -18,8 +18,8 @@ import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlExternal;
 import org.erlide.engine.model.root.IErlExternalRoot;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.engine.services.search.ExternalTreeEntry;
 import org.erlide.engine.services.search.OpenService;
-import org.erlide.engine.services.search.OpenService.ExternalTreeEntry;
 import org.erlide.engine.util.OtpRpcFactory;
 import org.erlide.runtime.api.IOtpRpc;
 

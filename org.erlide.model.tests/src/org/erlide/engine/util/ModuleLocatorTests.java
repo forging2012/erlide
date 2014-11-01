@@ -31,8 +31,8 @@ public class ModuleLocatorTests extends WorkspaceTest {
         setUpTmpFile("external_modules");
         setUpTmpFile("external_includes");
 
-        p1 = ErlideTestUtils.getExistingProject("p1");
-        p2 = ErlideTestUtils.getExistingProject("p2");
+        p1 = getExistingProject("p1");
+        p2 = getExistingProject("p2");
         if (p1 != null) {
             p1.makeConsistent(null);
         }
@@ -84,7 +84,7 @@ public class ModuleLocatorTests extends WorkspaceTest {
     private void checkModuleNamesInList(final String[] mods,
             final Collection<IErlModule> list) {
         for (final String name : mods) {
-            assertThat(name, hasModWithName(list, name));
+            assertThat("not found: " + name, hasModWithName(list, name));
         }
     }
 

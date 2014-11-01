@@ -14,48 +14,27 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlProject;
-import org.erlide.engine.util.ErlideTestUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
-public class DialyzerUtilsTest {
+public class DialyzerUtilsTest extends WorkspaceTest {
 
     enum SEL {
         MODULE, SRC, PROJECT
-    }
-
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        ErlideTestUtils.initProjects();
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        ErlideTestUtils.deleteProjects();
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        ErlideTestUtils.initModulesAndIncludes();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        ErlideTestUtils.deleteModules();
     }
 
     @Test
@@ -95,11 +74,10 @@ public class DialyzerUtilsTest {
             // given
             // an erlang module in an erlang project
             final String projectName = "testproject";
-            erlProject = ErlideTestUtils.createTmpErlProject(projectName);
+            erlProject = createTmpErlProject(projectName);
             final String moduleName = "test.erl";
-            final IErlModule erlModule = ErlideTestUtils
-                    .createModule(erlProject, moduleName,
-                            "-module(test).\n-export([f/0]).\n-f() ->\n    atom_to_list(\"hej\").\n");
+            final IErlModule erlModule = createModule(erlProject, moduleName,
+                    "-module(test).\n-export([f/0]).\n-f() ->\n    atom_to_list(\"hej\").\n");
             IMarker[] markers = erlProject.getWorkspaceProject().findMarkers(
                     DialyzerMarkerUtils.DIALYZE_WARNING_MARKER, true,
                     IResource.DEPTH_INFINITE);
@@ -124,7 +102,7 @@ public class DialyzerUtilsTest {
             assertEquals(message, marker.getAttribute(IMarker.MESSAGE));
         } finally {
             if (erlProject != null) {
-                ErlideTestUtils.deleteProject(erlProject);
+                deleteProject(erlProject);
             }
         }
     }
@@ -140,11 +118,11 @@ public class DialyzerUtilsTest {
             // given
             // an erlang project and an external file not in any project
             final String projectName = "testproject";
-            erlProject = ErlideTestUtils.createTmpErlProject(projectName);
+            erlProject = createTmpErlProject(projectName);
             final String externalFileName = "external.hrl";
-            externalFile = ErlideTestUtils.createTmpFile(externalFileName,
+            externalFile = createTmpFile(externalFileName,
                     "f([_ | _]=L) ->\n    atom_to_list(L).\n");
-            externalIncludesFile = ErlideTestUtils.createTmpFile("external_includes",
+            externalIncludesFile = createTmpFile("external_includes",
                     externalFile.getAbsolutePath());
             erlProject.getProperties().setExternalIncludesFile(
                     externalIncludesFile.getAbsolutePath());
@@ -182,12 +160,12 @@ public class DialyzerUtilsTest {
                 externalFile.delete();
             }
             if (erlProject != null) {
-                ErlideTestUtils.deleteProject(erlProject);
+                deleteProject(erlProject);
             }
         }
     }
 
-    public void dialyzePrepareFromSelection(final boolean sources, final SEL select)
+    private void dialyzePrepareFromSelection(final boolean sources, final SEL select)
             throws Exception {
         // http://www.assembla.com/spaces/erlide/tickets/607-dialyzer---only-dialyze-on-selection
         IErlProject erlProject = null;
@@ -195,17 +173,15 @@ public class DialyzerUtilsTest {
             // given
             // a project with two erlang modules, one of them selected
             final String projectName = "testproject";
-            erlProject = ErlideTestUtils.createTmpErlProject(projectName);
+            erlProject = createTmpErlProject(projectName);
             assertNotNull(erlProject);
-            final IErlModule a = ErlideTestUtils
-                    .createModule(erlProject, "a.erl",
-                            "-module(a).\n-export([t/0]).\nt() ->\n    p(a).\np(L) ->\n    lists:reverse(L).\n");
+            final IErlModule a = createModule(erlProject, "a.erl",
+                    "-module(a).\n-export([t/0]).\nt() ->\n    p(a).\np(L) ->\n    lists:reverse(L).\n");
             assertNotNull(a);
-            final IErlModule b = ErlideTestUtils
-                    .createModule(erlProject, "b.erl",
-                            "-module(b).\n-export([t/0]).\nt() ->\n    p(a).\np(L) ->\n    lists:reverse(L).\n");
+            final IErlModule b = createModule(erlProject, "b.erl",
+                    "-module(b).\n-export([t/0]).\nt() ->\n    p(a).\np(L) ->\n    lists:reverse(L).\n");
             assertNotNull(b);
-            ErlideTestUtils.invokeBuilderOn(erlProject);
+            invokeBuilderOn(erlProject);
             // when
             // collecting files to dialyze
             final IResource selectedResource = selectResource(select, erlProject, a);
@@ -246,7 +222,7 @@ public class DialyzerUtilsTest {
 
         } finally {
             if (erlProject != null) {
-                ErlideTestUtils.deleteProject(erlProject);
+                deleteProject(erlProject);
             }
         }
     }
@@ -272,9 +248,9 @@ public class DialyzerUtilsTest {
     // // a project with an erlang module, inluding an external file
     // final String projectName = "testproject";
     // erlProject = createTmpErlProject(projectName);
-    // ErlideTestUtils.getTmpPath("testexternals");
+    // getTmpPath("testexternals");
     // assertNotNull(erlProject);
-    // final IErlModule include = ErlideTestUtils.createErlModule(
+    // final IErlModule include = createErlModule(
     // erlProject, "i.hrl", "-record(a, {b, c}).\n");
     // final IErlModule f = ErlideTestUtils
     // .createErlModule(
@@ -282,7 +258,7 @@ public class DialyzerUtilsTest {
     // "f.erl",
     // "-module(a).\n-export([t/0]).\n-include(\"i.hrl\").\nt() ->\n    p(#a{b=b, c=c}).\n");
     // assertNotNull(f);
-    // ErlideTestUtils.invokeBuilderOn(erlProject);
+    // invokeBuilderOn(erlProject);
     // // when
     // // dialyzing it
     // final Map<IErlProject, Set<IErlModule>> modules = new
@@ -301,7 +277,7 @@ public class DialyzerUtilsTest {
     //
     // } finally {
     // if (erlProject != null) {
-    // ErlideTestUtils.deleteErlProject(erlProject);
+    // deleteErlProject(erlProject);
     // }
     // }
 
@@ -314,17 +290,15 @@ public class DialyzerUtilsTest {
             // a project with two erlang modules, one of them with an erlang
             // error, preventing it from generating a beam-file
             final String projectName = "testproject";
-            erlProject = ErlideTestUtils.createTmpErlProject(projectName);
+            erlProject = createTmpErlProject(projectName);
             assertNotNull(erlProject);
-            final IErlModule a = ErlideTestUtils
-                    .createModule(erlProject, "a.erl",
-                            "-module(a).\n-export([t/0]).\nt() ->\n    p(a).\np(L) ->\n    lists:reverse(L).\n");
+            final IErlModule a = createModule(erlProject, "a.erl",
+                    "-module(a).\n-export([t/0]).\nt() ->\n    p(a).\np(L) ->\n    lists:reverse(L).\n");
             assertNotNull(a);
-            final IErlModule b = ErlideTestUtils
-                    .createModule(erlProject, "b.erl",
-                            "-module(b).\n-export([t/0]).\nt() ->\n    p(a).\np(L) ->\n    fel som tusan.\n");
+            final IErlModule b = createModule(erlProject, "b.erl",
+                    "-module(b).\n-export([t/0]).\nt() ->\n    p(a).\np(L) ->\n    fel som tusan.\n");
             assertNotNull(b);
-            ErlideTestUtils.invokeBuilderOn(erlProject);
+            invokeBuilderOn(erlProject);
             // when
             // collecting files to dialyze
             final Set<IErlModule> modules = DialyzerUtils.collectModulesFromResource(
@@ -345,8 +319,15 @@ public class DialyzerUtilsTest {
 
         } finally {
             if (erlProject != null) {
-                ErlideTestUtils.deleteProject(erlProject);
+                deleteProject(erlProject);
             }
         }
     }
+
+    private static void invokeBuilderOn(final IErlProject erlProject)
+            throws CoreException {
+        final IProject project = erlProject.getWorkspaceProject();
+        project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+    }
+
 }

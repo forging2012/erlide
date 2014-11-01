@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IPath;
+import org.erlide.engine.internal.util.ModelConfig;
 import org.erlide.engine.model.SourcePathUtils;
+import org.erlide.engine.services.search.ExternalTreeEntry;
 import org.erlide.engine.services.search.OpenResult;
 import org.erlide.engine.services.search.OpenService;
 import org.erlide.runtime.api.IOtpRpc;
@@ -104,7 +106,9 @@ public class ErlideOpen implements OpenService {
     @Override
     public List<ExternalTreeEntry> getExternalModuleTree(final IOtpRpc backend,
             final String externalModules, final OtpErlangList pathVars) {
-        ErlLogger.debug("open:external_module_tree -> " + externalModules);
+        if (ModelConfig.verbose) {
+            ErlLogger.debug("open:external_module_tree -> " + externalModules);
+        }
         final Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             final OtpErlangObject res = backend.call(ERLIDE_OPEN,
@@ -119,18 +123,17 @@ public class ErlideOpen implements OpenService {
                     t = (OtpErlangTuple) i;
                     final String parentPath = Util.stringValue(t.elementAt(0));
                     final String path = Util.stringValue(t.elementAt(1));
-                    // final String name = Util.stringValue(t.elementAt(2));
-                    // final OtpErlangAtom isModuleA = (OtpErlangAtom) t
-                    // .elementAt(3);
                     final OtpErlangAtom isModuleA = (OtpErlangAtom) t.elementAt(2);
-                    result.add(new ExternalTreeEntry(parentPath, path,// name,
-                            isModuleA.atomValue().equals("module")));
+                    result.add(new ExternalTreeEntry(parentPath, path, isModuleA
+                            .atomValue().equals("module")));
                 }
                 final String msg = "open:external_module_tree <- " + stopwatch;
                 if (stopwatch.elapsed(TimeUnit.SECONDS) > 5) {
                     ErlLogger.warn("WARNING " + msg);
                 } else {
-                    ErlLogger.debug(msg);
+                    if (ModelConfig.verbose) {
+                        ErlLogger.debug(msg);
+                    }
                 }
                 return result;
             }
@@ -144,7 +147,7 @@ public class ErlideOpen implements OpenService {
     @Override
     public OtpErlangList getOtpLibStructure(final IOtpRpc backend) {
         try {
-            final OtpErlangObject res = backend.call(ERLIDE_OPEN,
+            final OtpErlangObject res = backend.call("erlide_libraries",
                     "get_otp_lib_structure", "s", stateDir);
             if (Util.isOk(res)) {
                 final OtpErlangTuple tres = (OtpErlangTuple) res;
@@ -161,8 +164,8 @@ public class ErlideOpen implements OpenService {
     @Override
     public List<String> getLibFiles(final String entry) {
         try {
-            final OtpErlangObject res = ideBackend.call(ERLIDE_OPEN, "get_lib_files",
-                    "ss", entry, stateDir);
+            final OtpErlangObject res = ideBackend.call("erlide_libraries",
+                    "get_lib_files", "ss", entry, stateDir);
             if (Util.isOk(res)) {
                 final OtpErlangTuple t = (OtpErlangTuple) res;
                 final OtpErlangList l = (OtpErlangList) t.elementAt(1);
