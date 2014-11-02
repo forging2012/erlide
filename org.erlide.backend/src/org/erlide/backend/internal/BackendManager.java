@@ -405,6 +405,6 @@ public final class BackendManager implements IBackendManager {
 
     @Override
     public IBackendFactory getFactory() {
-        return this.factory;
+        return factory;
     }
 }

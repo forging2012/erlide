@@ -12,7 +12,6 @@ package org.erlide.engine.internal.model.erlang;
 
 import java.util.List;
 
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlFunction;
 import org.erlide.engine.model.erlang.IErlFunctionClause;
 import org.erlide.engine.model.root.ErlElementKind;
@@ -26,8 +25,8 @@ public class ErlFunctionClause extends ErlMember implements IErlFunctionClause {
     final String head;
     final List<String> parameters;
 
-    public ErlFunctionClause(final IParent parent, final String name, final String head,
-            final OtpErlangList parameters) {
+    public ErlFunctionClause(final IErlElement parent, final String name,
+            final String head, final OtpErlangList parameters) {
         super(parent, name);
         this.head = head;
         this.parameters = getParameters(parameters);
@@ -68,7 +67,7 @@ public class ErlFunctionClause extends ErlMember implements IErlFunctionClause {
 
     @Override
     public String getFunctionName() {
-        final IErlElement element = (IErlElement) getParent();
+        final IErlElement element = getParent();
         return element.getName();
     }
 

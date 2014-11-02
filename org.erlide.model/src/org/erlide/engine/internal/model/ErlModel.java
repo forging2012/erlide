@@ -40,17 +40,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.SafeRunner;
-import org.eclipse.xtext.xbase.lib.Functions.Function1;
-import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.ModelPlugin;
 import org.erlide.engine.internal.model.cache.ErlModelCache;
 import org.erlide.engine.internal.model.erlang.ErlModule;
+import org.erlide.engine.internal.model.root.ErlElement;
 import org.erlide.engine.internal.model.root.ErlElementDelta;
 import org.erlide.engine.internal.model.root.ErlFolder;
-import org.erlide.engine.internal.model.root.ErlOtpLibrary;
 import org.erlide.engine.internal.model.root.ErlProject;
-import org.erlide.engine.internal.model.root.Openable;
 import org.erlide.engine.internal.util.ModelConfig;
 import org.erlide.engine.model.ElementChangedEvent;
 import org.erlide.engine.model.ErlModelException;
@@ -58,8 +55,6 @@ import org.erlide.engine.model.ErlModelStatus;
 import org.erlide.engine.model.IElementChangedListener;
 import org.erlide.engine.model.IErlModel;
 import org.erlide.engine.model.IErlModelChangeListener;
-import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.ErlangFunction;
 import org.erlide.engine.model.erlang.FunctionRef;
 import org.erlide.engine.model.erlang.IErlFunction;
@@ -69,13 +64,11 @@ import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlElementDelta;
 import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlFolder;
-import org.erlide.engine.model.root.IErlLibrary;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.model.root.ProjectConfigurationChangeListener;
 import org.erlide.engine.util.CommonUtils;
 import org.erlide.engine.util.NatureUtil;
 import org.erlide.engine.util.ResourceUtil;
-import org.erlide.runtime.runtimeinfo.RuntimeVersion;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.SystemConfiguration;
 import org.erlide.util.erlang.OtpErlang;
@@ -98,7 +91,7 @@ import com.google.common.collect.Sets;
  *
  * @see IErlModel
  */
-public class ErlModel extends Openable implements IErlModel {
+public class ErlModel extends ErlElement implements IErlModel {
 
     private final List<IErlModelChangeListener> fListeners;
     private final IPathVariableChangeListener fPathVariableChangeListener;
@@ -169,7 +162,7 @@ public class ErlModel extends Openable implements IErlModel {
     }
 
     private IErlProject createErlangProject(final IProject project) {
-        final IErlProject ep = new ErlProject(project, this);
+        final IErlProject ep = new ErlProject(this, project);
         addChild(ep);
         final ErlModelCache cache = getModelCache();
         cache.newProjectCreated();
@@ -256,7 +249,7 @@ public class ErlModel extends Openable implements IErlModel {
             return null;
         }
         final IPath path = rsrc.getFullPath();
-        IParent p = this;
+        IErlElement p = this;
         for (final String segment : path.segments()) {
             IErlElement c = p.getChildWithResource(rsrc);
             if (c != null) {
@@ -266,8 +259,8 @@ public class ErlModel extends Openable implements IErlModel {
             if (c == null) {
                 return null;
             }
-            if (openElements && c instanceof IOpenable) {
-                final IOpenable o = (IOpenable) c;
+            if (openElements) {
+                final IErlElement o = c;
                 try {
                     o.open(null);
                 } catch (final ErlModelException e) {
@@ -278,7 +271,7 @@ public class ErlModel extends Openable implements IErlModel {
             if (resource != null && resource.equals(rsrc)) {
                 return c;
             }
-            p = (IParent) c;
+            p = c;
         }
         return null;
     }
@@ -286,8 +279,8 @@ public class ErlModel extends Openable implements IErlModel {
     @Override
     public IErlElement innermostThat(final IErlElement el,
             final Predicate<IErlElement> firstThat) {
-        if (el instanceof IParent) {
-            final IParent p = (IParent) el;
+        if (el != null) {
+            final IErlElement p = el;
             try {
                 for (final IErlElement child : p.getChildren()) {
                     final IErlElement e2 = innermostThat(child, firstThat);
@@ -491,23 +484,23 @@ public class ErlModel extends Openable implements IErlModel {
     private static Map<IErlModule, Object> mapModule = new HashMap<IErlModule, Object>();
 
     @Override
-    public IErlModule getModuleFromFile(final IParent parent, final String name,
+    public IErlModule getModuleFromFile(final IErlElement parent, final String name,
             final String path, final String encoding, final String key) {
         return getModuleWithoutResource(parent, name, path, encoding, null, key);
     }
 
     @Override
-    public IErlModule getModuleFromText(final IParent parent, final String name,
+    public IErlModule getModuleFromText(final IErlElement parent, final String name,
             final String initialText, final String key) {
         return getModuleWithoutResource(parent, name, null, null, initialText, key);
     }
 
-    private IErlModule getModuleWithoutResource(final IParent parent, final String name,
-            final String path, final String encoding, final String initialText,
-            final String key) {
+    private IErlModule getModuleWithoutResource(final IErlElement parent,
+            final String name, final String path, final String encoding,
+            final String initialText, final String key) {
         IErlModule m = moduleMap.get(key);
         if (m == null) {
-            final IParent parent2 = parent == null ? this : parent;
+            final IErlElement parent2 = parent == null ? this : parent;
             m = new ErlModule(parent2, name, path, encoding, initialText);
             if (key != null) {
                 moduleMap.put(key, m);
@@ -582,7 +575,7 @@ public class ErlModel extends Openable implements IErlModel {
         }
     }
 
-    public IErlElement create(final IResource resource, final IParent parent) {
+    public IErlElement create(final IResource resource, final IErlElement parent) {
         if (resource == null) {
             return null;
         }
@@ -609,15 +602,13 @@ public class ErlModel extends Openable implements IErlModel {
     void remove(final IResource rsrc) {
         final IErlElement element = findElement(rsrc);
         if (element != null) {
-            final IParent p = element.getParent();
+            final IErlElement p = element.getParent();
             p.removeChild(element);
-            if (element instanceof IOpenable) {
-                final IOpenable openable = (IOpenable) element;
-                try {
-                    openable.close();
-                } catch (final ErlModelException e) {
-                    ErlLogger.error(e);
-                }
+            final IErlElement ErlElement = element;
+            try {
+                ErlElement.close();
+            } catch (final ErlModelException e) {
+                ErlLogger.error(e);
             }
         }
         // TODO should we make Erlidemodelevents and fire them?
@@ -648,17 +639,17 @@ public class ErlModel extends Openable implements IErlModel {
      * Creating a Erlang element has the side effect of creating and opening all
      * of the element's parents if they are not yet open.
      */
-    public IErlElement createFile(final IFile file, final IParent parent0) {
+    public IErlElement createFile(final IFile file, final IErlElement parent0) {
         if (file == null) {
             return null;
         }
-        IParent parent = parent0;
+        IErlElement parent = parent0;
         if (parent == null) {
             final IContainer parentResource = file.getParent();
             if (parentResource != null) {
                 final IErlElement element = findElement(parentResource);
-                if (element instanceof IParent) {
-                    parent = (IParent) element;
+                if (element != null) {
+                    parent = element;
                 }
             }
         }
@@ -668,12 +659,12 @@ public class ErlModel extends Openable implements IErlModel {
         return null;
     }
 
-    public IErlFolder createFolder(final IFolder folder, final IParent parent) {
+    public IErlFolder createFolder(final IFolder folder, final IErlElement parent) {
         if (folder == null) {
             return null;
         }
-        final IErlFolder f = new ErlFolder(folder, parent);
-        final IParent p = parent;
+        final IErlFolder f = new ErlFolder(parent, folder);
+        final IErlElement p = parent;
         if (p != null) {
             p.addChild(f);
         } else {
@@ -683,7 +674,7 @@ public class ErlModel extends Openable implements IErlModel {
         return f;
     }
 
-    public IErlModule createModuleFromFile(final IFile file, final IParent parent) {
+    public IErlModule createModuleFromFile(final IFile file, final IErlElement parent) {
         if (file == null) {
             return null;
         }
@@ -719,15 +710,6 @@ public class ErlModel extends Openable implements IErlModel {
         return createErlangProject(project);
     }
 
-    public IErlLibrary createLibrary(final RuntimeVersion version) {
-        if (version == null) {
-            return null;
-        }
-        final IErlLibrary ep = new ErlOtpLibrary(version, this);
-        addChild(ep);
-        return ep;
-    }
-
     /**
      * Returns the Erlang element corresponding to the given resource, or
      * <code>null</code> if unable to associate the given resource with a Erlang
@@ -756,15 +738,15 @@ public class ErlModel extends Openable implements IErlModel {
      */
     @Override
     public IErlElement create(final IResource resource) {
-        IParent parent = null;
+        IErlElement parent = null;
         final IContainer resourceParent = resource.getParent();
         if (resourceParent != null) {
             IErlElement element = findElement(resourceParent);
             if (element == null) {
                 element = create(resourceParent);
             }
-            if (element instanceof IParent) {
-                parent = (IParent) element;
+            if (element != null) {
+                parent = element;
             }
         }
         return create(resource, parent);
@@ -1135,7 +1117,7 @@ public class ErlModel extends Openable implements IErlModel {
     public IErlModule findIncludeFromModule(final IErlModule module,
             final String includeName, final String includePath,
             final IErlElementLocator.Scope scope) throws ErlModelException {
-        final IParent parent = module.getParent();
+        final IErlElement parent = module.getParent();
         if (parent instanceof IErlFolder) {
             final IErlFolder folder = (IErlFolder) parent;
             folder.open(null);
@@ -1159,27 +1141,6 @@ public class ErlModel extends Openable implements IErlModel {
     public IErlElementDelta createElementDelta(final int kind, final int flags,
             final IErlElement element) {
         return new ErlElementDelta(kind, flags, element);
-    }
-
-    @Override
-    public Collection<IErlLibrary> getLibraries() throws ErlModelException {
-        final Collection<IErlElement> list = getChildrenOfKind(ErlElementKind.LIBRARY);
-        final Collection<IErlLibrary> result = Lists.newArrayList();
-        for (final IErlElement e : list) {
-            result.add((IErlLibrary) e);
-        }
-        return result;
-    }
-
-    @Override
-    public IErlLibrary getLibrary(final String name) throws ErlModelException {
-        return IterableExtensions.findFirst(getLibraries(),
-                new Function1<IErlLibrary, Boolean>() {
-                    @Override
-                    public Boolean apply(final IErlLibrary input) {
-                        return input.getName().equals(name);
-                    }
-                });
     }
 
 }

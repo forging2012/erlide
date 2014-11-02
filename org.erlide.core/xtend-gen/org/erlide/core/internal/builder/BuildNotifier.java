@@ -140,4 +140,8 @@ public class BuildNotifier {
   public void worked(final int work) {
     this.monitor.worked(work);
   }
+  
+  public IProgressMonitor getMonitor() {
+    return this.monitor;
+  }
 }

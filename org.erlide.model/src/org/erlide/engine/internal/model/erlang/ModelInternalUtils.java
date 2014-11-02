@@ -23,8 +23,6 @@ import org.eclipse.core.runtime.IPath;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.ErlangFunction;
 import org.erlide.engine.model.erlang.IErlImport;
 import org.erlide.engine.model.erlang.IErlModule;
@@ -70,12 +68,12 @@ public class ModelInternalUtils implements ModelUtilService {
             } else {
                 result.add(element.getName());
             }
-            element = (IErlElement) element.getParent();
+            element = element.getParent();
         }
         return Joiner.on(DELIMITER).join(Lists.reverse(result));
     }
 
-    private IErlExternal getElementWithExternalName(final IParent parent,
+    private IErlExternal getElementWithExternalName(final IErlElement parent,
             final String segment) throws ErlModelException {
         for (final IErlElement i : parent.getChildrenOfKind(ErlElementKind.EXTERNAL_ROOT,
                 ErlElementKind.EXTERNAL_APP, ErlElementKind.EXTERNAL_FOLDER)) {
@@ -95,17 +93,15 @@ public class ModelInternalUtils implements ModelUtilService {
                 modulePath));
         model.open(null);
         final IErlElement childNamed = model.getChildNamed(path.get(0));
-        if (childNamed instanceof IParent) {
-            IParent parent = (IParent) childNamed;
+        if (childNamed != null) {
+            IErlElement parent = childNamed;
             final int n = path.size() - 1;
             for (int i = 1;; i++) {
                 if (parent == null) {
                     break;
                 }
-                if (parent instanceof IOpenable) {
-                    final IOpenable openable = (IOpenable) parent;
-                    openable.open(null);
-                }
+                final IErlElement ErlElement = parent;
+                ErlElement.open(null);
                 if (i == n) {
                     break;
                 }
@@ -227,11 +223,11 @@ public class ModelInternalUtils implements ModelUtilService {
         String prevS = s;
         IErlElement e = module;
         for (;;) {
-            final IParent p = e.getParent();
+            final IErlElement p = e.getParent();
             if (p instanceof IErlProject) {
                 break;
             }
-            e = (IErlElement) p;
+            e = p;
             prevS = s;
             s = e.getName() + "/" + s;
         }
@@ -245,7 +241,7 @@ public class ModelInternalUtils implements ModelUtilService {
 
     @Override
     public boolean isOtpModule(final IErlModule module) {
-        IParent parent = module.getParent();
+        IErlElement parent = module.getParent();
         while (parent instanceof IErlExternal) {
             final IErlExternal external = (IErlExternal) parent;
             if (external.isOTP()) {

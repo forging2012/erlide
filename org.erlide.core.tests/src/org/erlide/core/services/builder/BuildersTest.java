@@ -11,8 +11,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -23,13 +21,11 @@ import org.erlide.core.internal.builder.BuildNotifier;
 import org.erlide.core.internal.builder.ErlangBuilder;
 import org.erlide.core.internal.builder.ErlangBuilder.BuildKind;
 import org.erlide.core.internal.builder.ErlangBuilderFactory;
-import org.erlide.core.internal.builder.ErlangNature;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.builder.BuilderTool;
 import org.erlide.engine.model.root.IErlProject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 @SuppressWarnings("deprecation")
@@ -138,13 +134,6 @@ public class BuildersTest extends WorkspaceTest {
     public void rebarBuilderShouldNotWorkWithoutAppFile() throws CoreException {
         ensureNoAppSrcExists();
         testBuilder(BuilderTool.REBAR);
-    }
-
-    private static void setAutoBuild(final IWorkspace workspace, final boolean enabled)
-            throws CoreException {
-        final IWorkspaceDescription def = workspace.getDescription();
-        def.setAutoBuilding(enabled);
-        workspace.setDescription(def);
     }
 
     private void testBuilder(final BuilderTool builderTool) throws CoreException {

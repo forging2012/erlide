@@ -267,8 +267,8 @@ public class TraceBackend {
             if (processes != null) {
                 for (final TracedProcess process : processes) {
                     if (process.isSelected()) {
-                        tracerBackend.getOtpRpc().call(Constants.TTB_MODULE, FUN_P,
-                                "xx", process.getPid(),
+                        tracerBackend.getOtpRpc().call(Constants.TTB_MODULE, FUN_P, "xx",
+                                process.getPid(),
                                 createProcessFlagsArray(process.getFlags()));
                     }
                 }

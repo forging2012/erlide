@@ -11,13 +11,15 @@
  *******************************************************************************/
 package org.erlide.engine.model.root;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.util.IDisposable;
 
 /**
@@ -109,7 +111,7 @@ public interface IErlElement extends IAdaptable, IDisposable {
      * @return the parent element, or <code>null</code> if this element has no
      *         parent
      */
-    IParent getParent();
+    IErlElement getParent();
 
     /**
      * Returns the innermost resource enclosing this element. This is a
@@ -120,17 +122,6 @@ public interface IErlElement extends IAdaptable, IDisposable {
      *
      */
     IResource getResource();
-
-    // /**
-    // * Returns the smallest underlying resource that contains this element, or
-    // * <code>null</code> if this element is not contained in a resource.
-    // *
-    // * @return the underlying resource, or <code>null</code> if none
-    // * @throws ErlModelException
-    // * if this element does not exist or if an exception occurs
-    // * while accessing its underlying resource
-    // */
-    // IResource getUnderlyingResource() throws ErlModelException;
 
     /**
      * Returns whether this Erlang element is read-only. An element is read-only
@@ -192,5 +183,188 @@ public interface IErlElement extends IAdaptable, IDisposable {
     void clearCaches();
 
     String toStringWithAncestors();
+
+    // /////////////////////////////////////////////
+
+    /**
+     * Returns the immediate children of this element. Unless otherwise
+     * specified by the implementing element, the children are in no particular
+     * order.
+     *
+     * @exception ErlModelException
+     *                if this element does not exist or if an exception occurs
+     *                while accessing its corresponding resource
+     * @return the immediate children of this element
+     */
+    List<IErlElement> getChildren() throws ErlModelException;
+
+    int getChildCount();
+
+    /**
+     * Returns whether this element has one or more immediate children. This is
+     * a convenience method, and may be more efficient than testing whether
+     * <code>getChildren</code> is an empty array.
+     *
+     * @exception ErlModelException
+     *                if this element does not exist or if an exception occurs
+     *                while accessing its corresponding resource
+     * @return true if the immediate children of this element, false otherwise
+     */
+    boolean hasChildren();
+
+    List<IErlElement> getChildrenOfKind(ErlElementKind... kind) throws ErlModelException;
+
+    boolean hasChildrenOfKind(ErlElementKind... kind);
+
+    IErlElement getChildNamed(String s);
+
+    IErlElement getChildWithResource(IResource rsrc);
+
+    void addChild(IErlElement child);
+
+    public void setChildren(final Collection<? extends IErlElement> children);
+
+    void removeChild(IErlElement e);
+
+    // //////////////////////
+
+    /**
+     * Closes this element and its buffer (if any). Closing an element which is
+     * not open has no effect.
+     *
+     * <p>
+     * Note: although <code>close</code> is exposed in the API, clients are not
+     * expected to open and close elements - the Erlang model does this
+     * automatically as elements are accessed.
+     *
+     * @exception ErlModelException
+     *                if an error occurs closing this element
+     */
+    void close() throws ErlModelException;
+
+    /**
+     * Returns <code>true</code> if this element is open and:
+     * <ul>
+     * <li>its buffer has unsaved changes, or
+     * <li>one of its descendants has unsaved changes, or
+     * <li>a working copy has been created on one of this element's children and
+     * has not yet destroyed
+     * </ul>
+     *
+     * @exception ErlModelException
+     *                if this element does not exist or if an exception occurs
+     *                while accessing its corresponding resource.
+     * @return <code>true</code> if this element is open and:
+     *         <ul>
+     *         <li>its buffer has unsaved changes, or
+     *         <li>one of its descendants has unsaved changes, or
+     *         <li>a working copy has been created on one of this element's
+     *         children and has not yet destroyed
+     *         </ul>
+     */
+    boolean hasUnsavedChanges() throws ErlModelException;
+
+    /**
+     * Returns whether the element is consistent with its underlying resource or
+     * buffer. The element is consistent when opened, and is consistent if the
+     * underlying resource or buffer has not been modified since it was last
+     * consistent.
+     *
+     * <p>
+     * NOTE: Child consistency is not considered. For example, a package
+     * fragment responds <code>true</code> when it knows about all of its
+     * compilation units present in its underlying folder. However, one or more
+     * of the compilation units could be inconsistent.
+     *
+     * @exception ErlModelException
+     *                if this element does not exist or if an exception occurs
+     *                while accessing its corresponding resource.
+     * @return true if the element is consistent with its underlying resource or
+     *         buffer, false otherwise.
+     * @see IErlElement#makeConsistent(IProgressMonitor)
+     */
+    boolean isConsistent() throws ErlModelException;
+
+    /**
+     * Returns whether this ErlElement is open. This is a handle-only method.
+     *
+     * @return true if this ErlElement is open, false otherwise
+     */
+    boolean isOpen();
+
+    /**
+     * Makes this element consistent with its underlying resource or buffer by
+     * updating the element's structure and properties as necessary.
+     * <p>
+     *
+     * @param progress
+     *            the given progress monitor
+     * @exception ErlModelException
+     *                if the element is unable to access the contents of its
+     *                underlying resource. Reasons include:
+     *                <ul>
+     *                <li>This Erlang element does not exist
+     *                (ELEMENT_DOES_NOT_EXIST) </li>
+     *                </ul>
+     * @see IErlElement#isConsistent()
+     */
+    void makeConsistent(IProgressMonitor progress) throws ErlModelException;
+
+    /**
+     * Opens this element and all parent elements that are not already open. For
+     * compilation units, a buffer is opened on the contents of the underlying
+     * resource.
+     *
+     * <p>
+     * Note: although <code>open</code> is exposed in the API, clients are not
+     * expected to open and close elements - the Erlang model does this
+     * automatically as elements are accessed.
+     *
+     * @param progress
+     *            the given progress monitor
+     * @exception ErlModelException
+     *                if an error occurs accessing the contents of its
+     *                underlying resource. Reasons include:
+     *                <ul>
+     *                <li>This Erlang element does not exist
+     *                (ELEMENT_DOES_NOT_EXIST) </li>
+     *                </ul>
+     */
+    void open(IProgressMonitor progress) throws ErlModelException;
+
+    /**
+     * Saves any changes in this element's buffer to its underlying resource via
+     * a workspace resource operation. This has no effect if the element has no
+     * underlying buffer, or if there are no unsaved changed in the buffer.
+     * <p>
+     * The <code>force</code> parameter controls how this method deals with
+     * cases where the workbench is not completely in sync with the local file
+     * system. If <code>false</code> is specified, this method will only attempt
+     * to overwrite a corresponding file in the local file system provided it is
+     * in sync with the workbench. This option ensures there is no unintended
+     * data loss; it is the recommended setting. However, if <code>true</code>
+     * is specified, an attempt will be made to write a corresponding file in
+     * the local file system, overwriting any existing one if need be. In either
+     * case, if this method succeeds, the resource will be marked as being local
+     * (even if it wasn't before).
+     * <p>
+     * As a result of this operation, the element is consistent with its
+     * underlying resource or buffer.
+     *
+     * @param progress
+     *            the given progress monitor
+     * @param force
+     *            it controls how this method deals with cases where the
+     *            workbench is not completely in sync with the local file system
+     * @exception ErlModelException
+     *                if an error occurs accessing the contents of its
+     *                underlying resource. Reasons include:
+     *                <ul>
+     *                <li>This Erlang element does not exist
+     *                (ELEMENT_DOES_NOT_EXIST) </li> <li>This Erlang element is
+     *                read-only (READ_ONLY)</li>
+     *                </ul>
+     */
+    void save(IProgressMonitor progress, boolean force) throws ErlModelException;
 
 }

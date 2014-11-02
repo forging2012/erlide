@@ -15,8 +15,6 @@ import java.util.Collection;
 
 import org.eclipse.core.resources.IProject;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.builder.BuilderProperties;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.runtime.runtimeinfo.RuntimeInfo;
@@ -51,7 +49,7 @@ import org.erlide.runtime.runtimeinfo.RuntimeVersion;
  *
  * @see ErlangCore#createRoot(org.eclipse.core.resources.IProject)
  */
-public interface IErlProject extends IParent, IErlElement, IOpenable {
+public interface IErlProject extends IErlElement {
 
     Collection<IErlModule> getModules() throws ErlModelException;
 

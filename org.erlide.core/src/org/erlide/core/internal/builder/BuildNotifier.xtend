@@ -30,83 +30,88 @@ import org.erlide.util.ErlLogger
  */
 class BuildNotifier {
 
-    val static ERL_STEP_WORK = 91
-    val static OTHER_STEP_WORK = 1
+	val static ERL_STEP_WORK = 91
+	val static OTHER_STEP_WORK = 1
 
-    boolean cancelling
-    val SubMonitor monitor
-    SubMonitor phaseMonitor
-    SubMonitor stepMonitor
+	boolean cancelling
+	val SubMonitor monitor
+	SubMonitor phaseMonitor
+	SubMonitor stepMonitor
 
-    /**
+	/**
      * @param monitor the progress monitor to use for reporting progress to the user.
      *  It is the caller's responsibility to call done() on the given monitor.
      *  Accepts null, indicating that no progress should be reported and that the
      *  operation cannot be cancelled.
      */
-    new(IProgressMonitor monitor, IProject project) {
-        this.monitor = SubMonitor.convert(monitor, 100)
-        cancelling = false
-    }
+	new(IProgressMonitor monitor, IProject project) {
+		this.monitor = SubMonitor.convert(monitor, 100)
+		cancelling = false
+	}
 
-    def void begin() {
-    }
+	def void begin() {
+	}
 
-    def void newPhase(String name) {
-        val phase = BuildPhase.valueOf(name.toUpperCase)
-        phaseMonitor = monitor.newChild(phase.work)
-        phaseMonitor.workRemaining = 100
-    }
+	def void newPhase(String name) {
+		val phase = BuildPhase.valueOf(name.toUpperCase)
+		phaseMonitor = monitor.newChild(phase.work)
+		phaseMonitor.workRemaining = 100
+	}
 
-    def void newStep(String name, int items) {
-        val work = if (name == ".erl") ERL_STEP_WORK else OTHER_STEP_WORK
-        stepMonitor = phaseMonitor.newChild(work)
-        stepMonitor.workRemaining = items
-    }
+	def void newStep(String name, int items) {
+		val work = if(name == ".erl") ERL_STEP_WORK else OTHER_STEP_WORK
+		stepMonitor = phaseMonitor.newChild(work)
+		stepMonitor.workRemaining = items
+	}
 
-    def void compiled(String path) {
-        val message = NLS.bind(BuilderMessages.build_compiled, path)
-        stepMonitor.subTask(message)
-        if (BuilderHelper.isDebugging()) {
-            ErlLogger.debug("<< " + message)
-        }
-        stepMonitor.worked(1)
-        checkCancelWithinCompiler()
-    }
+	def void compiled(String path) {
+		val message = NLS.bind(BuilderMessages.build_compiled, path)
+		stepMonitor.subTask(message)
+		if (BuilderHelper.isDebugging()) {
+			ErlLogger.debug("<< " + message)
+		}
+		stepMonitor.worked(1)
+		checkCancelWithinCompiler()
+	}
 
-    def void checkCancel() {
-        if (monitor.isCanceled()) {
-            throw new OperationCanceledException()
-        }
-    }
+	def void checkCancel() {
+		if (monitor.isCanceled()) {
+			throw new OperationCanceledException()
+		}
+	}
 
-    /**
+	/**
      * Check whether the build has been canceled. Must use this call instead of
      * checkCancel() when within the compiler.
      */
-    def void checkCancelWithinCompiler() {
-        if (monitor.isCanceled() && !cancelling) {
-            // Once the compiler has been canceled, don't check again.
-            setCancelling(true)
+	def void checkCancelWithinCompiler() {
+		if (monitor.isCanceled() && !cancelling) {
 
-            throw new BuilderCanceledException()
-        }
-    }
+			// Once the compiler has been canceled, don't check again.
+			setCancelling(true)
 
-    def void done() {
-        monitor.done()
-    }
+			throw new BuilderCanceledException()
+		}
+	}
 
-    def void setCancelling(boolean cancelling) {
-        this.cancelling = cancelling
-    }
+	def void done() {
+		monitor.done()
+	}
 
-    def boolean isCanceled() {
-        monitor.isCanceled()
-    }
+	def void setCancelling(boolean cancelling) {
+		this.cancelling = cancelling
+	}
 
-    def worked(int work) {
-        monitor.worked(work)
-    }
+	def boolean isCanceled() {
+		monitor.isCanceled()
+	}
+
+	def worked(int work) {
+		monitor.worked(work)
+	}
+
+	def IProgressMonitor getMonitor() {
+		monitor
+	}
 
 }

@@ -18,7 +18,6 @@ import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlElementDelta;
 import org.erlide.engine.model.root.IErlElementLocator;
-import org.erlide.engine.model.root.IErlLibrary;
 import org.erlide.engine.model.root.IErlProject;
 
 import com.ericsson.otp.erlang.OtpErlangList;
@@ -41,7 +40,7 @@ import com.google.common.base.Predicate;
  * @see ErlangCore#create(org.eclipse.core.resources.IWorkspaceRoot)
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IErlModel extends IErlElement, IOpenable, IParent, IErlElementLocator {
+public interface IErlModel extends IErlElement, IErlElementLocator {
 
     /**
      * Returns the Erlang project with the given name. This is a handle-only
@@ -63,10 +62,6 @@ public interface IErlModel extends IErlElement, IOpenable, IParent, IErlElementL
      *             if this request fails.
      */
     Collection<IErlProject> getErlangProjects() throws ErlModelException;
-
-    Collection<IErlLibrary> getLibraries() throws ErlModelException;
-
-    IErlLibrary getLibrary(String name) throws ErlModelException;
 
     void addModelChangeListener(IErlModelChangeListener listener);
 
@@ -153,10 +148,10 @@ public interface IErlModel extends IErlElement, IOpenable, IParent, IErlElementL
 
     void registerModelDelta(IErlElementDelta delta);
 
-    IErlModule getModuleFromFile(IParent parent, String name, String initialText,
+    IErlModule getModuleFromFile(IErlElement parent, String name, String initialText,
             String path, String key);
 
-    IErlModule getModuleFromText(IParent parent, String name, String initialText,
+    IErlModule getModuleFromText(IErlElement parent, String name, String initialText,
             String key);
 
     public void removeModule(final IErlModule module);

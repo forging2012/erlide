@@ -12,14 +12,12 @@ package org.erlide.engine.model.erlang;
 import java.util.Collection;
 import java.util.List;
 
-import org.erlide.engine.model.IParent;
-
 /**
  *
  *
  * @author Vlad Dumitrescu
  */
-public interface IErlFunction extends IErlFunctionClause, IParent {
+public interface IErlFunction extends IErlFunctionClause {
     boolean isExported();
 
     List<IErlFunctionClause> getClauses();

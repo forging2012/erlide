@@ -4,10 +4,10 @@
 package org.erlide.engine.internal.model.erlang;
 
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlComment;
 import org.erlide.engine.model.erlang.ISourceRange;
 import org.erlide.engine.model.root.ErlElementKind;
+import org.erlide.engine.model.root.IErlElement;
 
 /**
  * @author jakob
@@ -17,7 +17,7 @@ public class ErlComment extends ErlMember implements IErlComment {
 
     private final boolean fIsHeader;
 
-    public ErlComment(final IParent parent, final String name, final boolean isHeader) {
+    public ErlComment(final IErlElement parent, final String name, final boolean isHeader) {
         super(parent, name);
         fIsHeader = isHeader;
     }

@@ -3,14 +3,12 @@
  */
 package org.erlide.engine.model.erlang;
 
-import org.erlide.engine.model.IParent;
-
 /**
  * @author jakob
  *
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IErlPreprocessorDef extends IErlMember, IParent {
+public interface IErlPreprocessorDef extends IErlMember {
 
     /**
      * @return the defined name of the macro or record

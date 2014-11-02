@@ -39,9 +39,8 @@ public class ServiceRetrier implements ServiceWrapper {
         setMaxTries(maxTries);
     }
 
-    public ServiceRetrier(final int delay, final int maxTries,
-            final boolean doubleDelay, final boolean throwCauseException,
-            final Class<? extends Throwable>[] retryOn) {
+    public ServiceRetrier(final int delay, final int maxTries, final boolean doubleDelay,
+            final boolean throwCauseException, final Class<? extends Throwable>[] retryOn) {
         setDelay(delay);
         setMaxTries(maxTries);
         setDoubleDelay(doubleDelay);
@@ -87,8 +86,7 @@ public class ServiceRetrier implements ServiceWrapper {
                 if (_throwCauseException) {
                     throw cause;
                 } else {
-                    throw new Exception("Call failed " + tries + " times",
-                            cause);
+                    throw new Exception("Call failed " + tries + " times", cause);
                 }
             }
         }

@@ -33,7 +33,7 @@ import org.eclipse.core.resources.IResourceDelta;
  * element has been added to the project's classpath. This flag is only valid if
  * the element is an <code>IPackageFragmentRoot</code>.</li>
  * <li><code>F_CHILDREN</code>- A child of the element has changed in some way.
- * This flag is only valid if the element is an <code>IParent</code>.</li>
+ * This flag is only valid if the element is an <code>IErlElement</code>.</li>
  * <li><code>F_CLASSPATH_REORDER</code>- A classpath entry corresponding to the
  * element has changed position in the project's classpath. This flag is only
  * valid if the element is an <code>IPackageFragmentRoot</code>.</li>
@@ -136,7 +136,7 @@ public interface IErlElementDelta {
     /**
      * Change flag indicating that there are changes to the children of the
      * element. This flag is only valid if the element is an
-     * <code>IParent</code>.
+     * <code>IErlElement</code>.
      */
     int F_CHILDREN = 0x00008;
 
@@ -254,20 +254,6 @@ public interface IErlElementDelta {
      * Reordering of the path entries.
      */
     public int F_PATHENTRY_REORDER = 0x040000;
-
-    // public int F_SUPER_TYPES = 0x080000;
-
-    /**
-     * Change flag indicating that a source jar has been attached to a binary
-     * jar.
-     */
-    public int F_SOURCEATTACHED = 0x100000;
-
-    /**
-     * Change flag indicating that a source jar has been detached to a binary
-     * jar.
-     */
-    public int F_SOURCEDETACHED = 0x200000;
 
     /**
      * Returns deltas for the children that have been added, removed or changed

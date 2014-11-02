@@ -95,7 +95,7 @@ public class ErlModelTest extends WorkspaceTest {
         final IErlElement findElement3 = model.findElement(workspaceProject
                 .getFolder("no_way"));
         final IErlElement findElement4 = model.findElement(workspaceProject.getParent());
-        final IErlElement parent = (IErlElement) module.getParent();
+        final IErlElement parent = module.getParent();
         final IFolder folder = (IFolder) parent.getResource();
         final IErlElement findElement5 = model.findElement(folder);
         project.open(null);
@@ -126,7 +126,7 @@ public class ErlModelTest extends WorkspaceTest {
         final IErlModule module2 = createModule(project, "zz5.erl", "-module(z5z).\n");
         final IFile file = (IFile) module2.getResource();
         final IErlModule findModule = model.findModule(file);
-        final IErlElement parent = (IErlElement) module2.getParent();
+        final IErlElement parent = module2.getParent();
         final IFolder folder = (IFolder) parent.getResource();
         IFile createFile = null;
         try {

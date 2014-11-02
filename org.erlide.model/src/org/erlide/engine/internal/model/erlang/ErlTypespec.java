@@ -10,9 +10,9 @@
 package org.erlide.engine.internal.model.erlang;
 
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlTypespec;
 import org.erlide.engine.model.root.ErlElementKind;
+import org.erlide.engine.model.root.IErlElement;
 
 /**
  *
@@ -29,7 +29,7 @@ public class ErlTypespec extends ErlMember implements IErlTypespec {
      * @param parent
      * @param name
      */
-    public ErlTypespec(final IParent parent, final String module, final String name,
+    public ErlTypespec(final IErlElement parent, final String module, final String name,
             final int arity, final String source) {
         super(parent, name);
         this.module = module;

@@ -10,8 +10,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
 import org.erlide.engine.model.IErlModel;
-import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
@@ -61,12 +59,12 @@ public class ErlangExternalsContentProvider implements ITreeContentProvider {
             if (parentElement instanceof IErlModule) {
                 return erlangFileContentProvider.getChildren(parentElement);
             }
-            if (parentElement instanceof IParent) {
-                if (parentElement instanceof IOpenable) {
-                    final IOpenable openable = (IOpenable) parentElement;
-                    openable.open(null);
+            if (parentElement instanceof IErlElement) {
+                if (parentElement instanceof IErlElement) {
+                    final IErlElement ErlElement = (IErlElement) parentElement;
+                    ErlElement.open(null);
                 }
-                final IParent parent = (IParent) parentElement;
+                final IErlElement parent = (IErlElement) parentElement;
                 final Collection<IErlElement> children = parent.getChildrenOfKind(
                         ErlElementKind.EXTERNAL_ROOT, ErlElementKind.EXTERNAL_APP,
                         ErlElementKind.EXTERNAL_FOLDER);
@@ -81,7 +79,7 @@ public class ErlangExternalsContentProvider implements ITreeContentProvider {
     public Object getParent(final Object element) {
         if (element instanceof IErlElement) {
             final IErlElement elt = (IErlElement) element;
-            IParent parent = elt.getParent();
+            IErlElement parent = elt.getParent();
             final String filePath = elt.getFilePath();
             if (parent == ErlangEngine.getInstance().getModel() && filePath != null) {
                 parent = elt.getParent();
@@ -111,21 +109,21 @@ public class ErlangExternalsContentProvider implements ITreeContentProvider {
         if (element instanceof IErlModule) {
             return erlangFileContentProvider.hasChildren(element);
         }
-        if (element instanceof IParent) {
+        if (element instanceof IErlElement) {
             if (element instanceof IErlExternalRoot || element instanceof IErlProject
                     || element instanceof IErlModel) {
                 // we know these have children
                 return true;
             }
             final Stopwatch clock = Stopwatch.createStarted();
-            if (element instanceof IOpenable) {
-                final IOpenable openable = (IOpenable) element;
+            if (element instanceof IErlElement) {
+                final IErlElement ErlElement = (IErlElement) element;
                 try {
-                    openable.open(null);
+                    ErlElement.open(null);
                 } catch (final ErlModelException e) {
                 }
             }
-            final IParent parent = (IParent) element;
+            final IErlElement parent = (IErlElement) element;
             final boolean result = parent.hasChildrenOfKind(ErlElementKind.EXTERNAL_ROOT,
                     ErlElementKind.EXTERNAL_APP, ErlElementKind.EXTERNAL_FOLDER,
                     ErlElementKind.MODULE);

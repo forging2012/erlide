@@ -1,8 +1,8 @@
 package org.erlide.engine.internal.model.erlang;
 
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlMacroDef;
 import org.erlide.engine.model.root.ErlElementKind;
+import org.erlide.engine.model.root.IErlElement;
 
 import com.google.common.base.Objects;
 
@@ -11,7 +11,7 @@ public class ErlMacroDef extends ErlMember implements IErlMacroDef {
     String macro;
     String extra;
 
-    public ErlMacroDef(final IParent parent, final String name, final String extra) {
+    public ErlMacroDef(final IErlElement parent, final String name, final String extra) {
         super(parent, "macro_definition");
         this.extra = extra;
         macro = name != null ? name : uptoEndOfToken(extra);

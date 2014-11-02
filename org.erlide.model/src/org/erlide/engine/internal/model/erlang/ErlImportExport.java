@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.ErlangFunction;
 import org.erlide.engine.model.erlang.IErlImportExport;
+import org.erlide.engine.model.root.IErlElement;
 
 import com.ericsson.otp.erlang.OtpErlangList;
 import com.ericsson.otp.erlang.OtpErlangObject;
@@ -18,7 +18,7 @@ public abstract class ErlImportExport extends ErlMember implements IErlImportExp
 
     protected List<ErlangFunction> fFunctions;
 
-    protected ErlImportExport(final IParent parent, final String name,
+    protected ErlImportExport(final IErlElement parent, final String name,
             final OtpErlangList functionList) {
         super(parent, name);
         fFunctions = new ArrayList<ErlangFunction>(functionList.arity());

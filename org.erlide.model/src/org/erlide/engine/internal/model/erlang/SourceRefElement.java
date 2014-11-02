@@ -13,10 +13,7 @@ package org.erlide.engine.internal.model.erlang;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.erlide.engine.internal.model.root.ErlElement;
-import org.erlide.engine.internal.model.root.Openable;
 import org.erlide.engine.model.ErlModelException;
-import org.erlide.engine.model.IOpenable;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.ISourceRange;
 import org.erlide.engine.model.erlang.ISourceReference;
 import org.erlide.engine.model.root.IErlElement;
@@ -32,7 +29,7 @@ public abstract class SourceRefElement extends ErlElement implements ISourceRefe
     protected int fSourceRangeLength;
     protected int lineStart, lineEnd;
 
-    protected SourceRefElement(final IParent parent, final String name) {
+    protected SourceRefElement(final IErlElement parent, final String name) {
         super(parent, name);
     }
 
@@ -46,13 +43,14 @@ public abstract class SourceRefElement extends ErlElement implements ISourceRefe
     /*
      * @see ErlElement#generateInfos
      */
-    protected void open(final IProgressMonitor pm) throws ErlModelException {
-        final Openable openableParent = (Openable) getOpenableParent();
-        if (openableParent == null) {
+    @Override
+    public synchronized void open(final IProgressMonitor pm) throws ErlModelException {
+        final ErlElement ErlElementParent = (ErlElement) getErlElementParent();
+        if (ErlElementParent == null) {
             return;
         }
 
-        openableParent.open(pm);
+        ErlElementParent.open(pm);
     }
 
     /**
@@ -70,21 +68,15 @@ public abstract class SourceRefElement extends ErlElement implements ISourceRefe
     }
 
     /**
-     * Return the first instance of IOpenable in the hierarchy of this type
+     * Return the first instance of IErlElement in the hierarchy of this type
      * (going up the hierarchy from this type);
      */
     @Override
-    public IOpenable getOpenableParent() {
-        IParent parent = getParent();
+    public IErlElement getErlElementParent() {
+        final IErlElement parent = getParent();
         while (parent != null) {
-            if (parent instanceof IOpenable) {
-                return (IOpenable) parent;
-            }
-            if (parent instanceof IErlElement) {
-                final IErlElement parentElement = (IErlElement) parent;
-                parent = parentElement.getParent();
-            } else {
-                break;
+            {
+                return parent;
             }
         }
         return null;
@@ -94,8 +86,8 @@ public abstract class SourceRefElement extends ErlElement implements ISourceRefe
      * @see ISourceReference
      */
     // public String getSource() throws ErlModelException {
-    // // final IOpenable openable = getOpenableParent();
-    // // final IBuffer buffer = openable.getBuffer();
+    // // final IErlElement ErlElement = getErlElementParent();
+    // // final IBuffer buffer = ErlElement.getBuffer();
     // // if (buffer == null) {
     // // return null;
     // // }
@@ -131,7 +123,7 @@ public abstract class SourceRefElement extends ErlElement implements ISourceRefe
     // }
 
     /**
-     * @see IParent
+     * @see IErlElement
      */
     @Override
     public boolean hasChildren() {

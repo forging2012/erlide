@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.erlide.runtime.api.IOtpRpc;
-import org.erlide.runtime.rpc.RpcFuture;
 import org.erlide.runtime.rpc.IRpcResultCallback;
 import org.erlide.runtime.rpc.RpcException;
+import org.erlide.runtime.rpc.RpcFuture;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.Util;
 

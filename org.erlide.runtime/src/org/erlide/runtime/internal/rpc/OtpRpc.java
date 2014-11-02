@@ -58,7 +58,7 @@ public class OtpRpc implements IOtpRpc {
 
     public OtpRpc(final OtpNode localNode, final String peerNode) {
         this.localNode = localNode;
-        this.nodeName = peerNode;
+        nodeName = peerNode;
         connected = false;
     }
 

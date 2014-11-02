@@ -61,8 +61,7 @@ public class SearchPatternFactory {
             return new RecordPattern(unquoted, limitTo);
         } else if (element instanceof IErlFunctionClause) {
             final IErlFunctionClause clause = (IErlFunctionClause) element;
-            return getSearchPatternFromErlElementAndLimitTo(
-                    (IErlElement) clause.getParent(), limitTo);
+            return getSearchPatternFromErlElementAndLimitTo(clause.getParent(), limitTo);
         } else if (element instanceof IErlAttribute) {
             final IErlAttribute a = (IErlAttribute) element;
             if (a.getName().startsWith("include")) {

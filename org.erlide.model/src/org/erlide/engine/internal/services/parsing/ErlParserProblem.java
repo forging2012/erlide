@@ -11,10 +11,10 @@
 package org.erlide.engine.internal.services.parsing;
 
 import org.erlide.engine.internal.model.erlang.ErlMember;
-import org.erlide.engine.model.IParent;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.erlang.ISourceRange;
 import org.erlide.engine.model.root.ErlElementKind;
+import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.services.parsing.IParserProblem;
 
 public class ErlParserProblem extends ErlMember implements IParserProblem {
@@ -26,7 +26,7 @@ public class ErlParserProblem extends ErlMember implements IParserProblem {
     private final String message;
     private final ProblemKind fKind;
 
-    ErlParserProblem(final IParent parent, final ProblemKind kind, final String name) {
+    ErlParserProblem(final IErlElement parent, final ProblemKind kind, final String name) {
         super(parent, name);
         fKind = kind;
         message = name;

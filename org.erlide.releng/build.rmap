@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rm:rmap xmlns:rm="http://www.eclipse.org/buckminster/RMap-1.0"
     xmlns:bc="http://www.eclipse.org/buckminster/Common-1.0">
- 
+
     <rm:property key="projects.location" value="${workspace.root}" />
     <rm:property key="eclipse.download" value="http://download.eclipse.org" />
     <rm:property key="eclipse.target.platform" value="${eclipse.download}/releases/${eclipse.release}" />
+    <rm:property key="eclipse.target.platform.updates" value="${eclipse.download}/eclipse/updates/${eclipse.version}" />
     <rm:property key="eclipse.orbit" value="${eclipse.download}/tools/orbit/downloads/drops/R20130517111416/repository" />
+    <rm:property key="eclipse.handly" value="https://hudson.eclipse.org/handly/job/0.3.x/lastSuccessfulBuild/artifact/build/repository/" />
     <rm:property key="graphviz" value="http://download.erlide.org/update/graphviz" />
- 
+
     <rm:locator pattern="^org\.erlide(?:\..+)?$"
         searchPathRef="localsources" />
     <rm:locator pattern="^com\.abstratt(?:\..+)?$" searchPathRef="graphviz" />
- 
-    <rm:locator searchPathRef="eclipse" />
- 
+
+    <rm:locator searchPathRef="eclipse" failOnError="true"/>
+
     <rm:searchPath name="eclipse">
         <rm:provider componentTypes="eclipse.feature,osgi.bundle"
             readerType="p2" source="false" mutable="false">
@@ -28,7 +30,23 @@
             <rm:property key="buckminster.source" value="false" />
             <rm:property key="buckminster.mutable" value="false" />
             <rm:uri format="{0}">
+                <bc:propertyRef key="eclipse.target.platform.updates" />
+            </rm:uri>
+        </rm:provider>
+        <rm:provider componentTypes="eclipse.feature,osgi.bundle"
+            readerType="p2" source="false" mutable="false">
+            <rm:property key="buckminster.source" value="false" />
+            <rm:property key="buckminster.mutable" value="false" />
+            <rm:uri format="{0}">
                 <bc:propertyRef key="eclipse.orbit" />
+            </rm:uri>
+        </rm:provider>
+        <rm:provider componentTypes="eclipse.feature,osgi.bundle"
+            readerType="p2" source="false" mutable="false">
+            <rm:property key="buckminster.source" value="false" />
+            <rm:property key="buckminster.mutable" value="false" />
+            <rm:uri format="{0}">
+                <bc:propertyRef key="eclipse.handly" />
             </rm:uri>
         </rm:provider>
     </rm:searchPath>
@@ -51,5 +69,5 @@
             </rm:uri>
         </rm:provider>
     </rm:searchPath>
- 
+
 </rm:rmap>
