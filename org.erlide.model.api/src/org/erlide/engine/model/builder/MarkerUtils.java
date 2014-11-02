@@ -80,7 +80,7 @@ public final class MarkerUtils {
         for (final OtpErlangObject entry : messages) {
             final OtpErlangTuple message = (OtpErlangTuple) entry;
 
-            final String fileName = ErlUtils.asString(message.elementAt(0));
+            final String fileName = ErlUtils.asString(message.elementAt(1));
             final IResource res = findResourceForFileName(fileName, resource);
             addAnnotationForMessage(fileName, res, message);
         }
@@ -329,7 +329,6 @@ public final class MarkerUtils {
 
         public static IMarker get(final IResource res, final String fileName,
                 final OtpErlangTuple data) {
-
             final int line = getLine(data);
             final int sev = getSeverity(data);
             final String msg = getMessage(data);
@@ -373,7 +372,7 @@ public final class MarkerUtils {
 
         private static int getLine(final OtpErlangTuple data) {
             int line = 0;
-            final OtpErlangObject elem = data.elementAt(1);
+            final OtpErlangObject elem = data.elementAt(0);
             if (elem instanceof OtpErlangLong) {
                 try {
                     line = ((OtpErlangLong) elem).intValue();
