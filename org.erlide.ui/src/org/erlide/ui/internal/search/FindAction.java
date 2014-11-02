@@ -222,7 +222,7 @@ public abstract class FindAction extends SelectionDispatchAction {
                                     .getPathVars(module.getCorrespondingResource()));
             ErlLogger.debug("find " + res);
             final ErlangSearchPattern ref = SearchUtil
-                    .getSearchPatternFromOpenResultAndLimitTo(module, offset, res,
+                    .getSearchPatternFromOpenResultAndLimitTo(res, module, offset,
                             getLimitTo(), true);
             if (ref != null) {
                 SearchUtil.runQuery(ref, getScope(), getScopeDescription(), getShell());

@@ -325,7 +325,7 @@ public class MarkOccurencesSupport implements IDisposable {
                                         .getModel()
                                         .getPathVars(theModule.getCorrespondingResource()));
                 final ErlangSearchPattern pattern = SearchUtil
-                        .getSearchPatternFromOpenResultAndLimitTo(theModule, offset, res,
+                        .getSearchPatternFromOpenResultAndLimitTo(res, theModule, offset,
                                 LimitTo.ALL_OCCURRENCES, false);
                 if (fCanceled) {
                     return;
