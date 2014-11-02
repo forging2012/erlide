@@ -37,11 +37,12 @@ public enum ProjectConfigType {
         @Override
         public Map<ProjectConfigType, Set<BuilderTool>> apply() {
             final Map<ProjectConfigType, Set<BuilderTool>> result = Maps.newHashMap();
-            result.put(INTERNAL, Sets.newHashSet(BuilderTool.INTERNAL, BuilderTool.MAKE));
+            result.put(INTERNAL, Sets.newHashSet(BuilderTool.INTERNAL,
+                    BuilderTool.INTERNAL_REBAR, BuilderTool.MAKE));
             result.put(EMAKE, Sets.newHashSet(BuilderTool.EMAKE, BuilderTool.MAKE,
-                    BuilderTool.INTERNAL));
+                    BuilderTool.INTERNAL, BuilderTool.INTERNAL_REBAR));
             result.put(REBAR, Sets.newHashSet(BuilderTool.REBAR, BuilderTool.MAKE,
-                    BuilderTool.INTERNAL));
+                    BuilderTool.INTERNAL, BuilderTool.INTERNAL_REBAR));
             return Maps.newEnumMap(result);
         }
     }.apply();

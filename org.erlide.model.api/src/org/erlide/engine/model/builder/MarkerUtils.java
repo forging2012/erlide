@@ -343,11 +343,30 @@ public final class MarkerUtils {
 
         private static int getSeverity(final OtpErlangTuple data) {
             int sev = IMarker.SEVERITY_INFO;
-            final OtpErlangAtom tag = (OtpErlangAtom) data.elementAt(3);
-            if (tag.equals(ERROR)) {
-                sev = IMarker.SEVERITY_ERROR;
-            } else if (tag.equals(WARNING)) {
-                sev = IMarker.SEVERITY_WARNING;
+            final OtpErlangObject sev_tag = data.elementAt(3);
+            if (sev_tag instanceof OtpErlangAtom) {
+                final OtpErlangAtom tag = (OtpErlangAtom) sev_tag;
+                if (tag.equals(ERROR)) {
+                    sev = IMarker.SEVERITY_ERROR;
+                } else if (tag.equals(WARNING)) {
+                    sev = IMarker.SEVERITY_WARNING;
+                }
+            } else {
+                final OtpErlangLong tag = (OtpErlangLong) sev_tag;
+                try {
+                    switch (tag.intValue()) {
+                    case 0:
+                        sev = IMarker.SEVERITY_ERROR;
+                        break;
+                    case 1:
+                        sev = IMarker.SEVERITY_WARNING;
+                        break;
+                    default:
+                        sev = IMarker.SEVERITY_INFO;
+                        break;
+                    }
+                } catch (final OtpErlangRangeException e) {
+                }
             }
             return sev;
         }

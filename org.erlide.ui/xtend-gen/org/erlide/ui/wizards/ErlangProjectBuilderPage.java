@@ -355,20 +355,25 @@ public class ErlangProjectBuilderPage extends ErlangWizardPage {
           _builder.append(": let erlide do the compiling.");
           _switchResult = _builder.toString();
           break;
-        case MAKE:
+        case INTERNAL_REBAR:
           StringConcatenation _builder_1 = new StringConcatenation();
-          _builder_1.append(": choose this if there is a Makefile (even if it calls rebar or emake).");
+          _builder_1.append(": let erlide do the compiling.");
           _switchResult = _builder_1.toString();
           break;
-        case EMAKE:
+        case MAKE:
           StringConcatenation _builder_2 = new StringConcatenation();
-          _builder_2.append(": straight Emake.");
+          _builder_2.append(": choose this if there is a Makefile (even if it calls rebar or emake).");
           _switchResult = _builder_2.toString();
           break;
-        case REBAR:
+        case EMAKE:
           StringConcatenation _builder_3 = new StringConcatenation();
-          _builder_3.append(": straight rebar.");
+          _builder_3.append(": straight Emake.");
           _switchResult = _builder_3.toString();
+          break;
+        case REBAR:
+          StringConcatenation _builder_4 = new StringConcatenation();
+          _builder_4.append(": straight rebar.");
+          _switchResult = _builder_4.toString();
           break;
         default:
           break;

@@ -252,7 +252,7 @@ public class InternalBuilder extends ErlangBuilder {
 
                     helper.completeCompile(project, resource, r, backend.getOtpRpc(),
                             compilerOptions);
-                    notifier.compiled(resource.getLocation().toPortableString());
+                    // notifier.compiled(resource.getLocation().toPortableString());
 
                     done.add(result);
                 }

@@ -14,6 +14,7 @@ import com.google.common.collect.Sets;
 public enum BuilderTool {
     // @formatter:off
     INTERNAL(null, null, ".erlbuilder"),
+    INTERNAL_REBAR(null, null, ".erlbuilder"),
     MAKE("Makefile", "make", ".make.builder"),
     EMAKE("Emakefile", null, ".emake.builder"),
     REBAR("rebar.config", "rebar", ".rebar.builder");
@@ -42,6 +43,8 @@ public enum BuilderTool {
         public Map<BuilderTool, Set<ProjectConfigType>> apply() {
             final Map<BuilderTool, Set<ProjectConfigType>> result = Maps.newHashMap();
             result.put(INTERNAL, Sets.newHashSet(ProjectConfigType.INTERNAL,
+                    ProjectConfigType.EMAKE, ProjectConfigType.REBAR));
+            result.put(INTERNAL_REBAR, Sets.newHashSet(ProjectConfigType.INTERNAL,
                     ProjectConfigType.EMAKE, ProjectConfigType.REBAR));
             result.put(MAKE, Sets.newHashSet(ProjectConfigType.INTERNAL,
                     ProjectConfigType.EMAKE, ProjectConfigType.REBAR));
