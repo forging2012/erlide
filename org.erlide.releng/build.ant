@@ -24,7 +24,8 @@
 
     <property name="build.properties" location="${projects.location}/org.erlide.releng/build.properties" />
 
-    <target name="run.tests" depends="common.cleanup,install.buckminster.headless,build.releng.tools" description="build and run tests">
+    <target name="run.tests" depends="common.cleanup,install.buckminster.headless,build.releng.tools"
+        description="build and run tests">
         <echo message="IMPORTANT: Populating an empty target platform may take over 10 minutes." />
         <echo message="build.properties: ${build.properties}" />
 
@@ -33,7 +34,8 @@
         <run_buckminster commandsfile="${projects.location}/org.erlide.releng/commands/run-tests.txt" propertiesfile="${build.properties}" />
     </target>
 
-    <target name="build.p2" depends="common.cleanup,install.buckminster.headless,build.releng.tools" description="build p2 update site">
+    <target name="build.p2" depends="common.cleanup,install.buckminster.headless,build.releng.tools"
+        description="build p2 update site">
         <echo message="IMPORTANT: Populating an empty target platform may take over 10 minutes." />
         <echo message="build.properties: ${build.properties}" />
 
@@ -41,7 +43,8 @@
         <run_buckminster commandsfile="${projects.location}/org.erlide.releng/commands/build-p2.txt" propertiesfile="${build.properties}" />
     </target>
 
-    <target name="build.product" depends="common.cleanup,install.buckminster.headless,build.releng.tools" description="build product">
+    <target name="build.product" depends="common.cleanup,install.buckminster.headless,build.releng.tools"
+        description="build product">
         <echo message="IMPORTANT: Populating an empty target platform may take over 10 minutes." />
         <echo message="build.properties: ${build.properties}" />
 
@@ -52,13 +55,12 @@
     <target name="eunit.tests">
         <echo message="Running EUnit..." />
 
-        <exec executable="${tool.rebar}" failonerror="true" dir="${projects.location}/org.erlide.kernel.common">
+        <exec executable="${tool.rebar}" dir="${projects.location}/org.erlide.kernel.common" failifexecutionfails="true" failonerror="true">
             <arg value="compile"/>
             <arg value="eunit"/>
             <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}"/>
         </exec>
-
-        <exec executable="${tool.rebar}" failonerror="true" dir="${projects.location}/org.erlide.kernel.ide">
+        <exec executable="${tool.rebar}" dir="${projects.location}/org.erlide.kernel.ide" failifexecutionfails="true" failonerror="true">
             <arg value="compile"/>
             <arg value="eunit"/>
             <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}"/>
@@ -74,7 +76,7 @@
     <target name="build.releng.tools">
         <echo message="Building releng tools..."/>
 
-        <exec executable="${tool.rebar}" failonerror="true" dir="${projects.location}/releng.tools">
+        <exec executable="${tool.rebar}" dir="${projects.location}/releng.tools" failonerror="true">
             <arg value="compile"/>
             <arg value="eunit"/>
 

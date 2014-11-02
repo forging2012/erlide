@@ -1,15 +1,15 @@
 package org.erlide.engine.model.erlang.configuration
 
+import org.eclipse.core.runtime.IPath
+import org.eclipse.core.runtime.Path
+import org.erlide.engine.internal.model.root.RebarConfigurationSerializer
 import org.erlide.engine.model.root.ErlangProjectProperties
 import org.junit.Before
 import org.junit.Test
 
+import static org.erlide.engine.model.erlang.ErlangProjectPropertiesMatcher.*
 import static org.hamcrest.MatcherAssert.*
 import static org.hamcrest.Matchers.*
-import static org.erlide.engine.model.erlang.ErlangProjectPropertiesMatcher.*
-import org.eclipse.core.runtime.Path
-import org.eclipse.core.runtime.IPath
-import org.erlide.engine.internal.model.root.RebarConfigurationSerializer
 
 class RebarConfiguratorTests {
 

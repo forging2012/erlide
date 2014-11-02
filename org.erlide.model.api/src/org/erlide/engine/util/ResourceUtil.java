@@ -123,14 +123,15 @@ public class ResourceUtil {
     }
 
     private final static class FindResourceVisitor implements IResourceVisitor {
-        private static final int FIND_BY_NAME = 1;
-        private static final int FIND_BY_LOCATION = 2;
+        enum FindKind {
+            FIND_BY_NAME, FIND_BY_LOCATION
+        }
 
         private final String fileName;
         private IResource found = null;
-        private final int how;
+        private final FindKind how;
 
-        private FindResourceVisitor(final String fileName, final int how) {
+        private FindResourceVisitor(final String fileName, final FindKind how) {
             this.fileName = fileName;
             this.how = how;
         }
@@ -144,12 +145,16 @@ public class ResourceUtil {
             return true;
         }
 
-        private boolean compare(final IResource resource, final String s, final int theHow) {
-            if (theHow == FIND_BY_NAME) {
+        private boolean compare(final IResource resource, final String s,
+                final FindKind theHow) {
+            switch (theHow) {
+            case FIND_BY_NAME:
                 return ResourceUtil.samePath(resource.getName(), s);
-            } else if (theHow == FIND_BY_LOCATION) {
-                return ResourceUtil.samePath(resource.getLocation().toString(), s);
-            } else {
+            case FIND_BY_LOCATION:
+                return ResourceUtil.samePath(resource.getLocation().toString(), s)
+                        || ResourceUtil.samePath(resource.getProjectRelativePath()
+                                .toString(), s);
+            default:
                 return false;
             }
         }
@@ -161,16 +166,18 @@ public class ResourceUtil {
 
     public static IResource findResourceByLocation(final IContainer container,
             final String fileName) {
-        return findResource(container, fileName, FindResourceVisitor.FIND_BY_LOCATION);
+        return findResource(container, fileName,
+                FindResourceVisitor.FindKind.FIND_BY_LOCATION);
     }
 
     public static IResource findResourceByName(final IContainer container,
             final String fileName) {
-        return findResource(container, fileName, FindResourceVisitor.FIND_BY_NAME);
+        return findResource(container, fileName,
+                FindResourceVisitor.FindKind.FIND_BY_NAME);
     }
 
     private static IResource findResource(final IContainer container,
-            final String fileName, final int how) {
+            final String fileName, final FindResourceVisitor.FindKind how) {
         final FindResourceVisitor visitor = new FindResourceVisitor(fileName, how);
         try {
             container.accept(visitor);

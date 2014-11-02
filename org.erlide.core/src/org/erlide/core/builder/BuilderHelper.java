@@ -34,12 +34,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.annotation.NonNull;
 import org.erlide.backend.BackendCore;
 import org.erlide.backend.api.IBackend;
 import org.erlide.backend.api.IBackendManager;
-import org.erlide.core.ErlangPlugin;
 import org.erlide.core.internal.builder.BuildNotifier;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.ErlModelException;
@@ -68,17 +66,18 @@ public final class BuilderHelper {
 
     private static final String ERL = "erl";
     private static final String HRL = "hrl";
-    private static final String BEAM = "beam";
     private static final String YRL = "yrl";
+    private static final String BEAM = "beam";
     private static final String ERLIDE_BUILDER = "erlide_builder";
 
     public BuilderHelper() {
     }
 
     public static boolean isDebugging() {
-        return ErlangPlugin.getDefault().isDebugging()
-                && "true".equalsIgnoreCase(Platform
-                        .getDebugOption("org.erlide.core/debug/builder"));
+        return true;
+        // ErlangPlugin.getDefault().isDebugging()
+        // && "true".equalsIgnoreCase(Platform
+        // .getDebugOption("org.erlide.core/debug/builder"));
     }
 
     public Collection<IPath> getAllIncludeDirs(final IProject project) {
@@ -178,7 +177,6 @@ public final class BuilderHelper {
     }
 
     public void checkForClashes(final IOtpRpc backend, final IProject project) {
-        createMarkersForCodeClashes(backend, project);
         createMarkersForDuplicateModuleNames(backend, project);
     }
 
@@ -204,27 +202,6 @@ public final class BuilderHelper {
             }
         } catch (final Exception e) {
             ErlLogger.debug(e);
-        }
-    }
-
-    private void createMarkersForCodeClashes(final IOtpRpc backend, final IProject project) {
-        try {
-            final OtpErlangList res = BuilderHelper.getCodeClashes(backend);
-            for (final OtpErlangObject elem : res) {
-                final OtpErlangTuple t = (OtpErlangTuple) elem;
-                final String f1 = ((OtpErlangString) t.elementAt(0)).stringValue();
-                final String f2 = ((OtpErlangString) t.elementAt(1)).stringValue();
-
-                // add marker only for modules belonging to this project!
-                final IResource r1 = project.findMember(f1);
-                final IResource r2 = project.findMember(f2);
-                if (r1 != null || r2 != null) {
-                    MarkerUtils.createProblemMarker(project, null, "code clash between "
-                            + f1 + " and " + f2, 0, IMarker.SEVERITY_WARNING);
-                }
-            }
-
-        } catch (final Exception e) {
         }
     }
 

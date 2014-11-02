@@ -106,6 +106,9 @@ public class ErlExternalReferenceEntryList extends ErlElement implements IErlExt
         if (externalTree != null && !externalTree.isEmpty()) {
             for (final ExternalTreeEntry entry : externalTree) {
                 final String path = entry.getPath();
+                if (path.isEmpty()) {
+                    continue;
+                }
                 // final String name = entry.getName();
                 parent = pathToEntryMap.get(entry.getParentPath());
                 if (entry.isModule()) {

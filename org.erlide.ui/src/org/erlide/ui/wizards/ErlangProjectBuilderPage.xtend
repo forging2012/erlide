@@ -158,6 +158,7 @@ class ErlangProjectBuilderPage extends ErlangWizardPage {
     def String getDescription(BuilderTool builder) {
         switch (builder) {
             case BuilderTool.INTERNAL: ''': let erlide do the compiling.'''
+            case BuilderTool.INTERNAL_REBAR: ''': let erlide do the compiling.'''
             case BuilderTool.MAKE: ''': choose this if there is a Makefile (even if it calls rebar or emake).'''
             case BuilderTool.EMAKE: ''': straight Emake.'''
             case BuilderTool.REBAR: ''': straight rebar.'''

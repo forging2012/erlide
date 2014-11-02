@@ -143,7 +143,7 @@ public interface IErlElementDelta {
     /**
      * Change flag indicating that the element was moved from another location.
      * The location of the old element can be retrieved using
-     * <code>getMovedFromElement</code>.
+     * <code>getMovedFromElement</code> .
      */
     int F_MOVED_FROM = 0x00010;
 

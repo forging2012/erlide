@@ -4,9 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -26,14 +25,13 @@ import org.erlide.util.ErlLogger;
 import org.erlide.util.SystemConfiguration;
 import org.erlide.util.erlang.ErlUtils;
 
+import com.ericsson.otp.erlang.OtpErlangAtom;
 import com.ericsson.otp.erlang.OtpErlangList;
 import com.ericsson.otp.erlang.OtpErlangLong;
 import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangRangeException;
 import com.ericsson.otp.erlang.OtpErlangTuple;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public final class MarkerUtils {
 
@@ -67,25 +65,37 @@ public final class MarkerUtils {
     public static void addErrorMarkers(final IResource resource,
             final OtpErlangList errorList) {
         final OtpErlangObject[] messages = errorList.elements();
-        final Map<String, List<OtpErlangTuple>> groupedMessages = groupMessagesByFile(messages);
+        addErrorMarkers(resource, messages);
+    }
 
-        for (final Entry<String, List<OtpErlangTuple>> entry : groupedMessages.entrySet()) {
-            final String fileName = entry.getKey();
-            final IResource res = findResourceForFileName(resource, entry, fileName);
+    public static void addErrorMarkers(final IResource resource,
+            final Collection<OtpErlangObject> errors) {
+        final OtpErlangObject[] messages = errors.toArray(new OtpErlangObject[errors
+                .size()]);
+        addErrorMarkers(resource, messages);
+    }
 
-            for (final OtpErlangTuple data : entry.getValue()) {
-                addAnnotationForMessage(resource, fileName, res, data);
-            }
+    public static void addErrorMarkers(final IResource resource,
+            final OtpErlangObject[] messages) {
+        for (final OtpErlangObject entry : messages) {
+            final OtpErlangTuple message = (OtpErlangTuple) entry;
+
+            final String fileName = ErlUtils.asString(message.elementAt(1));
+            final IResource res = findResourceForFileName(fileName, resource);
+            addAnnotationForMessage(fileName, res, message);
         }
     }
 
-    private static IResource findResourceForFileName(final IResource resource,
-            final Entry<String, List<OtpErlangTuple>> entry, final String fileName) {
-        IResource res = resource;
+    private static IResource findResourceForFileName(final String fileName,
+            final IResource resource) {
+        IResource result = resource;
+        if (fileName == null || "project".equals(fileName)) {
+            return resource;
+        }
         if (!ResourceUtil.samePath(resource.getLocation().toString(), fileName)) {
             final IProject project = resource.getProject();
-            res = ResourceUtil.findResourceByLocation(project, fileName);
-            if (res == null) {
+            result = ResourceUtil.findResourceByLocation(project, fileName);
+            if (result == null) {
                 try {
                     final IErlElementLocator model = ErlangEngine.getInstance()
                             .getModel();
@@ -94,81 +104,32 @@ public final class MarkerUtils {
                         final IErlModule includeFile = model.findIncludeFromProject(
                                 erlProject, fileName, fileName,
                                 IErlElementLocator.Scope.REFERENCED_PROJECTS);
-                        // ErlLogger.debug("inc::" + fileName + " "
-                        // + resource.getName() + " "
-                        // + erlProject.getName());
-                        // ErlLogger.debug("    " + entry.getValue());
 
                         if (includeFile == null) {
-                            res = resource;
+                            result = resource;
                         } else {
-                            res = includeFile.getResource();
+                            result = includeFile.getResource();
                         }
                     } else {
-                        res = resource;
+                        result = resource;
                     }
                 } catch (final Exception e) {
                     ErlLogger.warn(e);
                 }
             }
         }
-        return res;
-    }
-
-    private static void addAnnotationForMessage(final IResource resource,
-            final String fileName, final IResource res, final OtpErlangTuple data) {
-        int line = 0;
-        if (data.elementAt(0) instanceof OtpErlangLong) {
-            try {
-                line = ((OtpErlangLong) data.elementAt(0)).intValue();
-            } catch (final OtpErlangRangeException e) {
-            }
-        }
-        int sev = IMarker.SEVERITY_INFO;
-        try {
-            switch (((OtpErlangLong) data.elementAt(3)).intValue()) {
-            case 0:
-                sev = IMarker.SEVERITY_ERROR;
-                break;
-            case 1:
-                sev = IMarker.SEVERITY_WARNING;
-                break;
-            default:
-                sev = IMarker.SEVERITY_INFO;
-                break;
-            }
-        } catch (final OtpErlangRangeException e) {
-        }
-
-        final String msg = ErlUtils.asString(data.elementAt(2));
-        final IMarker marker = createMarker(res, fileName, msg, line, sev, PROBLEM_MARKER);
-        if (marker != null) {
-            try {
-                marker.setAttribute(IMarker.SOURCE_ID, resource.getLocation().toString());
-            } catch (final CoreException e) {
-            }
-        }
-    }
-
-    private static Map<String, List<OtpErlangTuple>> groupMessagesByFile(
-            final OtpErlangObject[] messages) {
-        final Map<String, List<OtpErlangTuple>> result = Maps.newHashMap();
-        for (final OtpErlangObject msg : messages) {
-            final OtpErlangTuple tuple = (OtpErlangTuple) msg;
-            final String fileName = ErlUtils.asString(tuple.elementAt(1));
-            addMessage(result, fileName, tuple);
-        }
         return result;
     }
 
-    private static void addMessage(final Map<String, List<OtpErlangTuple>> map,
-            final String key, final OtpErlangTuple tuple) {
-        List<OtpErlangTuple> list = map.get(key);
-        if (list == null) {
-            list = Lists.newArrayList();
-            map.put(key, list);
+    private static void addAnnotationForMessage(final String fileName,
+            final IResource res, final OtpErlangTuple data) {
+        final IMarker marker = AnnotationBuilder.get(res, fileName, data);
+        if (marker != null) {
+            try {
+                marker.setAttribute(IMarker.SOURCE_ID, res.getLocation().toString());
+            } catch (final CoreException e) {
+            }
         }
-        list.add(tuple);
     }
 
     public static IMarker createProblemMarker(final IResource resource,
@@ -218,7 +179,6 @@ public final class MarkerUtils {
         removeProblemMarkersFor(resource);
         if (resource instanceof IFile) {
             deleteMarkersWithCompiledFile(resource.getProject(), (IFile) resource);
-            // should we delete markers for dependent hrl files?
         }
     }
 
@@ -290,12 +250,13 @@ public final class MarkerUtils {
             marker.setAttribute(IMarker.MESSAGE, message);
             marker.setAttribute(IMarker.SEVERITY, severity);
             marker.setAttribute(IMarker.LINE_NUMBER, lineNumber >= 0 ? lineNumber : 1);
-            marker.setAttribute(PATH_ATTRIBUTE, path);
-            if (path != null) {
-                marker.setAttribute(IMarker.SOURCE_ID, path);
-            } else {
-                marker.setAttribute(IMarker.SOURCE_ID, resource.getLocation().toString());
+            String myPath = path;
+            if (path == null) {
+                myPath = "/" + resource.getProject().getName() + "/"
+                        + resource.getParent().getProjectRelativePath().toString();
             }
+            marker.setAttribute(PATH_ATTRIBUTE, myPath);
+            marker.setAttribute(IMarker.SOURCE_ID, myPath);
             final ProblemData problem = ErlProblems.parse(message);
             if (problem != null) {
                 marker.setAttribute(ProblemData.TAG, problem.getTag());
@@ -359,6 +320,68 @@ public final class MarkerUtils {
             }
             addTaskMarker(resource, msg, line + 1 + dl, prio);
         }
+    }
+
+    private static class AnnotationBuilder {
+
+        private static final Object ERROR = new OtpErlangAtom("error");
+        private static final Object WARNING = new OtpErlangAtom("warning");
+
+        public static IMarker get(final IResource res, final String fileName,
+                final OtpErlangTuple data) {
+            final int line = getLine(data);
+            final int sev = getSeverity(data);
+            final String msg = getMessage(data);
+
+            return createMarker(res, fileName, msg, line, sev, PROBLEM_MARKER);
+        }
+
+        private static String getMessage(final OtpErlangTuple data) {
+            return ErlUtils.asString(data.elementAt(2));
+        }
+
+        private static int getSeverity(final OtpErlangTuple data) {
+            int sev = IMarker.SEVERITY_INFO;
+            final OtpErlangObject sev_tag = data.elementAt(3);
+            if (sev_tag instanceof OtpErlangAtom) {
+                final OtpErlangAtom tag = (OtpErlangAtom) sev_tag;
+                if (tag.equals(ERROR)) {
+                    sev = IMarker.SEVERITY_ERROR;
+                } else if (tag.equals(WARNING)) {
+                    sev = IMarker.SEVERITY_WARNING;
+                }
+            } else {
+                final OtpErlangLong tag = (OtpErlangLong) sev_tag;
+                try {
+                    switch (tag.intValue()) {
+                    case 0:
+                        sev = IMarker.SEVERITY_ERROR;
+                        break;
+                    case 1:
+                        sev = IMarker.SEVERITY_WARNING;
+                        break;
+                    default:
+                        sev = IMarker.SEVERITY_INFO;
+                        break;
+                    }
+                } catch (final OtpErlangRangeException e) {
+                }
+            }
+            return sev;
+        }
+
+        private static int getLine(final OtpErlangTuple data) {
+            int line = 0;
+            final OtpErlangObject elem = data.elementAt(0);
+            if (elem instanceof OtpErlangLong) {
+                try {
+                    line = ((OtpErlangLong) elem).intValue();
+                } catch (final OtpErlangRangeException e) {
+                }
+            }
+            return line;
+        }
+
     }
 
 }

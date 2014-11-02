@@ -11,6 +11,8 @@ public class ErlangBuilderFactory {
         switch (tool) {
         case INTERNAL:
             return new InternalBuilder();
+        case INTERNAL_REBAR:
+            return new InternalBuilderRebar();
         case REBAR:
             return new RebarBuilder();
         case EMAKE:

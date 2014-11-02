@@ -7,6 +7,10 @@
             context="common"
             path="/ebin">
       </beam_dir>
+      <beam_dir
+            context="common"
+            path="/ebin_rebar">
+      </beam_dir>
    </extension>
 
 </plugin>

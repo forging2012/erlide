@@ -28,7 +28,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.annotation.NonNull;
@@ -77,9 +76,9 @@ public class InternalBuilder extends ErlangBuilder {
             return null;
         }
 
-        if (BuilderHelper.isDebugging()) {
-            ErlLogger.trace("build", "Start " + project.getName() + ": " + kind);
-        }
+        // if (BuilderHelper.isDebugging()) {
+        ErlLogger.trace("build", "Start " + project.getName() + ": " + kind);
+        // }
         try {
             initializeBuilder(notifier);
 
@@ -113,12 +112,12 @@ public class InternalBuilder extends ErlangBuilder {
                     .createProblemMarker(project, null, msg, 0, IMarker.SEVERITY_ERROR);
         } finally {
             cleanup(notifier);
-            if (BuilderHelper.isDebugging()) {
-                ErlLogger.trace(
-                        "build",
-                        " Done " + project.getName() + " took "
-                                + Long.toString(System.currentTimeMillis() - time));
-            }
+            // if (BuilderHelper.isDebugging()) {
+            ErlLogger.trace(
+                    "build",
+                    " Done " + project.getName() + " took "
+                            + Long.toString(System.currentTimeMillis() - time));
+            // }
         }
         return null;
     }
@@ -162,21 +161,18 @@ public class InternalBuilder extends ErlangBuilder {
     private void cleanupOutput(final IFolder folder, final BuildNotifier notifier)
             throws CoreException {
         final IResource[] beams = folder.members();
-        notifier.beginTask("Cleaning Erlang files", beams.length);
         if (beams.length > 0) {
-            final float ndelta = 100.0f / beams.length;
             for (final IResource element : beams) {
                 if ("beam".equals(element.getFileExtension())) {
                     final IResource source = findCorrespondingSource(element);
                     if (source != null) {
-                        element.delete(true, notifier.monitor);
+                        element.delete(true, notifier.getMonitor());
                     }
-                    notifier.updateProgressDelta(ndelta);
                 }
                 if ("app".equals(element.getFileExtension())) {
                     final IResource source = findCorrespondingSource(element);
                     if (source != null) {
-                        element.delete(true, notifier.monitor);
+                        element.delete(true, notifier.getMonitor());
                     }
                 }
             }
@@ -192,15 +188,15 @@ public class InternalBuilder extends ErlangBuilder {
         final Set<BuildResource> resourcesToBuild = getResourcesToBuild(kind, project,
                 resourceDelta, notifier);
         final int n = resourcesToBuild.size();
+        // if (BuilderHelper.isDebugging()) {
+        ErlLogger.debug("Will compile %d resource(s)", Integer.valueOf(n));
+        // }
         if (n == 0) {
             return;
         }
         if (erlProject == null) {
             return;
         }
-        // if (BuilderHelper.isDebugging()) {
-        ErlLogger.debug("Will compile %d resource(s)", Integer.valueOf(n));
-        // }
         final IBackend backend = BackendCore.getBackendManager().getBuildBackend(
                 erlProject);
         if (backend == null) {
@@ -213,13 +209,11 @@ public class InternalBuilder extends ErlangBuilder {
         final IErlModel model = ErlangEngine.getInstance().getModel();
         backend.addProjectPath(model.findProject(project));
 
-        notifier.setProgressPerCompilationUnit(1.0f / n);
         final Map<RpcFuture, IResource> results = new HashMap<RpcFuture, IResource>();
         for (final BuildResource bres : resourcesToBuild) {
             notifier.checkCancel();
             final IResource resource = bres.getResource();
             MarkerUtils.deleteMarkers(resource);
-            notifier.aboutToCompile(resource);
             if ("erl".equals(resource.getFileExtension())) {
                 final String outputDir = erlProject.getProperties().getOutputDir()
                         .toString();
@@ -258,7 +252,7 @@ public class InternalBuilder extends ErlangBuilder {
 
                     helper.completeCompile(project, resource, r, backend.getOtpRpc(),
                             compilerOptions);
-                    notifier.compiled(resource);
+                    // notifier.compiled(resource.getLocation().toPortableString());
 
                     done.add(result);
                 }
@@ -379,7 +373,6 @@ public class InternalBuilder extends ErlangBuilder {
             final IProject currentProject, final IResourceDelta myDelta,
             final BuildNotifier notifier) throws CoreException {
         Set<BuildResource> resourcesToBuild = Sets.newHashSet();
-        notifier.beginTask("retrieving resources to build", IProgressMonitor.UNKNOWN);
         if (kind == BuildKind.FULL) {
             resourcesToBuild = helper.getAffectedResources(currentProject, notifier);
         } else {
@@ -391,7 +384,6 @@ public class InternalBuilder extends ErlangBuilder {
                 resourcesToBuild = helper.getAffectedResources(myDelta, notifier);
             }
         }
-        notifier.doneTask();
         return resourcesToBuild;
     }
 

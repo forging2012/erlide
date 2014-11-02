@@ -41,9 +41,10 @@ public interface IOtpNodeProxy extends IDisposable {
     void registerEventListener(Object handler);
 
     OtpNode getLocalNode();
-
     void addStatusHandler(Procedure1<Boolean> handler);
 
     boolean connect();
+
+    void unregisterEventListener(Object handler);
 
 }

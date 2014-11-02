@@ -55,7 +55,7 @@ public class ErlProjectTests extends WorkspaceTest {
         assertEquals(expected, modules);
     }
 
-    // FIXME write tests that gives exceptions!
+    // TODO write tests that gives exceptions!
 
     // Collection<IErlModule> getIncludes() throws ErlModelException;
     @Test

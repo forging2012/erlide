@@ -14,7 +14,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -37,6 +37,7 @@ import com.ericsson.otp.erlang.OtpErlangRef;
 import com.ericsson.otp.erlang.OtpErlangShort;
 import com.ericsson.otp.erlang.OtpErlangString;
 import com.ericsson.otp.erlang.OtpErlangTuple;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -117,7 +118,7 @@ public final class TypeConverter {
         if (obj.isArray()) {
             return OtpErlangTuple.class;
         }
-        if (Collection.class.isAssignableFrom(obj)) {
+        if (Iterable.class.isAssignableFrom(obj)) {
             return OtpErlangList.class;
         }
         if (Map.class.isAssignableFrom(obj)) {
@@ -228,7 +229,7 @@ public final class TypeConverter {
                 throw new SignatureException(WRONG_ARG_TYPE + obj.getClass().getName()
                         + CANT_CONVERT_TO + cls.getCanonicalName());
             }
-            if (Collection.class.isAssignableFrom(cls)) {
+            if (Iterable.class.isAssignableFrom(cls)) {
                 if (obj instanceof OtpErlangList) {
                     final OtpErlangObject[] list = ((OtpErlangList) obj).elements();
                     final Object[] olist = new Object[list.length];
@@ -352,14 +353,14 @@ public final class TypeConverter {
             }
             failConversion(obj, type);
         }
-        if (obj instanceof Collection<?>) {
+        if (obj instanceof Iterable<?>) {
             if (type.kind == 'l') {
-                final Object[] v = ((Collection<?>) obj).toArray(new Object[] {});
-                final OtpErlangObject[] vv = new OtpErlangObject[v.length];
-                for (int i = 0; i < v.length; i++) {
-                    vv[i] = java2erlang(v[i], type.content[0]);
+                final Iterable<?> v = (Iterable<?>) obj;
+                final List<OtpErlangObject> vv = Lists.newArrayList();
+                for (final Object elem : v) {
+                    vv.add(java2erlang(elem, type.content[0]));
                 }
-                return new OtpErlangList(vv);
+                return new OtpErlangList(vv.toArray(new OtpErlangObject[vv.size()]));
             }
             failConversion(obj, type);
         }
@@ -545,13 +546,13 @@ public final class TypeConverter {
         if (obj instanceof Boolean) {
             return new OtpErlangAtom((Boolean) obj ? "true" : "false");
         }
-        if (obj instanceof Collection<?>) {
-            final Object[] v = ((Collection<?>) obj).toArray(new Object[] {});
-            final OtpErlangObject[] vv = new OtpErlangObject[v.length];
-            for (int i = 0; i < v.length; i++) {
-                vv[i] = java2erlang(v[i]);
+        if (obj instanceof Iterable<?>) {
+            final Iterable<?> v = (Iterable<?>) obj;
+            final List<OtpErlangObject> vv = Lists.newArrayList();
+            for (final Object elem : v) {
+                vv.add(java2erlang(elem));
             }
-            return new OtpErlangList(vv);
+            return new OtpErlangList(vv.toArray(new OtpErlangObject[vv.size()]));
         }
         if (obj instanceof Map<?, ?>) {
             @SuppressWarnings("unchecked")

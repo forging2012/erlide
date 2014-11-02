@@ -32,6 +32,7 @@ init(JPid) ->
     add_service(log, JPid),
     add_service(erlang_log, JPid),
     add_service(io_server, JPid),
+    add_service(builder, JPid),
 
     %% catch_all handler
     add_service(generic_catchall, JPid),
@@ -76,12 +77,22 @@ manager(State) ->
     end.
 
 add_service(Service, Pid) when is_atom(Service), is_pid(Pid) ->
-    ?MANAGER ! {add, Service, Pid}.
+    try
+        ?MANAGER ! {add, Service, Pid}
+    catch
+        _:_ ->
+            ok
+    end.
 
 get_service_listeners(Service) when is_atom(Service) ->
     Ref = make_ref(),
-    ?MANAGER ! {get, Service, self(), Ref},
-    receive {Ref, X} -> X end.
+    try
+        ?MANAGER ! {get, Service, self(), Ref},
+        receive {Ref, X} -> X end
+    catch
+        _:_ ->
+            []
+    end.
 
 notify(Service, Message) when is_atom(Service) ->
     L = case get_service_listeners(Service) of

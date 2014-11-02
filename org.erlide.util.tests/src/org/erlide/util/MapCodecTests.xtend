@@ -1,8 +1,8 @@
 package org.erlide.util
 
-import org.junit.Test
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
+import org.junit.Test
 
 class MapCodecTests {
     

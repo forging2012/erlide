@@ -18,7 +18,7 @@ f() ->
 	Z.
 
 g() -> 
-	'a\1b',
+	'a\1b', 
 	new_file:ok(),
 	dict:new(),
 	hello,
@@ -26,3 +26,13 @@ g() ->
 	"he  ~n ha \b \0123 \xcafa \x{cafe}s he\"j '",
 	[$", $', $\567, $\x{cafe}]. 
 
+-ifdef(TEST).
+
+-include_lib("eunit/include/eunit.hrl").
+
+f_test_(X) ->
+	[
+	 ?_assertEqual(true, true)
+	 ].
+
+-endif.

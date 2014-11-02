@@ -3,19 +3,26 @@ ErlOpts = [].
 
 [
 
-{erl_opts, ErlOpts},
-{edoc_opts,[{todo,true}]},
+    {lib_dirs, [".."]},
 
-{eunit_opts, [verbose, {report,{eunit_surefire,[{dir,"."}]}}]},
+    {erl_opts, ErlOpts},
+    {edoc_opts,[{todo,true}]},
 
-{cover_export_enabled, true},
-{cover_enabled, true},
-{cover_print_enable, true},
+    {xref_warnings, true},
+    {xref_checks, [undefined_function_calls, undefined_functions,
+                   locals_not_used, exports_not_used,
+                   deprecated_function_calls, deprecated_functions]},
 
-{plugins, [rebar_covertool]},
+    {eunit_opts, [verbose, {report,{eunit_surefire,[{dir,"."}]}}]},
 
-{covertool_eunit, {".eunit/cover.coverdata", "eunit.coverage.xml"}},
-{covertool_prefix_len, 0}
+    {cover_export_enabled, true},
+    {cover_enabled, true},
+    {cover_print_enable, true},
+
+    {plugins, [rebar_covertool]},
+
+    {covertool_eunit, {".eunit/cover.coverdata", "eunit.coverage.xml"}},
+    {covertool_prefix_len, 0}
 
 ].
 

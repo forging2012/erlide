@@ -17,6 +17,7 @@ import java.util.Map;
 
 import com.ericsson.otp.erlang.OtpErlangAtom;
 import com.ericsson.otp.erlang.OtpErlangBinary;
+import com.ericsson.otp.erlang.OtpErlangDouble;
 import com.ericsson.otp.erlang.OtpErlangException;
 import com.ericsson.otp.erlang.OtpErlangList;
 import com.ericsson.otp.erlang.OtpErlangLong;
@@ -156,6 +157,15 @@ public final class BindingsImpl implements Bindings {
     public String getAsString(final String name) {
         final OtpErlangObject r = get(name);
         return ErlUtils.asString(r);
+    }
+
+    @Override
+    public double getDouble(final String name) throws OtpErlangException {
+        final OtpErlangObject r = get(name);
+        if (r instanceof OtpErlangDouble) {
+            return ((OtpErlangDouble) r).doubleValue();
+        }
+        throw new OtpErlangException("value is not a double");
     }
 
 }

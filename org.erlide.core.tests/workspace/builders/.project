@@ -6,7 +6,7 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>org.erlide.core.rebar.builder</name>
+			<name>org.erlide.core.erlbuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>

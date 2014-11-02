@@ -24,6 +24,7 @@ public final class BuilderMessages extends NLS {
     public static String build_multipleErrors;
     public static String build_oneError;
     public static String build_compiling;
+    public static String build_compiled;
     public static String build_done;
     public static String build_foundHeader;
     public static String build_fixedHeader;

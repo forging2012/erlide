@@ -86,7 +86,6 @@ import org.erlide.ui.actions.ErlangSearchActionGroup;
 import org.erlide.ui.editors.erl.actions.CallHierarchyAction;
 import org.erlide.ui.editors.erl.actions.CleanUpAction;
 import org.erlide.ui.editors.erl.actions.ClearCacheAction;
-import org.erlide.ui.editors.erl.actions.CompileAction;
 import org.erlide.ui.editors.erl.actions.GotoMatchingBracketAction;
 import org.erlide.ui.editors.erl.actions.ShowOutlineAction;
 import org.erlide.ui.editors.erl.folding.IErlangFoldingStructureProvider;
@@ -137,7 +136,6 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     private ActionGroup fActionGroups;
     private ActionGroup fContextMenuGroup;
     private ShowOutlineAction fShowOutline;
-    private CompileAction compileAction;
     private CleanUpAction cleanUpAction;
     private ClearCacheAction clearCacheAction;
     private CallHierarchyAction callhierarchy;
@@ -272,10 +270,6 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
 
         createCommonActions();
 
-        compileAction = new CompileAction(getSite());
-        compileAction.setActionDefinitionId(IErlangEditorActionDefinitionIds.COMPILE);
-        setAction("compileFile", compileAction);
-
         if (getModule() != null) {
             cleanUpAction = new CleanUpAction(getModule().getResource());
             cleanUpAction
@@ -352,7 +346,6 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
             menu.prependToGroup(ITextEditorActionConstants.GROUP_SETTINGS,
                     clearCacheAction);
         }
-        menu.prependToGroup(ITextEditorActionConstants.GROUP_OPEN, compileAction);
         menu.prependToGroup(ITextEditorActionConstants.GROUP_OPEN, fShowOutline);
         addCommonActions(menu);
 

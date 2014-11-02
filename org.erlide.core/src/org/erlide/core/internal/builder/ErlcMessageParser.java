@@ -28,6 +28,7 @@ public class ErlcMessageParser implements IMessageParser {
     public boolean createMarkers(final String msg) {
         boolean result = false;
         final Iterable<String> pars = Splitter.on(':').limit(3).split(msg);
+        System.out.println(">>> MSG == " + msg);
         if (pars.iterator().next().equals("ERROR")) {
             MarkerUtils.createProblemMarker(project, null, pars.iterator().next(), -1,
                     IMarker.SEVERITY_ERROR);
