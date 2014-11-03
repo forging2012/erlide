@@ -124,7 +124,7 @@ public class ErlFolderTests extends WorkspaceTest {
     @Test
     public void findInclude() throws Exception {
         final IErlModule include = createInclude(project, "yyq.hrl", "-define(ME, yy).\n");
-        final IErlModule module2 = createInclude(project, "zz.erl", "-module(zz).\n");
+        final IErlModule module2 = createInclude(project, "zz0.erl", "-module(zz0).\n");
         final String moduleName = include.getModuleName();
         final String name = include.getName();
         final String filePath = include.getFilePath();
@@ -138,9 +138,9 @@ public class ErlFolderTests extends WorkspaceTest {
         assertEquals(include, findInclude4);
         final IErlModule findInclude5 = includeFolder.findInclude("xxaa", filePath);
         assertEquals(include, findInclude5);
-        final IErlModule findInclude6 = includeFolder.findInclude("zz.erl", null);
+        final IErlModule findInclude6 = includeFolder.findInclude("zz0.erl", null);
         assertEquals(module2, findInclude6);
-        final IErlModule findInclude7 = includeFolder.findInclude("zz", null);
+        final IErlModule findInclude7 = includeFolder.findInclude("zz0", null);
         assertNull(findInclude7);
     }
 
