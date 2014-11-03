@@ -68,15 +68,19 @@ module PDE
   end
 
   def PDE.p2_add_composite(child, container, tools_dir="#{ENV['HOME']}/erlide_tools")
+    unless child.starts_with("http://")
+      child = Pathname(child).relative_path_from(Pathname(container)).to_s
+    end
     puts "p2_add_composite? #{child} -- #{container}"
-    relpath = Pathname(child).relative_path_from(Pathname(container)).to_s
-    system "bash org.erlide.releng/comp-repo.sh #{container} --eclipse #{tools_dir}/buckminster/ add #{relpath}"
+    system "bash org.erlide.releng/comp-repo.sh #{container} --eclipse #{tools_dir}/buckminster/ add #{child}"
   end
 
   def PDE.p2_remove_composite(child, container, tools_dir="#{ENV['HOME']}/erlide_tools")
+    unless child.starts_with("http://")
+      child = Pathname(child).relative_path_from(Pathname(container)).to_s
+    end
     puts "p2_remove_composite? #{child} -- #{container}"
-    relpath = Pathname(child).relative_path_from(Pathname(container)).to_s
-    system "bash org.erlide.releng/comp-repo.sh #{container} --eclipse #{tools_dir}/buckminster/ remove #{relpath}"
+    system "bash org.erlide.releng/comp-repo.sh #{container} --eclipse #{tools_dir}/buckminster/ remove #{child}"
   end
 
 end
