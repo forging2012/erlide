@@ -1,8 +1,13 @@
 package org.erlide.engine.internal.model.root;
 
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.annotation.NonNull;
 import org.erlide.engine.model.root.ErlangProjectProperties;
@@ -63,7 +68,7 @@ public class PreferencesProjectConfigurator implements IProjectConfigurator {
             setConfiguration(result);
             try {
                 oldNode.removeNode();
-                oldNode.flush();
+                // oldNode.flush();
             } catch (final BackingStoreException e) {
                 // ignore, projects may be read-only
                 ErlLogger
@@ -96,13 +101,24 @@ public class PreferencesProjectConfigurator implements IProjectConfigurator {
         node.put(ProjectPreferencesConstants.PROJECT_EXTERNAL_MODULES,
                 info.getExternalModulesFile());
 
-        try {
-            node.flush();
-        } catch (final BackingStoreException e) {
-            // projects may be read-only
-            ErlLogger.warn("Could not set project configuration, is project read-only? "
-                    + e.getMessage());
-        }
+        // this might be called from a resource change event, so the workspace is locked
+        // for modification; we do it asynchronously
+        WorkspaceJob job = new WorkspaceJob("erlide") {
+            @Override
+            public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+                try {
+                    node.flush();
+                } catch (final BackingStoreException e) {
+                    // projects may be read-only
+                    ErlLogger
+                            .warn("Could not set project configuration, is project read-only? "
+                                    + e.getMessage());
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
+
     }
 
     private boolean hasData(final IEclipsePreferences aNode) {
