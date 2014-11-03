@@ -43,6 +43,9 @@ public class ToolExecutor {
         }
     }
 
+    volatile boolean anyOutput = false;
+    volatile boolean anyError = false;
+
     public ToolResults run(final String cmd0, final String args, final String wdir,
             final ProgressCallback progressCallback, final BuildNotifier notifier) {
         final String cmd = new Path(cmd0).isAbsolute() ? cmd0 : getToolLocation(cmd0);
@@ -82,13 +85,10 @@ public class ToolExecutor {
                         @Override
                         public void streamAppended(final String text,
                                 final IStreamMonitor mon) {
-                            final List<String> lines = Arrays.asList(text.split("\n"));
-                            if (progressCallback != null) {
-                                for (final String line : lines) {
-                                    progressCallback.stdout(line);
-                                }
-                            }
+                            anyOutput = true;
+                            notifyOutput(progressCallback, text);
                         }
+
                     });
             process.getStreamsProxy().getErrorStreamMonitor()
                     .addListener(new IStreamListener() {
@@ -96,12 +96,8 @@ public class ToolExecutor {
                         @Override
                         public void streamAppended(final String text,
                                 final IStreamMonitor mon) {
-                            final List<String> lines = Arrays.asList(text.split("\n"));
-                            if (progressCallback != null) {
-                                for (final String line : lines) {
-                                    progressCallback.stderr(line);
-                                }
-                            }
+                            anyError = true;
+                            notifyError(progressCallback, text);
                         }
                     });
             boolean done = false;
@@ -117,6 +113,18 @@ public class ToolExecutor {
                     }
                 }
             }
+
+            if (!anyOutput) {
+                final String text = process.getStreamsProxy().getOutputStreamMonitor()
+                        .getContents();
+                notifyOutput(progressCallback, text);
+            }
+            if (!anyError) {
+                final String text = process.getStreamsProxy().getErrorStreamMonitor()
+                        .getContents();
+                notifyError(progressCallback, text);
+            }
+
             if (canceled) {
                 process.terminate();
             }
@@ -133,20 +141,6 @@ public class ToolExecutor {
     }
 
     public static String getToolLocation(final String cmd) {
-        // hack because sometimes first call returns an empty value
-        String result;
-        final int MAX_TRIES = 5;
-        for (int i = 1; i < MAX_TRIES; i++) {
-            result = getToolLocation_1(cmd);
-            if (result != null) {
-                return result;
-            }
-        }
-        result = getToolLocation_1(cmd);
-        return result;
-    }
-
-    private static String getToolLocation_1(final String cmd) {
         if (SystemConfiguration.getInstance().isOnWindows()) {
             return getWindowsToolLocation(cmd);
         }
@@ -185,4 +179,21 @@ public class ToolExecutor {
         }
     }
 
+    private void notifyOutput(final ProgressCallback progressCallback, final String text) {
+        final List<String> lines = Arrays.asList(text.split("\n"));
+        if (progressCallback != null) {
+            for (final String line : lines) {
+                progressCallback.stdout(line);
+            }
+        }
+    }
+
+    private void notifyError(final ProgressCallback progressCallback, final String text) {
+        final List<String> lines = Arrays.asList(text.split("\n"));
+        if (progressCallback != null) {
+            for (final String line : lines) {
+                progressCallback.stderr(line);
+            }
+        }
+    }
 }
