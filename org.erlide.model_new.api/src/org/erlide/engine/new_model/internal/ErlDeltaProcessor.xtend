@@ -48,7 +48,7 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
     def private boolean processAddedProject(IResourceDelta delta) throws CoreException
 {
         val IProject project = delta.getResource() as IProject;
-        if (project.hasNature(IErlProject.NATURE_ID)) {
+        if (project.open && project.hasNature(IErlProject.NATURE_ID)) {
             val IErlProject erlProject = ErlModelCore.create(project)
             addToModel(erlProject)
         }

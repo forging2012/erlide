@@ -49,8 +49,15 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
   private boolean processAddedProject(final IResourceDelta delta) throws CoreException {
     IResource _resource = delta.getResource();
     final IProject project = ((IProject) _resource);
-    boolean _hasNature = project.hasNature(IErlProject.NATURE_ID);
-    if (_hasNature) {
+    boolean _and = false;
+    boolean _isOpen = project.isOpen();
+    if (!_isOpen) {
+      _and = false;
+    } else {
+      boolean _hasNature = project.hasNature(IErlProject.NATURE_ID);
+      _and = _hasNature;
+    }
+    if (_and) {
       final IErlProject erlProject = ErlModelCore.create(project);
       ErlDeltaProcessor.addToModel(erlProject);
     }
