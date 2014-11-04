@@ -449,27 +449,29 @@ public class ErlProjectTests extends WorkspaceTest {
             // when
             // setting source dirs so the module is on source path
             final IErlModule module2 = aProject.getModule("aa");
+            assertEquals(aModule, module2);
+
             final IErlModule nullModule = aProject.getModule("aa.hrl");
             final IErlModule nullModule2 = aProject.getModule("AA");
             final IErlModule nullModule3 = aProject.getModule("aA");
             final IErlModule nullModule4 = aProject.getModule("AA.erl");
-            final IErlModule module4 = aProject.getModule("aa.erl");
-            ((ErlProject) aProject).setSourceDirs(srcxDirs);
-            aProject.open(null);
-            final IErlModule srcxModule = aProject.getModule("aa");
-            ((ErlProject) aProject).setSourceDirs(sourceDirs);
-            aProject.open(null);
-            final IErlModule module3 = aProject.getModule("aa");
-            // then
-            // the it should be returned, but not otherwise
-            assertEquals(aModule, module2);
-            assertNull(srcxModule);
             assertNull(nullModule);
             assertNull(nullModule2);
             assertNull(nullModule3);
             assertNull(nullModule4);
-            assertEquals(aModule, module3);
+
+            final IErlModule module4 = aProject.getModule("aa.erl");
+            ((ErlProject) aProject).setSourceDirs(srcxDirs);
+            aProject.open(null);
             assertEquals(aModule, module4);
+
+            final IErlModule srcxModule = aProject.getModule("aa");
+            ((ErlProject) aProject).setSourceDirs(sourceDirs);
+            assertNull(srcxModule);
+
+            aProject.open(null);
+            final IErlModule module3 = aProject.getModule("aa");
+            assertEquals(aModule, module3);
         } finally {
             ((ErlProject) aProject).setSourceDirs(sourceDirs);
         }

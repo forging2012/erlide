@@ -17,16 +17,7 @@ public class ModelActivator implements BundleActivator {
     @Override
     public void start(final BundleContext context) throws Exception {
         ErlLogger.debug("Starting Erlang model api");
-
-        engine = ExtensionUtils.getSingletonExtension(
-                "org.erlide.model.api.erlangEngine", IErlangEngine.class);
-        if (engine == null) {
-            ErlLogger.warn("Could not instantiate Erlang engine!");
-            final Status status = new Status(IStatus.ERROR, "org.erlide.model",
-                    "Could not instantiate Erlang engine");
-            throw new CoreException(status);
-        }
-
+        initModel();
         ErlLogger.debug("Started model api");
     }
 
@@ -49,6 +40,18 @@ public class ModelActivator implements BundleActivator {
             if (f.isFile()) {
                 f.delete();
             }
+        }
+    }
+
+    // only to be called by tests! how to protect it?
+    public static void initModel() throws CoreException {
+        engine = ExtensionUtils.getSingletonExtension(
+                "org.erlide.model.api.erlangEngine", IErlangEngine.class);
+        if (engine == null) {
+            ErlLogger.warn("Could not instantiate Erlang engine!");
+            final Status status = new Status(IStatus.ERROR, "org.erlide.model",
+                    "Could not instantiate Erlang engine");
+            throw new CoreException(status);
         }
     }
 }

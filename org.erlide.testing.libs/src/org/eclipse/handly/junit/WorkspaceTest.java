@@ -1,13 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
+ * Copyright (c) 2014 1C LLC. All rights reserved. This program and the accompanying
+ * materials are made available under the terms of the Eclipse Public License v1.0 which
+ * accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     Vladimir Piskarev (1C) - initial API and implementation
- *     Vlad Dumitrescu - updated to Junit 4
+ * Contributors: Vladimir Piskarev (1C) - initial API and implementation Vlad Dumitrescu -
+ * updated to Junit 4
  *******************************************************************************/
 package org.eclipse.handly.junit;
 
@@ -68,11 +66,10 @@ import com.google.common.io.Files;
  * Provides a number of useful methods, such as {@link #setUpProject(String)}.
  * </p>
  * <p>
- * Also, in its {@link #setUp()} and {@link #tearDown()} methods, this class
- * enforces some common rules for workspace tests:
+ * Also, in its {@link #setUp()} and {@link #tearDown()} methods, this class enforces some
+ * common rules for workspace tests:
  * <ul>
- * <li>each test suite starts running in a clean workspace with auto-build
- * turned off;</li>
+ * <li>each test suite starts running in a clean workspace with auto-build turned off;</li>
  * <li>each test is responsible for setting up the necessary workspace state;</li>
  * <li>after running each test suite, the workspace is cleaned up.</li>
  * </ul>
@@ -84,6 +81,7 @@ public abstract class WorkspaceTest {
      */
     @Before
     public final void setUp() throws Exception {
+        ModelActivator.initModel();
         setAutoBuilding(false);
         tearDown();
     }
@@ -128,9 +126,9 @@ public abstract class WorkspaceTest {
     }
 
     /**
-     * Creates a new project in the workspace by copying its content from the
-     * OSGi-bundle of this test case. The content must reside in the folder
-     * <code>/workspace/</code>&lt;project-name&gt; inside the bundle.
+     * Creates a new project in the workspace by copying its content from the OSGi-bundle
+     * of this test case. The content must reside in the folder <code>/workspace/</code>
+     * &lt;project-name&gt; inside the bundle.
      *
      * @param name
      *            the name of the project
@@ -265,8 +263,7 @@ public abstract class WorkspaceTest {
     }
 
     /*
-     * Copy the given source (a file or a directory) to the given destination
-     * directory.
+     * Copy the given source (a file or a directory) to the given destination directory.
      */
     protected final void copy(final File source, final File dest) throws IOException {
         if (!source.exists()) {
