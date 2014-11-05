@@ -6,11 +6,11 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.internal.model.root.ErlProject;
 import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.testing.utils.WorkspaceTest;
 import org.junit.Test;
 
 public class ErlModelCacheTest extends WorkspaceTest {

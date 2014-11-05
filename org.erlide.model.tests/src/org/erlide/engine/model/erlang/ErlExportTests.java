@@ -5,9 +5,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
+import org.erlide.testing.utils.WorkspaceTest;
 import org.junit.Before;
 import org.junit.Test;
 

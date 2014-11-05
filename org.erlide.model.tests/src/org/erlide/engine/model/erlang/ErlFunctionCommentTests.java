@@ -2,8 +2,8 @@ package org.erlide.engine.model.erlang;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.handly.junit.WorkspaceTest;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.testing.utils.WorkspaceTest;
 import org.junit.Before;
 import org.junit.Test;
 

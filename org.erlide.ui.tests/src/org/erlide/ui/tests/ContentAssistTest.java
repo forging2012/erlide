@@ -3,7 +3,6 @@ package org.erlide.ui.tests;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.junit.WorkspaceTest;
 import org.eclipse.jface.text.IAutoIndentStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IEventConsumer;
@@ -35,6 +34,7 @@ import org.eclipse.xtext.xbase.lib.Functions;
 import org.eclipse.xtext.xbase.lib.ListExtensions;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.testing.utils.WorkspaceTest;
 import org.erlide.ui.editors.erl.completion.ErlContentAssistProcessor;
 import org.erlide.ui.editors.erl.completion.ErlStringContentAssistProcessor;
 import org.hamcrest.MatcherAssert;

@@ -1,7 +1,6 @@
 package org.erlide.engine.new_model;
 
 import com.google.common.base.Objects;
-import org.eclipse.handly.junit.WorkspaceTest;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
@@ -10,6 +9,7 @@ import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.erlide.engine.new_model.ErlModelCore;
 import org.erlide.engine.new_model.IErlModel;
 import org.erlide.engine.new_model.IErlProject;
+import org.erlide.testing.utils.WorkspaceTest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
