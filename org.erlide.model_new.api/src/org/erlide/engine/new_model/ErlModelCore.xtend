@@ -29,6 +29,32 @@ class ErlModelCore {
 		project.getSourceFile(file.name)
 	}
 
+	/**
+     * Returns the Erlang element corresponding to the given resource, or
+     * <code>null</code> if unable to associate the given resource
+     * with an element of the Erlang Model.
+     *
+     * @param resource the given resource (maybe <code>null</code>)
+     * @return the Erlang element corresponding to the given resource, or
+     *  <code>null</code> if unable to associate the given resource
+     *  with an element of the Erlang Model
+     */
+	def static IErlElement create(IResource resource) {
+		if (resource == null)
+			return null;
+		val type = resource.getType();
+		switch type {
+			case IResource.PROJECT:
+				create(resource as IProject)
+			case IResource.FILE:
+				create(resource as IFile)
+			case IResource.ROOT:
+				getErlModel()
+			default:
+				null
+		}
+	}
+
 	private new() {
 	}
 }
