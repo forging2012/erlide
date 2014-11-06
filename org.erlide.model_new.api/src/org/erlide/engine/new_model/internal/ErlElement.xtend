@@ -4,12 +4,12 @@ import org.eclipse.handly.model.impl.Handle
 
 abstract class ErlElement extends Handle {
 
-    new(Handle parent, String name) {
-        super(parent, name)
-    }
+	new(Handle parent, String name) {
+		super(parent, name)
+	}
 
-    override protected getHandleManager() {
-        ErlModelManager.INSTANCE.getHandleManager()
-    }
+	override protected getHandleManager() {
+		ErlModelManager.INSTANCE.getHandleManager()
+	}
 
 }

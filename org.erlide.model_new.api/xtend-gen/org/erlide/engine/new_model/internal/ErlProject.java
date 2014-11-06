@@ -1,6 +1,7 @@
 package org.erlide.engine.new_model.internal;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Iterables;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
@@ -14,11 +15,15 @@ import org.eclipse.handly.model.impl.Body;
 import org.eclipse.xtend.lib.annotations.Data;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
+import org.eclipse.xtext.xbase.lib.Exceptions;
+import org.eclipse.xtext.xbase.lib.Functions.Function1;
+import org.eclipse.xtext.xbase.lib.ListExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 import org.erlide.engine.NewModelActivator;
 import org.erlide.engine.model.root.ErlangLibraryProperties;
 import org.erlide.engine.model.root.ErlangProjectProperties;
+import org.erlide.engine.new_model.IErlHeader;
 import org.erlide.engine.new_model.IErlLibrary;
 import org.erlide.engine.new_model.IErlModule;
 import org.erlide.engine.new_model.IErlOtpLibrary;
@@ -54,8 +59,7 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     final List<IErlSource> erlFiles = CollectionLiterals.<IErlSource>newArrayList();
     for (final IResource file : members) {
       if ((file instanceof IFile)) {
-        final String ext = ((IFile)file).getFileExtension();
-        final IErlSource source = this.createInstance(ext, ((IFile)file));
+        final IErlSource source = this.createInstance(((IFile)file));
         boolean _tripleNotEquals = (source != null);
         if (_tripleNotEquals) {
           erlFiles.add(source);
@@ -65,17 +69,18 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     body.setChildren(((IHandle[])Conversions.unwrapArray(erlFiles, IHandle.class)));
   }
   
-  private ErlSource createInstance(final String ext, final IFile file) {
+  private ErlSource createInstance(final IFile file) {
     ErlSource _switchResult = null;
+    String _fileExtension = file.getFileExtension();
     boolean _matched = false;
     if (!_matched) {
-      if (Objects.equal(ext, "erl")) {
+      if (Objects.equal(_fileExtension, "erl")) {
         _matched=true;
         _switchResult = new ErlModule(this, file);
       }
     }
     if (!_matched) {
-      if (Objects.equal(ext, "hrl")) {
+      if (Objects.equal(_fileExtension, "hrl")) {
         _matched=true;
         _switchResult = new ErlHeader(this, file);
       }
@@ -86,8 +91,33 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     return _switchResult;
   }
   
+  public Iterable<IErlSource> getSourceFiles() {
+    try {
+      IHandle[] _children = this.getChildren();
+      final Function1<IHandle, IErlSource> _function = new Function1<IHandle, IErlSource>() {
+        public IErlSource apply(final IHandle it) {
+          return ((IErlSource) it);
+        }
+      };
+      return ListExtensions.<IHandle, IErlSource>map(((List<IHandle>)Conversions.doWrapArray(_children)), _function);
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
+  public IErlSource getSourceFile(final String name) {
+    IFile _file = this.workspaceProject.getFile(name);
+    return this.createInstance(_file);
+  }
+  
   public Iterable<IErlModule> getModules() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    Iterable<IErlSource> _sourceFiles = this.getSourceFiles();
+    return Iterables.<IErlModule>filter(_sourceFiles, IErlModule.class);
+  }
+  
+  public Iterable<IErlHeader> getHeaders() {
+    Iterable<IErlSource> _sourceFiles = this.getSourceFiles();
+    return Iterables.<IErlHeader>filter(_sourceFiles, IErlHeader.class);
   }
   
   public IErlOtpLibrary getOtpLibrary() {
