@@ -11,11 +11,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.xtend.lib.annotations.Data;
-import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 import org.erlide.engine.new_model.IErlModel;
@@ -42,9 +40,6 @@ public class ErlModel extends ErlElement implements IErlModel {
   }
   
   protected void buildStructure(final Body body, final Map<IHandle, Body> newElements) throws CoreException {
-    StringConcatenation _builder = new StringConcatenation();
-    _builder.append("model buildStructure");
-    InputOutput.<String>println(_builder.toString());
     IWorkspaceRoot _root = this.workspace.getRoot();
     final IProject[] projects = _root.getProjects();
     final List<IErlProject> erlProjects = CollectionLiterals.<IErlProject>newArrayList();

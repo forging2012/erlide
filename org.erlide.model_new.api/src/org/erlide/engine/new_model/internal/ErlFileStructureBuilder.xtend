@@ -5,7 +5,6 @@ import org.eclipse.handly.model.IHandle
 import org.eclipse.handly.model.impl.Body
 import org.eclipse.handly.model.impl.SourceElementBody
 import org.eclipse.handly.model.impl.StructureHelper
-import org.eclipse.handly.util.TextRange
 
 class ErlFileStructureBuilder extends StructureHelper {
 
@@ -20,13 +19,18 @@ class ErlFileStructureBuilder extends StructureHelper {
 
 	def buildStructure(ErlSource source, SourceElementBody parentBody) {
 
-		// TODO fix me
-		val handle = new ErlAttribute(source, "hello")
-		val body = new SourceElementBody()
-		body.fullRange = new TextRange(0, 1)
-		addChild(parentBody, handle, body)
-
-		complete(body)
+		for (node : ast.forms) {
+			val handle = switch node.kind {
+				case "attribute":
+					new ErlAttribute(source, node.name)
+				case "function":
+					new ErlFunction(source, node.name, node.arg)
+			}
+			val body = new SourceElementBody()
+			body.fullRange = node.pos
+			addChild(parentBody, handle, body)
+			complete(body)
+		}
 
 		complete(parentBody)
 	}

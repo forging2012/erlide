@@ -1,5 +1,7 @@
 package org.erlide.engine.new_model.internal;
 
+import com.ericsson.otp.erlang.OtpErlangObject;
+import com.ericsson.otp.erlang.OtpErlangTuple;
 import com.google.common.base.Objects;
 import java.io.IOException;
 import java.util.Map;
@@ -15,10 +17,11 @@ import org.eclipse.xtend.lib.annotations.Data;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+import org.erlide.engine.ErlangEngine;
+import org.erlide.engine.IErlangEngine;
 import org.erlide.engine.NewModelActivator;
 import org.erlide.engine.new_model.IErlAttribute;
 import org.erlide.engine.new_model.IErlComment;
@@ -31,6 +34,8 @@ import org.erlide.engine.new_model.internal.ErlFunction;
 import org.erlide.engine.new_model.internal.ErlModelManager;
 import org.erlide.engine.new_model.internal.ErlProject;
 import org.erlide.engine.new_model.internal.ErlangAST;
+import org.erlide.engine.services.parsing.ParserService;
+import org.erlide.util.Util;
 
 @Data
 @SuppressWarnings("all")
@@ -40,7 +45,6 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
   }
   
   protected void buildStructure(final SourceElementBody body, final Map<IHandle, Body> newElements, final Object ast, final String source) {
-    InputOutput.<String>println("source build structure");
     final ErlFileStructureBuilder builder = new ErlFileStructureBuilder(newElements, ((ErlangAST) ast));
     builder.buildStructure(this, body);
   }
@@ -63,7 +67,28 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
   }
   
   public ErlangAST parse(final String contents, final String encoding) {
-    return null;
+    ErlangAST _xblockexpression = null;
+    {
+      IErlangEngine _instance = ErlangEngine.getInstance();
+      final ParserService parser = _instance.getParserService();
+      String _name = this.file.getName();
+      final OtpErlangObject result = parser.parse(_name, contents);
+      ErlangAST _xifexpression = null;
+      boolean _isOk = Util.isOk(result);
+      if (_isOk) {
+        ErlangAST _xblockexpression_1 = null;
+        {
+          final OtpErlangTuple tuple = ((OtpErlangTuple) result);
+          OtpErlangObject _elementAt = tuple.elementAt(1);
+          _xblockexpression_1 = new ErlangAST(((OtpErlangTuple) _elementAt));
+        }
+        _xifexpression = _xblockexpression_1;
+      } else {
+        _xifexpression = null;
+      }
+      _xblockexpression = _xifexpression;
+    }
+    return _xblockexpression;
   }
   
   protected HandleManager getHandleManager() {
@@ -72,15 +97,7 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
   
   public Iterable<IErlForm> getForms() {
     try {
-      IErlForm[] _xblockexpression = null;
-      {
-        IHandle[] _children = this.getChildren();
-        int _length = _children.length;
-        String _plus = ("children " + Integer.valueOf(_length));
-        InputOutput.<String>println(_plus);
-        _xblockexpression = this.<IErlForm>getChildren(IErlForm.class);
-      }
-      return (Iterable<IErlForm>)Conversions.doWrapArray(_xblockexpression);
+      return (Iterable<IErlForm>)Conversions.doWrapArray(this.<IErlForm>getChildren(IErlForm.class));
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }
@@ -118,7 +135,8 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
     Iterable<IErlAttribute> _attributes = this.getAttributes();
     final Function1<IErlAttribute, Boolean> _function = new Function1<IErlAttribute, Boolean>() {
       public Boolean apply(final IErlAttribute it) {
-        return Boolean.valueOf(Objects.equal(ErlSource.this.name, tag));
+        String _name = it.getName();
+        return Boolean.valueOf(Objects.equal(_name, tag));
       }
     };
     return IterableExtensions.<IErlAttribute>filter(_attributes, _function);

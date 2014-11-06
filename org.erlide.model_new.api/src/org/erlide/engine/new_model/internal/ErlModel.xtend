@@ -30,9 +30,6 @@ class ErlModel extends ErlElement implements IErlModel {
     }
 
     override protected buildStructure(Body body, Map<IHandle, Body> newElements) throws CoreException {
-
-        println('''model buildStructure''')
-
         val IProject[] projects = workspace.getRoot().getProjects()
         val List<IErlProject> erlProjects = newArrayList()
         for (IProject project : projects) {

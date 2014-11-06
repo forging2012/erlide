@@ -26,8 +26,8 @@ class ErlSourceTest extends WorkspaceTest {
 
 		val attrs = erlFile.attributes
 		assertThat(attrs.length, is(2))
-		assertThat(#[attrs.head], is(erlFile.getAttributesWithTag("module")))
-		assertThat(#[attrs.tail.head], is(erlFile.getAttributesWithTag("export")))
+		assertThat(erlFile.getAttributesWithTag("module"), contains(attrs.head))
+		assertThat(erlFile.getAttributesWithTag("export"), contains(attrs.tail.head))
 
 		val funs = erlFile.functions
 		assertThat(funs.length, is(3))

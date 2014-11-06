@@ -9,6 +9,7 @@ import org.eclipse.handly.model.impl.Body
 import org.eclipse.handly.model.impl.SourceElementBody
 import org.eclipse.handly.model.impl.SourceFile
 import org.eclipse.xtend.lib.annotations.Data
+import org.erlide.engine.ErlangEngine
 import org.erlide.engine.NewModelActivator
 import org.erlide.engine.new_model.IErlAttribute
 import org.erlide.engine.new_model.IErlComment
@@ -18,6 +19,8 @@ import org.erlide.engine.new_model.IErlFunction
 import org.erlide.engine.new_model.IErlHeader
 import org.erlide.engine.new_model.IErlModule
 import org.erlide.engine.new_model.IErlSource
+import org.erlide.util.Util
+import com.ericsson.otp.erlang.OtpErlangTuple
 
 @Data
 abstract class ErlSource extends SourceFile implements IErlSource {
@@ -27,8 +30,6 @@ abstract class ErlSource extends SourceFile implements IErlSource {
 	}
 
 	override protected buildStructure(SourceElementBody body, Map<IHandle, Body> newElements, Object ast, String source) {
-		println("source build structure")
-
 		val ErlFileStructureBuilder builder = new ErlFileStructureBuilder(newElements, ast as ErlangAST);
 		builder.buildStructure(this, body);
 	}
@@ -42,7 +43,14 @@ abstract class ErlSource extends SourceFile implements IErlSource {
 	}
 
 	def ErlangAST parse(String contents, String encoding) {
-		null
+		val parser = ErlangEngine.instance.parserService
+		val result = parser.parse(file.name, contents)
+		if (Util.isOk(result)) {
+			val tuple = result as OtpErlangTuple
+			new ErlangAST(tuple.elementAt(1) as OtpErlangTuple)
+		} else {
+			null // TODO fix me
+		}
 	}
 
 	override protected getHandleManager() {
@@ -50,7 +58,6 @@ abstract class ErlSource extends SourceFile implements IErlSource {
 	}
 
 	override getForms() {
-		println("children " + children.length)
 		getChildren(IErlForm)
 	}
 
@@ -67,14 +74,19 @@ abstract class ErlSource extends SourceFile implements IErlSource {
 	}
 
 	override getAttributesWithTag(String tag) {
-		getAttributes.filter[name == tag]
+		getAttributes.filter [
+			it.name == tag
+		]
 	}
 
 	override getFunctions() {
 		getChildren(IErlFunction)
 	}
 
-	override getFunction(String name, int arity) {
+	override getFunction(
+		String name,
+		int arity
+	) {
 		new ErlFunction(this, name, arity)
 	}
 

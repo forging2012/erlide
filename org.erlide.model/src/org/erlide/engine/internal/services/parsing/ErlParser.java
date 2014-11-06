@@ -1,12 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2004 Vlad Dumitrescu and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
+ * Copyright (c) 2004 Vlad Dumitrescu and others. All rights reserved. This program and
+ * the accompanying materials are made available under the terms of the Eclipse Public
+ * License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     Vlad Dumitrescu
+ * Contributors: Vlad Dumitrescu
  *******************************************************************************/
 package org.erlide.engine.internal.services.parsing;
 
@@ -138,6 +136,12 @@ public final class ErlParser implements ParserService {
         return forms != null && comments != null;
     }
 
+    @Override
+    public OtpErlangObject parse(final String module, final String text) {
+        final String stateDir = ErlangEngine.getInstance().getStateDir();
+        return ErlideNoparse.initialParse(backend, module, "", text, stateDir, false);
+    }
+
     private List<IErlComment> createComments(final IErlModule module,
             final OtpErlangList comments) {
         final List<IErlComment> moduleComments = Lists.newArrayListWithCapacity(comments
@@ -164,12 +168,12 @@ public final class ErlParser implements ParserService {
     }
 
     /**
-     * attach local function documentation with heuristics: if a comment is
-     * within 3 lines before function, or a sequence of comment, -spec, comment,
-     * then they should be added to function documentation
+     * attach local function documentation with heuristics: if a comment is within 3 lines
+     * before function, or a sequence of comment, -spec, comment, then they should be
+     * added to function documentation
      *
-     * If any typespec is available for the function (wherever it is located),
-     * then it should be attached too.
+     * If any typespec is available for the function (wherever it is located), then it
+     * should be attached too.
      *
      * @param module
      */
@@ -342,8 +346,8 @@ public final class ErlParser implements ParserService {
      * @param module
      *            module
      * @param el
-     *            -record(function, {pos, name, arity, args, head, clauses,
-     *            name_pos, comment, exported}).
+     *            -record(function, {pos, name, arity, args, head, clauses, name_pos,
+     *            comment, exported}).
      * @return ErlFunction
      */
     private ErlFunction makeErlFunction(final IErlModule module, final OtpErlangTuple el) {
