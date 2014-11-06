@@ -30,21 +30,21 @@ public class ErlModelTest extends WorkspaceTest {
   public void testErlModel() {
     try {
       final IErlModel erlModel = ErlModelCore.getErlModel();
-      Iterable<IErlProject> erlProjects = erlModel.getErlProjects();
+      Iterable<IErlProject> erlProjects = erlModel.getProjects();
       final Iterable<IErlProject> _converted_erlProjects = (Iterable<IErlProject>)erlProjects;
       int _length = ((Object[])Conversions.unwrapArray(_converted_erlProjects, Object.class)).length;
       Assert.assertEquals(1, _length);
       final IErlProject erlProject = IterableExtensions.<IErlProject>head(erlProjects);
       String _name = ((IHandle) erlProject).getName();
       Assert.assertEquals("Test001", _name);
-      final IErlProject erlProject2 = erlModel.getErlProject("Test002");
+      final IErlProject erlProject2 = erlModel.getProject("Test002");
       boolean _exists = ((IHandle) erlProject2).exists();
       Assert.assertFalse(_exists);
       this.setUpProject("Test002");
       boolean _exists_1 = ((IHandle) erlProject2).exists();
       Assert.assertTrue(_exists_1);
-      Iterable<IErlProject> _erlProjects = erlModel.getErlProjects();
-      erlProjects = _erlProjects;
+      Iterable<IErlProject> _projects = erlModel.getProjects();
+      erlProjects = _projects;
       final Iterable<IErlProject> _converted_erlProjects_1 = (Iterable<IErlProject>)erlProjects;
       int _length_1 = ((Object[])Conversions.unwrapArray(_converted_erlProjects_1, Object.class)).length;
       Assert.assertEquals(2, _length_1);

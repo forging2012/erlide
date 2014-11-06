@@ -1,6 +1,7 @@
 package org.erlide.engine.new_model;
 
 import org.eclipse.handly.model.ISourceFile;
+import org.erlide.engine.new_model.IErlComment;
 import org.erlide.engine.new_model.IErlElement;
 import org.erlide.engine.new_model.IErlForm;
 
@@ -9,4 +10,6 @@ public interface IErlSource extends IErlElement, ISourceFile {
   public abstract Iterable<IErlForm> getForms();
   
   public abstract String getExtension();
+  
+  public abstract IErlComment getHeaderComment();
 }

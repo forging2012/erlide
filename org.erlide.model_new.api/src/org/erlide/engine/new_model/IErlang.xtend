@@ -15,13 +15,13 @@ interface IErlElement extends IHandle {
 interface IErlModel extends IErlElement {
     def IWorkspace getWorkspace()
 
-    def Iterable<IErlProject> getErlProjects()
+    def Iterable<IErlProject> getProjects()
 
-    def IErlProject getErlProject(String name)
+    def IErlProject getProject(String name)
 
 }
 
-interface IErlLibrary extends IErlElement {
+interface IErlLibrary extends IErlElement, IErlLibraryContainer {
     def ErlangLibraryProperties getProperties()
 
     def Iterable<IErlFolder> getFolders()
@@ -30,9 +30,7 @@ interface IErlLibrary extends IErlElement {
 
     def Iterable<IErlFolder> getIncludeFolders()
 
-    def IErlFolder getOutputFolder()
-
-    def Iterable<IErlLibrary> getReferencedLibraries()
+    def IErlFolder getBinaryFolder()
 
     def Iterable<IResource> getNonErlangResources()
 }
@@ -53,7 +51,7 @@ interface IErlLibraryContainer extends IErlElement {
     def Iterable<IErlLibrary> getLibraries()
 }
 
-interface IErlOtpLibrary extends IErlLibraryContainer {
+interface IErlOtpLibrary extends IErlLibrary {
     def String getVersion()
 }
 
@@ -67,6 +65,8 @@ interface IErlSource extends IErlElement, ISourceFile {
     def Iterable<IErlForm> getForms()
 
     def String getExtension()
+
+	def IErlComment getHeaderComment()
 }
 
 public interface IErlModule extends IErlSource {

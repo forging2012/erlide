@@ -8,7 +8,7 @@ import org.erlide.engine.new_model.IErlProject;
 public interface IErlModel extends IErlElement {
   public abstract IWorkspace getWorkspace();
   
-  public abstract Iterable<IErlProject> getErlProjects();
+  public abstract Iterable<IErlProject> getProjects();
   
-  public abstract IErlProject getErlProject(final String name);
+  public abstract IErlProject getProject(final String name);
 }

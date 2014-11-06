@@ -13,7 +13,7 @@ class ErlModelCore {
         if (project === null)
             null
         else
-            erlModel.getErlProject(project.name)
+            erlModel.getProject(project.name)
     }
 
     private new() {

@@ -13,9 +13,11 @@ import org.eclipse.xtend.lib.annotations.Data;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
+import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.ListExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+import org.erlide.engine.new_model.IErlComment;
 import org.erlide.engine.new_model.IErlForm;
 import org.erlide.engine.new_model.IErlModule;
 import org.erlide.engine.new_model.internal.ErlModelManager;
@@ -48,6 +50,26 @@ public abstract class ErlSource extends SourceFile implements IErlModule {
         }
       };
       return ListExtensions.<IHandle, IErlForm>map(((List<IHandle>)Conversions.doWrapArray(_children)), _function);
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
+  public IErlComment getHeaderComment() {
+    try {
+      IErlComment _xblockexpression = null;
+      {
+        IHandle[] _children = this.getChildren();
+        final IHandle first = IterableExtensions.<IHandle>head(((Iterable<IHandle>)Conversions.doWrapArray(_children)));
+        IErlComment _xifexpression = null;
+        if ((first instanceof IErlComment)) {
+          _xifexpression = ((IErlComment)first);
+        } else {
+          _xifexpression = null;
+        }
+        _xblockexpression = _xifexpression;
+      }
+      return _xblockexpression;
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }

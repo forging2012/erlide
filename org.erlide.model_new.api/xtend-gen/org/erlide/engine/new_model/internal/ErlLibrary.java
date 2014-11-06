@@ -51,11 +51,11 @@ public class ErlLibrary extends ErlElement implements IErlLibrary {
     throw new UnsupportedOperationException("TODO: auto-generated method stub");
   }
   
-  public IErlFolder getOutputFolder() {
+  public IErlFolder getBinaryFolder() {
     throw new UnsupportedOperationException("TODO: auto-generated method stub");
   }
   
-  public Iterable<IErlLibrary> getReferencedLibraries() {
+  public Iterable<IErlLibrary> getLibraries() {
     throw new UnsupportedOperationException("TODO: auto-generated method stub");
   }
   

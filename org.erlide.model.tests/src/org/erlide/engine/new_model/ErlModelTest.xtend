@@ -17,16 +17,16 @@ class ErlModelTest extends WorkspaceTest {
     @Test
     def testErlModel() {
         val erlModel = ErlModelCore.getErlModel();
-        var erlProjects = erlModel.erlProjects;
+        var erlProjects = erlModel.projects;
         Assert.assertEquals(1, erlProjects.length);
         val erlProject = erlProjects.head;
         Assert.assertEquals("Test001", (erlProject as IHandle).name);
 
-        val erlProject2 = erlModel.getErlProject("Test002")
+        val erlProject2 = erlModel.getProject("Test002")
         Assert.assertFalse((erlProject2 as IHandle).exists)
         setUpProject("Test002") // a second project with erlang nature
         Assert.assertTrue((erlProject2 as IHandle).exists)
-        erlProjects = erlModel.getErlProjects()
+        erlProjects = erlModel.getProjects()
         Assert.assertEquals(2, erlProjects.length)
         Assert.assertTrue(erlProjects.exists[it==erlProject])
         Assert.assertTrue(erlProjects.exists[it==erlProject2])

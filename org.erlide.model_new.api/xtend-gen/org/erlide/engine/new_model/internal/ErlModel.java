@@ -67,7 +67,7 @@ public class ErlModel extends ErlElement implements IErlModel {
     body.setChildren(((IHandle[])Conversions.unwrapArray(erlProjects, IHandle.class)));
   }
   
-  public Iterable<IErlProject> getErlProjects() {
+  public Iterable<IErlProject> getProjects() {
     try {
       IHandle[] _children = this.getChildren();
       final Function1<IHandle, IErlProject> _function = new Function1<IHandle, IErlProject>() {
@@ -81,7 +81,7 @@ public class ErlModel extends ErlElement implements IErlModel {
     }
   }
   
-  public IErlProject getErlProject(final String name) {
+  public IErlProject getProject(final String name) {
     IWorkspaceRoot _root = this.workspace.getRoot();
     IProject _project = _root.getProject(name);
     return new ErlProject(this, _project, null);

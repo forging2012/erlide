@@ -19,7 +19,7 @@ public class ErlModelCore {
     } else {
       IErlModel _erlModel = ErlModelCore.getErlModel();
       String _name = project.getName();
-      _xifexpression = _erlModel.getErlProject(_name);
+      _xifexpression = _erlModel.getProject(_name);
     }
     return _xifexpression;
   }

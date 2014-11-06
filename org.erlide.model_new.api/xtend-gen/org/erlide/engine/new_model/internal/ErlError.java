@@ -1,28 +1,20 @@
 package org.erlide.engine.new_model.internal;
 
 import org.eclipse.handly.model.impl.Handle;
-import org.eclipse.handly.model.impl.HandleManager;
-import org.eclipse.handly.model.impl.SourceConstruct;
 import org.eclipse.xtend.lib.annotations.Data;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
-import org.erlide.engine.new_model.IErlForm;
-import org.erlide.engine.new_model.IErlModule;
-import org.erlide.engine.new_model.internal.ErlModelManager;
+import org.erlide.engine.new_model.IErlError;
+import org.erlide.engine.new_model.internal.ErlForm;
 
 @Data
 @SuppressWarnings("all")
-public abstract class ErlForm extends SourceConstruct implements IErlForm {
-  protected HandleManager getHandleManager() {
-    return ErlModelManager.INSTANCE.getHandleManager();
-  }
+public class ErlError extends ErlForm implements IErlError {
+  private final String message;
   
-  public IErlModule getModule() {
-    return ((IErlModule) this.parent);
-  }
-  
-  public ErlForm(final Handle parent, final String name) {
+  public ErlError(final Handle parent, final String name, final String message) {
     super(parent, name);
+    this.message = message;
   }
   
   @Override
@@ -30,6 +22,7 @@ public abstract class ErlForm extends SourceConstruct implements IErlForm {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + ((this.message== null) ? 0 : this.message.hashCode());
     return result;
   }
   
@@ -44,7 +37,12 @@ public abstract class ErlForm extends SourceConstruct implements IErlForm {
       return false;
     if (!super.equals(obj))
       return false;
-    ErlForm other = (ErlForm) obj;
+    ErlError other = (ErlError) obj;
+    if (this.message == null) {
+      if (other.message != null)
+        return false;
+    } else if (!this.message.equals(other.message))
+      return false;
     return true;
   }
   
@@ -55,5 +53,10 @@ public abstract class ErlForm extends SourceConstruct implements IErlForm {
     	.addAllFields()
     	.toString();
     return result;
+  }
+  
+  @Pure
+  public String getMessage() {
+    return this.message;
   }
 }

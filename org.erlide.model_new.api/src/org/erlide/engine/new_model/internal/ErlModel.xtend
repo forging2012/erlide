@@ -43,11 +43,11 @@ class ErlModel extends ErlElement implements IErlModel {
         body.setChildren(erlProjects)
     }
 
-    override getErlProjects() {
+    override getProjects() {
         children.map[it as IErlProject]
     }
 
-    override getErlProject(String name) {
+    override getProject(String name) {
         new ErlProject(this, workspace.root.getProject(name), null) // TODO fix
     }
 
