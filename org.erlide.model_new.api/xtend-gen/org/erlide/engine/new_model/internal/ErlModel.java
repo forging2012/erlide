@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.xtend.lib.annotations.Data;
@@ -19,6 +20,7 @@ import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 import org.erlide.engine.new_model.IErlModel;
 import org.erlide.engine.new_model.IErlProject;
 import org.erlide.engine.new_model.internal.ErlElement;
+import org.erlide.engine.new_model.internal.ErlModelManager;
 import org.erlide.engine.new_model.internal.ErlProject;
 
 @Data
@@ -72,6 +74,14 @@ public class ErlModel extends ErlElement implements IErlModel {
     IWorkspaceRoot _root = this.workspace.getRoot();
     IProject _project = _root.getProject(name);
     return new ErlProject(this, _project, null);
+  }
+  
+  public void addElementChangeListener(final IElementChangeListener listener) {
+    ErlModelManager.INSTANCE.addElementChangeListener(listener);
+  }
+  
+  public void removeElementChangeListener(final IElementChangeListener listener) {
+    ErlModelManager.INSTANCE.removeElementChangeListener(listener);
   }
   
   @Override

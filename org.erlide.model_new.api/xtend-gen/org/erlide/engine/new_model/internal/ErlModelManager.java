@@ -1,10 +1,18 @@
 package org.erlide.engine.new_model.internal;
 
+import com.google.common.base.Objects;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.handly.model.IElementChangeEvent;
+import org.eclipse.handly.model.IElementChangeListener;
+import org.eclipse.handly.model.impl.ElementChangeEvent;
+import org.eclipse.handly.model.impl.HandleDelta;
 import org.eclipse.handly.model.impl.HandleManager;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.erlide.engine.new_model.IErlModel;
@@ -27,12 +35,16 @@ public class ErlModelManager implements IErlModelManager, IResourceChangeListene
   
   private HandleManager handleManager;
   
+  private ListenerList listenerList;
+  
   public void startup() {
     ErlModel _erlModel = new ErlModel();
     this.erlModel = _erlModel;
     ErlModelCache _erlModelCache = new ErlModelCache();
     HandleManager _handleManager = new HandleManager(_erlModelCache);
     this.handleManager = _handleManager;
+    ListenerList _listenerList = new ListenerList();
+    this.listenerList = _listenerList;
     IWorkspace _workspace = this.erlModel.getWorkspace();
     _workspace.addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
   }
@@ -40,6 +52,7 @@ public class ErlModelManager implements IErlModelManager, IResourceChangeListene
   public void shutdown() {
     IWorkspace _workspace = this.erlModel.getWorkspace();
     _workspace.removeResourceChangeListener(this);
+    this.listenerList = null;
     this.handleManager = null;
     this.erlModel = null;
   }
@@ -80,6 +93,49 @@ public class ErlModelManager implements IErlModelManager, IResourceChangeListene
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
+    }
+    HandleDelta _delta_1 = deltaProcessor.getDelta();
+    boolean _isEmpty = _delta_1.isEmpty();
+    boolean _not = (!_isEmpty);
+    if (_not) {
+      HandleDelta _delta_2 = deltaProcessor.getDelta();
+      ElementChangeEvent _elementChangeEvent = new ElementChangeEvent(ElementChangeEvent.POST_CHANGE, _delta_2);
+      this.fireElementChangeEvent(_elementChangeEvent);
+    }
+  }
+  
+  public void addElementChangeListener(final IElementChangeListener listener) {
+    boolean _equals = Objects.equal(this.listenerList, null);
+    if (_equals) {
+      throw new IllegalStateException();
+    }
+    this.listenerList.add(listener);
+  }
+  
+  public void removeElementChangeListener(final IElementChangeListener listener) {
+    boolean _equals = Objects.equal(this.listenerList, null);
+    if (_equals) {
+      throw new IllegalStateException();
+    }
+    this.listenerList.remove(listener);
+  }
+  
+  public void fireElementChangeEvent(final IElementChangeEvent event) {
+    boolean _equals = Objects.equal(this.listenerList, null);
+    if (_equals) {
+      throw new IllegalStateException();
+    }
+    final Object[] listeners = this.listenerList.getListeners();
+    for (final Object listener : listeners) {
+      SafeRunner.run(
+        new ISafeRunnable() {
+          public void handleException(final Throwable exception) {
+          }
+          
+          public void run() {
+            ((IElementChangeListener) listener).elementChanged(event);
+          }
+        });
     }
   }
 }
