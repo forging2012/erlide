@@ -3,14 +3,10 @@ package org.erlide.engine.new_model.internal
 import org.eclipse.handly.model.impl.SourceConstruct
 import org.eclipse.xtend.lib.annotations.Data
 import org.erlide.engine.new_model.IErlAttribute
-import org.erlide.engine.new_model.IErlComment
 import org.erlide.engine.new_model.IErlError
-import org.erlide.engine.new_model.IErlExpression
 import org.erlide.engine.new_model.IErlForm
 import org.erlide.engine.new_model.IErlFunction
-import org.erlide.engine.new_model.IErlFunctionClause
 import org.erlide.engine.new_model.IErlModule
-import org.erlide.engine.new_model.IErlTypeSpec
 
 @Data
 abstract class ErlForm extends SourceConstruct implements IErlForm {
@@ -27,18 +23,36 @@ abstract class ErlForm extends SourceConstruct implements IErlForm {
 
 @Data
 class ErlAttribute extends ErlForm implements IErlAttribute {
-	Iterable<IErlExpression> values
+
+	override getValues() {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+
 }
 
 @Data
 class ErlFunction extends ErlForm implements IErlFunction {
 	int arity
-	Iterable<IErlFunctionClause> clauses
-	IErlTypeSpec typeSpecification
-	IErlComment comment
+
+	override getClauses() {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+
+	override getTypeSpecification() {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+
+	override getComment() {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+
 }
 
 @Data
 class ErlError extends ErlForm implements IErlError {
-	String message
+
+	override getMessage() {
+		name
+	}
+
 }

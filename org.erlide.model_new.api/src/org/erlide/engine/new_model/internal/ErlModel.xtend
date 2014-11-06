@@ -44,7 +44,7 @@ class ErlModel extends ErlElement implements IErlModel {
     }
 
     override getProjects() {
-        children.map[it as IErlProject]
+        getChildren(IErlProject)
     }
 
     override getProject(String name) {

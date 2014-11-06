@@ -1,7 +1,6 @@
 package org.erlide.engine.new_model.internal;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Iterables;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +15,6 @@ import org.eclipse.xtend.lib.annotations.Data;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.Functions.Function1;
-import org.eclipse.xtext.xbase.lib.ListExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 import org.erlide.engine.NewModelActivator;
@@ -93,13 +90,7 @@ public class ErlProject extends ErlLibrary implements IErlProject {
   
   public Iterable<IErlSource> getSourceFiles() {
     try {
-      IHandle[] _children = this.getChildren();
-      final Function1<IHandle, IErlSource> _function = new Function1<IHandle, IErlSource>() {
-        public IErlSource apply(final IHandle it) {
-          return ((IErlSource) it);
-        }
-      };
-      return ListExtensions.<IHandle, IErlSource>map(((List<IHandle>)Conversions.doWrapArray(_children)), _function);
+      return (Iterable<IErlSource>)Conversions.doWrapArray(this.<IErlSource>getChildren(IErlSource.class));
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }
@@ -111,13 +102,19 @@ public class ErlProject extends ErlLibrary implements IErlProject {
   }
   
   public Iterable<IErlModule> getModules() {
-    Iterable<IErlSource> _sourceFiles = this.getSourceFiles();
-    return Iterables.<IErlModule>filter(_sourceFiles, IErlModule.class);
+    try {
+      return (Iterable<IErlModule>)Conversions.doWrapArray(this.<IErlModule>getChildren(IErlModule.class));
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
   }
   
   public Iterable<IErlHeader> getHeaders() {
-    Iterable<IErlSource> _sourceFiles = this.getSourceFiles();
-    return Iterables.<IErlHeader>filter(_sourceFiles, IErlHeader.class);
+    try {
+      return (Iterable<IErlHeader>)Conversions.doWrapArray(this.<IErlHeader>getChildren(IErlHeader.class));
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
   }
   
   public IErlOtpLibrary getOtpLibrary() {

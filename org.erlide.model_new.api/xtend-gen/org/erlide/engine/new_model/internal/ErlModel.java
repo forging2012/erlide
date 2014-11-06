@@ -15,9 +15,7 @@ import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.InputOutput;
-import org.eclipse.xtext.xbase.lib.ListExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 import org.erlide.engine.new_model.IErlModel;
@@ -69,13 +67,7 @@ public class ErlModel extends ErlElement implements IErlModel {
   
   public Iterable<IErlProject> getProjects() {
     try {
-      IHandle[] _children = this.getChildren();
-      final Function1<IHandle, IErlProject> _function = new Function1<IHandle, IErlProject>() {
-        public IErlProject apply(final IHandle it) {
-          return ((IErlProject) it);
-        }
-      };
-      return ListExtensions.<IHandle, IErlProject>map(((List<IHandle>)Conversions.doWrapArray(_children)), _function);
+      return (Iterable<IErlProject>)Conversions.doWrapArray(this.<IErlProject>getChildren(IErlProject.class));
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }

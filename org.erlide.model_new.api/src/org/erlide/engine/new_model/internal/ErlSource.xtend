@@ -1,5 +1,6 @@
 package org.erlide.engine.new_model.internal
 
+import java.io.IOException
 import java.util.Map
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.runtime.CoreException
@@ -8,25 +9,39 @@ import org.eclipse.handly.model.impl.Body
 import org.eclipse.handly.model.impl.SourceElementBody
 import org.eclipse.handly.model.impl.SourceFile
 import org.eclipse.xtend.lib.annotations.Data
+import org.erlide.engine.NewModelActivator
+import org.erlide.engine.new_model.IErlAttribute
 import org.erlide.engine.new_model.IErlComment
+import org.erlide.engine.new_model.IErlError
 import org.erlide.engine.new_model.IErlForm
+import org.erlide.engine.new_model.IErlFunction
 import org.erlide.engine.new_model.IErlHeader
 import org.erlide.engine.new_model.IErlModule
+import org.erlide.engine.new_model.IErlSource
 
 @Data
-abstract class ErlSource extends SourceFile implements IErlModule {
+abstract class ErlSource extends SourceFile implements IErlSource {
 
 	new(ErlProject parent, IFile file) {
 		super(parent, file)
 	}
 
 	override protected buildStructure(SourceElementBody body, Map<IHandle, Body> newElements, Object ast, String source) {
-		// TODO nothing for now
+		println("source build structure")
+
+		val ErlFileStructureBuilder builder = new ErlFileStructureBuilder(newElements, ast as ErlangAST);
+		builder.buildStructure(this, body);
 	}
 
 	override protected createStructuralAst(String source) throws CoreException {
+		try {
+			return parse(source, getFile().getCharset())
+		} catch (IOException e) {
+			throw new CoreException(NewModelActivator.createErrorStatus(e.getMessage(), e))
+		}
+	}
 
-		// TODO nothing for now
+	def ErlangAST parse(String contents, String encoding) {
 		null
 	}
 
@@ -35,7 +50,8 @@ abstract class ErlSource extends SourceFile implements IErlModule {
 	}
 
 	override getForms() {
-		children.map[it as IErlForm]
+		println("children " + children.length)
+		getChildren(IErlForm)
 	}
 
 	override getHeaderComment() {
@@ -45,6 +61,27 @@ abstract class ErlSource extends SourceFile implements IErlModule {
 		else
 			null
 	}
+
+	override getAttributes() {
+		getChildren(IErlAttribute)
+	}
+
+	override getAttributesWithTag(String tag) {
+		getAttributes.filter[name == tag]
+	}
+
+	override getFunctions() {
+		getChildren(IErlFunction)
+	}
+
+	override getFunction(String name, int arity) {
+		new ErlFunction(this, name, arity)
+	}
+
+	override getErrors() {
+		getChildren(IErlError)
+	}
+
 }
 
 @Data

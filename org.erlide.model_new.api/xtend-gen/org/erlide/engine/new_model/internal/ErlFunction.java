@@ -15,18 +15,21 @@ import org.erlide.engine.new_model.internal.ErlForm;
 public class ErlFunction extends ErlForm implements IErlFunction {
   private final int arity;
   
-  private final Iterable<IErlFunctionClause> clauses;
+  public Iterable<IErlFunctionClause> getClauses() {
+    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+  }
   
-  private final IErlTypeSpec typeSpecification;
+  public IErlTypeSpec getTypeSpecification() {
+    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+  }
   
-  private final IErlComment comment;
+  public IErlComment getComment() {
+    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+  }
   
-  public ErlFunction(final Handle parent, final String name, final int arity, final Iterable<IErlFunctionClause> clauses, final IErlTypeSpec typeSpecification, final IErlComment comment) {
+  public ErlFunction(final Handle parent, final String name, final int arity) {
     super(parent, name);
     this.arity = arity;
-    this.clauses = clauses;
-    this.typeSpecification = typeSpecification;
-    this.comment = comment;
   }
   
   @Override
@@ -35,9 +38,6 @@ public class ErlFunction extends ErlForm implements IErlFunction {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + this.arity;
-    result = prime * result + ((this.clauses== null) ? 0 : this.clauses.hashCode());
-    result = prime * result + ((this.typeSpecification== null) ? 0 : this.typeSpecification.hashCode());
-    result = prime * result + ((this.comment== null) ? 0 : this.comment.hashCode());
     return result;
   }
   
@@ -55,21 +55,6 @@ public class ErlFunction extends ErlForm implements IErlFunction {
     ErlFunction other = (ErlFunction) obj;
     if (other.arity != this.arity)
       return false;
-    if (this.clauses == null) {
-      if (other.clauses != null)
-        return false;
-    } else if (!this.clauses.equals(other.clauses))
-      return false;
-    if (this.typeSpecification == null) {
-      if (other.typeSpecification != null)
-        return false;
-    } else if (!this.typeSpecification.equals(other.typeSpecification))
-      return false;
-    if (this.comment == null) {
-      if (other.comment != null)
-        return false;
-    } else if (!this.comment.equals(other.comment))
-      return false;
     return true;
   }
   
@@ -85,20 +70,5 @@ public class ErlFunction extends ErlForm implements IErlFunction {
   @Pure
   public int getArity() {
     return this.arity;
-  }
-  
-  @Pure
-  public Iterable<IErlFunctionClause> getClauses() {
-    return this.clauses;
-  }
-  
-  @Pure
-  public IErlTypeSpec getTypeSpecification() {
-    return this.typeSpecification;
-  }
-  
-  @Pure
-  public IErlComment getComment() {
-    return this.comment;
   }
 }

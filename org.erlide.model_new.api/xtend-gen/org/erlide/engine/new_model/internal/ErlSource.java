@@ -1,9 +1,11 @@
 package org.erlide.engine.new_model.internal;
 
-import java.util.List;
+import com.google.common.base.Objects;
+import java.io.IOException;
 import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.HandleManager;
@@ -13,27 +15,54 @@ import org.eclipse.xtend.lib.annotations.Data;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
+import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
-import org.eclipse.xtext.xbase.lib.ListExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+import org.erlide.engine.NewModelActivator;
+import org.erlide.engine.new_model.IErlAttribute;
 import org.erlide.engine.new_model.IErlComment;
+import org.erlide.engine.new_model.IErlError;
 import org.erlide.engine.new_model.IErlForm;
-import org.erlide.engine.new_model.IErlModule;
+import org.erlide.engine.new_model.IErlFunction;
+import org.erlide.engine.new_model.IErlSource;
+import org.erlide.engine.new_model.internal.ErlFileStructureBuilder;
+import org.erlide.engine.new_model.internal.ErlFunction;
 import org.erlide.engine.new_model.internal.ErlModelManager;
 import org.erlide.engine.new_model.internal.ErlProject;
+import org.erlide.engine.new_model.internal.ErlangAST;
 
 @Data
 @SuppressWarnings("all")
-public abstract class ErlSource extends SourceFile implements IErlModule {
+public abstract class ErlSource extends SourceFile implements IErlSource {
   public ErlSource(final ErlProject parent, final IFile file) {
     super(parent, file);
   }
   
   protected void buildStructure(final SourceElementBody body, final Map<IHandle, Body> newElements, final Object ast, final String source) {
+    InputOutput.<String>println("source build structure");
+    final ErlFileStructureBuilder builder = new ErlFileStructureBuilder(newElements, ((ErlangAST) ast));
+    builder.buildStructure(this, body);
   }
   
   protected Object createStructuralAst(final String source) throws CoreException {
+    try {
+      IFile _file = this.getFile();
+      String _charset = _file.getCharset();
+      return this.parse(source, _charset);
+    } catch (final Throwable _t) {
+      if (_t instanceof IOException) {
+        final IOException e = (IOException)_t;
+        String _message = e.getMessage();
+        IStatus _createErrorStatus = NewModelActivator.createErrorStatus(_message, e);
+        throw new CoreException(_createErrorStatus);
+      } else {
+        throw Exceptions.sneakyThrow(_t);
+      }
+    }
+  }
+  
+  public ErlangAST parse(final String contents, final String encoding) {
     return null;
   }
   
@@ -43,13 +72,15 @@ public abstract class ErlSource extends SourceFile implements IErlModule {
   
   public Iterable<IErlForm> getForms() {
     try {
-      IHandle[] _children = this.getChildren();
-      final Function1<IHandle, IErlForm> _function = new Function1<IHandle, IErlForm>() {
-        public IErlForm apply(final IHandle it) {
-          return ((IErlForm) it);
-        }
-      };
-      return ListExtensions.<IHandle, IErlForm>map(((List<IHandle>)Conversions.doWrapArray(_children)), _function);
+      IErlForm[] _xblockexpression = null;
+      {
+        IHandle[] _children = this.getChildren();
+        int _length = _children.length;
+        String _plus = ("children " + Integer.valueOf(_length));
+        InputOutput.<String>println(_plus);
+        _xblockexpression = this.<IErlForm>getChildren(IErlForm.class);
+      }
+      return (Iterable<IErlForm>)Conversions.doWrapArray(_xblockexpression);
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }
@@ -70,6 +101,44 @@ public abstract class ErlSource extends SourceFile implements IErlModule {
         _xblockexpression = _xifexpression;
       }
       return _xblockexpression;
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
+  public Iterable<IErlAttribute> getAttributes() {
+    try {
+      return (Iterable<IErlAttribute>)Conversions.doWrapArray(this.<IErlAttribute>getChildren(IErlAttribute.class));
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
+  public Iterable<IErlAttribute> getAttributesWithTag(final String tag) {
+    Iterable<IErlAttribute> _attributes = this.getAttributes();
+    final Function1<IErlAttribute, Boolean> _function = new Function1<IErlAttribute, Boolean>() {
+      public Boolean apply(final IErlAttribute it) {
+        return Boolean.valueOf(Objects.equal(ErlSource.this.name, tag));
+      }
+    };
+    return IterableExtensions.<IErlAttribute>filter(_attributes, _function);
+  }
+  
+  public Iterable<IErlFunction> getFunctions() {
+    try {
+      return (Iterable<IErlFunction>)Conversions.doWrapArray(this.<IErlFunction>getChildren(IErlFunction.class));
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
+  public IErlFunction getFunction(final String name, final int arity) {
+    return new ErlFunction(this, name, arity);
+  }
+  
+  public Iterable<IErlError> getErrors() {
+    try {
+      return (Iterable<IErlError>)Conversions.doWrapArray(this.<IErlError>getChildren(IErlError.class));
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }

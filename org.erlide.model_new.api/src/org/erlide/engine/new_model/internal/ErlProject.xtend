@@ -64,7 +64,7 @@ class ErlProject extends ErlLibrary implements IErlProject {
 	}
 
 	override getSourceFiles() {
-		children.map[it as IErlSource]
+		getChildren(IErlSource)
 	}
 
 	override getSourceFile(String name) {
@@ -72,11 +72,11 @@ class ErlProject extends ErlLibrary implements IErlProject {
 	}
 
 	override getModules() {
-		sourceFiles.filter(IErlModule)
+		getChildren(IErlModule)
 	}
 
 	override getHeaders() {
-		sourceFiles.filter(IErlHeader)
+		getChildren(IErlHeader)
 	}
 
 	override getOtpLibrary() {

@@ -73,6 +73,16 @@ interface IErlSource extends IErlElement, ISourceFile {
 	def String getExtension()
 
 	def IErlComment getHeaderComment()
+
+	def Iterable<IErlAttribute> getAttributes()
+
+	def Iterable<IErlAttribute> getAttributesWithTag(String tag)
+
+	def Iterable<IErlFunction> getFunctions()
+
+	def IErlFunction getFunction(String name, int arity)
+
+	def Iterable<IErlError> getErrors()
 }
 
 public interface IErlModule extends IErlSource {

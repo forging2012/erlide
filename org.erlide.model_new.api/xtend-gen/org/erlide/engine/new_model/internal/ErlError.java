@@ -10,11 +10,12 @@ import org.erlide.engine.new_model.internal.ErlForm;
 @Data
 @SuppressWarnings("all")
 public class ErlError extends ErlForm implements IErlError {
-  private final String message;
+  public String getMessage() {
+    return this.name;
+  }
   
-  public ErlError(final Handle parent, final String name, final String message) {
+  public ErlError(final Handle parent, final String name) {
     super(parent, name);
-    this.message = message;
   }
   
   @Override
@@ -22,7 +23,6 @@ public class ErlError extends ErlForm implements IErlError {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((this.message== null) ? 0 : this.message.hashCode());
     return result;
   }
   
@@ -38,11 +38,6 @@ public class ErlError extends ErlForm implements IErlError {
     if (!super.equals(obj))
       return false;
     ErlError other = (ErlError) obj;
-    if (this.message == null) {
-      if (other.message != null)
-        return false;
-    } else if (!this.message.equals(other.message))
-      return false;
     return true;
   }
   
@@ -53,10 +48,5 @@ public class ErlError extends ErlForm implements IErlError {
     	.addAllFields()
     	.toString();
     return result;
-  }
-  
-  @Pure
-  public String getMessage() {
-    return this.message;
   }
 }

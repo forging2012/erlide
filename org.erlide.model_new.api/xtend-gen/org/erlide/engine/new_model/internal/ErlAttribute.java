@@ -11,11 +11,12 @@ import org.erlide.engine.new_model.internal.ErlForm;
 @Data
 @SuppressWarnings("all")
 public class ErlAttribute extends ErlForm implements IErlAttribute {
-  private final Iterable<IErlExpression> values;
+  public Iterable<IErlExpression> getValues() {
+    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+  }
   
-  public ErlAttribute(final Handle parent, final String name, final Iterable<IErlExpression> values) {
+  public ErlAttribute(final Handle parent, final String name) {
     super(parent, name);
-    this.values = values;
   }
   
   @Override
@@ -23,7 +24,6 @@ public class ErlAttribute extends ErlForm implements IErlAttribute {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((this.values== null) ? 0 : this.values.hashCode());
     return result;
   }
   
@@ -39,11 +39,6 @@ public class ErlAttribute extends ErlForm implements IErlAttribute {
     if (!super.equals(obj))
       return false;
     ErlAttribute other = (ErlAttribute) obj;
-    if (this.values == null) {
-      if (other.values != null)
-        return false;
-    } else if (!this.values.equals(other.values))
-      return false;
     return true;
   }
   
@@ -54,10 +49,5 @@ public class ErlAttribute extends ErlForm implements IErlAttribute {
     	.addAllFields()
     	.toString();
     return result;
-  }
-  
-  @Pure
-  public Iterable<IErlExpression> getValues() {
-    return this.values;
   }
 }
