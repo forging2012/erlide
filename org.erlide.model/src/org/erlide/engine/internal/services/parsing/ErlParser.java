@@ -139,7 +139,7 @@ public final class ErlParser implements ParserService {
     @Override
     public OtpErlangObject parse(final String module, final String text) {
         final String stateDir = ErlangEngine.getInstance().getStateDir();
-        return ErlideNoparse.initialParse(backend, module, "", text, stateDir, false);
+        return ErlideNoparse.initialParse(backend, module, module, text, stateDir, false);
     }
 
     private List<IErlComment> createComments(final IErlModule module,
@@ -168,12 +168,12 @@ public final class ErlParser implements ParserService {
     }
 
     /**
-     * attach local function documentation with heuristics: if a comment is within 3 lines
-     * before function, or a sequence of comment, -spec, comment, then they should be
-     * added to function documentation
+     * attach local function documentation with heuristics: if a comment is
+     * within 3 lines before function, or a sequence of comment, -spec, comment,
+     * then they should be added to function documentation
      *
-     * If any typespec is available for the function (wherever it is located), then it
-     * should be attached too.
+     * If any typespec is available for the function (wherever it is located),
+     * then it should be attached too.
      *
      * @param module
      */
@@ -346,8 +346,8 @@ public final class ErlParser implements ParserService {
      * @param module
      *            module
      * @param el
-     *            -record(function, {pos, name, arity, args, head, clauses, name_pos,
-     *            comment, exported}).
+     *            -record(function, {pos, name, arity, args, head, clauses,
+     *            name_pos, comment, exported}).
      * @return ErlFunction
      */
     private ErlFunction makeErlFunction(final IErlModule module, final OtpErlangTuple el) {

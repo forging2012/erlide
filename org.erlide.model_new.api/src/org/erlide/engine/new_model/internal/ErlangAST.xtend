@@ -24,6 +24,7 @@ class ErlangAST {
 	}
 
 	def ASTNode parse(OtpErlangTuple object) {
+		println('''!! «object»''')
 		new ASTNode(object)
 	}
 

@@ -200,7 +200,7 @@
       <view
             allowMultiple="false"
             category="org.erlide.views"
-            class="org.eclipse.ui.navigator.CommonNavigator"
+            class="org.erlide.ui.navigator.ErlangNavigator"
             icon="icons/erl/erlang-notext016.gif"
             id="org.erlide.ui.views.navigator.view"
             name="Erlang Navigator">
@@ -1345,6 +1345,9 @@
             <contentExtension
                   pattern="org.erlide.ui.navigator.erlangExternals">
             </contentExtension>
+            <contentExtension
+                  pattern="org.erlide.ui.contentExtension1">
+            </contentExtension>
          </includes>
       </viewerContentBinding>
       <viewerActionBinding
@@ -1545,6 +1548,33 @@
             wizardId="org.erlide.ui.wizards.ErlangScratchpad">
          <enablement></enablement>
       </commonWizard>
+      <navigatorContent
+            contentProvider="org.erlide.ui.navigator.NewErlContentProvider"
+            id="org.erlide.ui.contentExtension1"
+            labelProvider="org.erlide.ui.navigator.NewErlLabelProvider"
+            name="new_model"
+            priority="normal">
+         <triggerPoints>
+            <or>
+               <instanceof
+                     value="org.erlide.engine.new_model.IErlElement">
+               </instanceof>
+               <adapt
+                     type="org.erlide.engine.new_model.IErlElement">
+               </adapt>
+               <instanceof
+                     value="org.eclipse.core.resources.IResource">
+               </instanceof>
+            </or>
+         </triggerPoints>
+         <possibleChildren>
+            <or>
+               <instanceof
+                     value="org.erlide.engine.new_model.IErlElement">
+               </instanceof>
+            </or>
+         </possibleChildren>
+      </navigatorContent>
    </extension>
    <extension
          point="org.eclipse.ui.navigator.linkHelper">

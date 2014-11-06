@@ -5,8 +5,10 @@ import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangTuple;
 import java.util.List;
 import org.eclipse.xtend.lib.annotations.Accessors;
+import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
+import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.ListExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
@@ -46,7 +48,15 @@ public class ErlangAST {
   }
   
   public ASTNode parse(final OtpErlangTuple object) {
-    return new ASTNode(object);
+    ASTNode _xblockexpression = null;
+    {
+      StringConcatenation _builder = new StringConcatenation();
+      _builder.append("!! ");
+      _builder.append(object, "");
+      InputOutput.<String>println(_builder.toString());
+      _xblockexpression = new ASTNode(object);
+    }
+    return _xblockexpression;
   }
   
   @Pure

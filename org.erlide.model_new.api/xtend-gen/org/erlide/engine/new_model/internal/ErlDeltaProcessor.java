@@ -252,7 +252,7 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
     return _xblockexpression;
   }
   
-  public boolean processChangedFile(final IResourceDelta delta) {
+  private boolean processChangedFile(final IResourceDelta delta) {
     IResource _resource = delta.getResource();
     final IFile file = ((IFile) _resource);
     final IErlSource erlFile = ErlModelCore.create(file);
@@ -270,7 +270,7 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
     return false;
   }
   
-  public HandleDelta contentChanged(final IErlSource source) {
+  private HandleDelta contentChanged(final IErlSource source) {
     HandleDelta _xblockexpression = null;
     {
       ErlDeltaProcessor.close(source);

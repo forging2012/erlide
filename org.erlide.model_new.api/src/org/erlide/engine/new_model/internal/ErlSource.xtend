@@ -44,7 +44,11 @@ abstract class ErlSource extends SourceFile implements IErlSource {
 
 	def ErlangAST parse(String contents, String encoding) {
 		val parser = ErlangEngine.instance.parserService
-		val result = parser.parse(file.name, contents)
+		val result = parser.parse(file.projectRelativePath.toOSString, contents)
+
+		// FIXME WHY is old value returned?
+		// probably interference with normal erlang model and its cache
+
 		if (Util.isOk(result)) {
 			val tuple = result as OtpErlangTuple
 			new ErlangAST(tuple.elementAt(1) as OtpErlangTuple)

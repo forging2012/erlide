@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.impl.Body;
@@ -71,8 +72,9 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
     {
       IErlangEngine _instance = ErlangEngine.getInstance();
       final ParserService parser = _instance.getParserService();
-      String _name = this.file.getName();
-      final OtpErlangObject result = parser.parse(_name, contents);
+      IPath _projectRelativePath = this.file.getProjectRelativePath();
+      String _oSString = _projectRelativePath.toOSString();
+      final OtpErlangObject result = parser.parse(_oSString, contents);
       ErlangAST _xifexpression = null;
       boolean _isOk = Util.isOk(result);
       if (_isOk) {

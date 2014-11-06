@@ -174,7 +174,7 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
 		false
 	}
 
-	def boolean processChangedFile(IResourceDelta delta) {
+	def private boolean processChangedFile(IResourceDelta delta) {
 		val IFile file = delta.resource as IFile
 		val IErlSource erlFile = ErlModelCore.create(file)
 		if (erlFile != null) {
@@ -185,7 +185,7 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
 		return false
 	}
 
-	def contentChanged(IErlSource source) {
+	def private contentChanged(IErlSource source) {
 		close(source)
 		currentDelta.insertChanged(source, IHandleDelta.F_CONTENT)
 	}
