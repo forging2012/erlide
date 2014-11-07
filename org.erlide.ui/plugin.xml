@@ -1328,7 +1328,7 @@
             viewerId="org.erlide.ui.views.navigator.view">
          <includes>
             <contentExtension
-                  pattern="org.eclipse.ui.navigator.resourceContent">
+                  pattern="org\.eclipse\.ui\.navigator\.resourceContent">
             </contentExtension>
             <contentExtension
                   pattern="org.eclipse.ui.navigator.resources.filters.*">
@@ -1346,7 +1346,7 @@
                   pattern="org.erlide.ui.navigator.erlangExternals">
             </contentExtension>
             <contentExtension
-                  pattern="org.erlide.ui.contentExtension1">
+                  pattern="org.erlide.ui.navigator.new">
             </contentExtension>
          </includes>
       </viewerContentBinding>
@@ -1354,7 +1354,7 @@
             viewerId="org.erlide.ui.views.navigator.view">
          <includes>
             <actionExtension
-                  pattern="org.eclipse.ui.navigator.resources.*">
+                  pattern="org\.eclipse\.ui\.navigator\.resources\..*">
             </actionExtension>
             <actionExtension
                   pattern="org.erlide.ui.search.*">
@@ -1549,10 +1549,11 @@
          <enablement></enablement>
       </commonWizard>
       <navigatorContent
+            activeByDefault="true"
             contentProvider="org.erlide.ui.navigator.NewErlContentProvider"
-            id="org.erlide.ui.contentExtension1"
+            id="org.erlide.ui.navigator.new"
             labelProvider="org.erlide.ui.navigator.NewErlLabelProvider"
-            name="new_model"
+            name="New Erlang model"
             priority="normal">
          <triggerPoints>
             <or>

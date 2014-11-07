@@ -7,29 +7,29 @@ import org.erlide.engine.new_model.internal.ErlModelManager
 
 class ErlModelCore {
 
-	def static IErlModel getErlModel() {
-		ErlModelManager.INSTANCE.erlModel
-	}
+    def static IErlModel getErlModel() {
+        ErlModelManager.INSTANCE.erlModel
+    }
 
-	def static IErlProject create(IProject project) {
-		if (project === null)
-			null
-		else
-			erlModel.getProject(project.name)
-	}
+    def static IErlProject create(IProject project) {
+        if (project === null)
+            null
+        else
+            erlModel.getProject(project.name)
+    }
 
-	def static IErlSource create(IFile file) {
-		if (file === null)
-			return null
+    def static IErlSource create(IFile file) {
+        if (file === null)
+            return null
 
-		// TODO fixme
-		if (file.parent.type != IResource.PROJECT)
-			return null
-		val project = create(file.project)
-		project.getSourceFile(file.name)
-	}
+        // TODO fixme
+        if (file.parent.type != IResource.PROJECT)
+            return null
+        val project = create(file.project)
+        project.getSourceFile(file.name)
+    }
 
-	/**
+    /**
      * Returns the Erlang element corresponding to the given resource, or
      * <code>null</code> if unable to associate the given resource
      * with an element of the Erlang Model.
@@ -39,22 +39,24 @@ class ErlModelCore {
      *  <code>null</code> if unable to associate the given resource
      *  with an element of the Erlang Model
      */
-	def static IErlElement create(IResource resource) {
-		if (resource == null)
-			return null;
-		val type = resource.getType();
-		switch type {
-			case IResource.PROJECT:
-				create(resource as IProject)
-			case IResource.FILE:
-				create(resource as IFile)
-			case IResource.ROOT:
-				getErlModel()
-			default:
-				null
-		}
-	}
+    def static IErlElement create(IResource resource) {
+        if (resource === null)
+            return null;
+        val type = resource.getType();
+        switch type {
+            case IResource.PROJECT:
+                create(resource as IProject)
+            case IResource.FILE:
+                create(resource as IFile)
+            case IResource.ROOT:
+                getErlModel()
+            default: {
+                println("? " + resource)
+                null
+            }
+        }
+    }
 
-	private new() {
-	}
+    private new() {
+    }
 }

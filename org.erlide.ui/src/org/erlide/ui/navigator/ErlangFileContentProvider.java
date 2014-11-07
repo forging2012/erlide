@@ -62,11 +62,8 @@ public class ErlangFileContentProvider implements ITreeContentProvider,
                         .findModule((IFile) parentElement);
             }
             if (parentElement instanceof IErlElement) {
-                final IErlElement ErlElement = (IErlElement) parentElement;
-                ErlElement.open(null);
-            }
-            if (parentElement instanceof IErlElement) {
                 final IErlElement parent = (IErlElement) parentElement;
+                parent.open(null);
                 final Collection<IErlElement> children = parent.getChildren();
                 return children.toArray();
             }

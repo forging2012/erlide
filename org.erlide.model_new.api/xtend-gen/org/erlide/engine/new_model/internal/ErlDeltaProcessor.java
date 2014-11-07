@@ -1,6 +1,5 @@
 package org.erlide.engine.new_model.internal;
 
-import com.google.common.base.Objects;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -226,8 +225,8 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       IResource _resource = delta.getResource();
       final IFile file = ((IFile) _resource);
       final IErlSource erlFile = ErlModelCore.create(file);
-      boolean _notEquals = (!Objects.equal(erlFile, null));
-      if (_notEquals) {
+      boolean _tripleNotEquals = (erlFile != null);
+      if (_tripleNotEquals) {
         ErlDeltaProcessor.addToModel(erlFile);
         this.translateAddedDelta(delta, erlFile);
       }
@@ -242,8 +241,8 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       IResource _resource = delta.getResource();
       final IFile file = ((IFile) _resource);
       final IErlSource erlFile = ErlModelCore.create(file);
-      boolean _notEquals = (!Objects.equal(erlFile, null));
-      if (_notEquals) {
+      boolean _tripleNotEquals = (erlFile != null);
+      if (_tripleNotEquals) {
         ErlDeltaProcessor.removeFromModel(erlFile);
         this.translateRemovedDelta(delta, erlFile);
       }
@@ -256,14 +255,14 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
     IResource _resource = delta.getResource();
     final IFile file = ((IFile) _resource);
     final IErlSource erlFile = ErlModelCore.create(file);
-    boolean _notEquals = (!Objects.equal(erlFile, null));
-    if (_notEquals) {
+    boolean _tripleNotEquals = (erlFile != null);
+    if (_tripleNotEquals) {
       int _flags = delta.getFlags();
       int _bitwiseOr = (IResourceDelta.MARKERS | IResourceDelta.SYNC);
       int _bitwiseAnd = (_flags & _bitwiseOr);
       int _bitwiseNot = (~_bitwiseAnd);
-      boolean _notEquals_1 = (_bitwiseNot != 0);
-      if (_notEquals_1) {
+      boolean _notEquals = (_bitwiseNot != 0);
+      if (_notEquals) {
         this.contentChanged(erlFile);
       }
     }
@@ -319,8 +318,8 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       int _type = _resource.getType();
       IResource _resource_1 = ErlDeltaProcessor.getResource(_movedFromPath, _type);
       final IErlElement movedFromElement = ErlModelCore.create(_resource_1);
-      boolean _equals_1 = Objects.equal(movedFromElement, null);
-      if (_equals_1) {
+      boolean _tripleEquals = (movedFromElement == null);
+      if (_tripleEquals) {
         this.currentDelta.insertAdded(element);
       } else {
         this.currentDelta.insertMovedTo(element, movedFromElement);
@@ -340,8 +339,8 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       int _type = _resource.getType();
       IResource _resource_1 = ErlDeltaProcessor.getResource(_movedToPath, _type);
       final IErlElement movedToElement = ErlModelCore.create(_resource_1);
-      boolean _equals_1 = Objects.equal(movedToElement, null);
-      if (_equals_1) {
+      boolean _tripleEquals = (movedToElement == null);
+      if (_tripleEquals) {
         this.currentDelta.insertRemoved(element);
       } else {
         this.currentDelta.insertMovedFrom(element, movedToElement);

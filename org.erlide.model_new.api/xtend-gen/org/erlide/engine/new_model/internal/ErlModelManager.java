@@ -1,6 +1,5 @@
 package org.erlide.engine.new_model.internal;
 
-import com.google.common.base.Objects;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
@@ -105,24 +104,24 @@ public class ErlModelManager implements IErlModelManager, IResourceChangeListene
   }
   
   public void addElementChangeListener(final IElementChangeListener listener) {
-    boolean _equals = Objects.equal(this.listenerList, null);
-    if (_equals) {
+    boolean _tripleEquals = (this.listenerList == null);
+    if (_tripleEquals) {
       throw new IllegalStateException();
     }
     this.listenerList.add(listener);
   }
   
   public void removeElementChangeListener(final IElementChangeListener listener) {
-    boolean _equals = Objects.equal(this.listenerList, null);
-    if (_equals) {
+    boolean _tripleEquals = (this.listenerList == null);
+    if (_tripleEquals) {
       throw new IllegalStateException();
     }
     this.listenerList.remove(listener);
   }
   
   public void fireElementChangeEvent(final IElementChangeEvent event) {
-    boolean _equals = Objects.equal(this.listenerList, null);
-    if (_equals) {
+    boolean _tripleEquals = (this.listenerList == null);
+    if (_tripleEquals) {
       throw new IllegalStateException();
     }
     final Object[] listeners = this.listenerList.getListeners();

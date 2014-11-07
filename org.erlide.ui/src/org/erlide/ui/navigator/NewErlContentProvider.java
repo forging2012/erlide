@@ -26,7 +26,7 @@ public class NewErlContentProvider implements ITreeContentProvider {
         if (parentElement instanceof IProject || parentElement instanceof IFile) {
             final IResource res = (IResource) parentElement;
             final IErlElement elem = ErlModelCore.create(res);
-            if (!elem.exists()) {
+            if (elem == null || !elem.exists()) {
                 return NO_CHILDREN;
             }
             try {

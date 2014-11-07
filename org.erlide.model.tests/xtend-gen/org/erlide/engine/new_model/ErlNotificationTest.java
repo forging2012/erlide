@@ -1,6 +1,5 @@
 package org.erlide.engine.new_model;
 
-import com.google.common.base.Objects;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -144,8 +143,8 @@ public class ErlNotificationTest extends WorkspaceTest {
   }
   
   private static void assertEquality(final IHandleDelta expected, final IHandleDelta actual) {
-    boolean _equals = Objects.equal(expected, null);
-    if (_equals) {
+    boolean _tripleEquals = (expected == null);
+    if (_tripleEquals) {
       Matcher<Object> _nullValue = Matchers.nullValue();
       Matcher<Object> _is = Matchers.<Object>is(_nullValue);
       MatcherAssert.<IHandleDelta>assertThat(actual, _is);
