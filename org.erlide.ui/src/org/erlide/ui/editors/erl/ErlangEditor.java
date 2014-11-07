@@ -78,6 +78,7 @@ import org.erlide.engine.model.erlang.ISourceRange;
 import org.erlide.engine.model.erlang.ISourceReference;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.engine.new_model.IErlSource;
 import org.erlide.engine.services.parsing.ScannerService;
 import org.erlide.engine.services.search.XrefService;
 import org.erlide.ui.actions.CompositeActionGroup;
@@ -932,6 +933,13 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
                 myOutlinePage.select(reference);
             }
         }
+    }
+
+    public void setSelection(final org.erlide.engine.new_model.IErlElement element) {
+        if (element == null || element instanceof IErlSource) {
+            return;
+        }
+        // FIXME
     }
 
     private IWorkbenchPart getActivePart() {

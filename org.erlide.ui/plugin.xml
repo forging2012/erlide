@@ -1460,10 +1460,6 @@
                </instanceof>
             </or>
          </possibleChildren>
-         <actionProvider
-               class="org.erlide.ui.navigator.actions.ErlangFileActionProvider"
-               id="org.erlide.ui.navigator.actions.erlang">
-         </actionProvider>
          <commonSorter
                class="org.erlide.ui.navigator.ErlElementPositionSorter"
                id="org.erlide.ui.navigator.ErlElementPositionSorterId">
@@ -1583,6 +1579,11 @@
             </or>
          </possibleChildren>
       </navigatorContent>
+      <actionProvider
+            class="org.erlide.ui.navigator.actions.ErlangFileActionProvider"
+            id="org.erlide.ui.navigator.actions.erlang">
+         <enablement></enablement>
+      </actionProvider>
    </extension>
    <extension
          point="org.eclipse.ui.navigator.linkHelper">

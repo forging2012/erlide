@@ -12,10 +12,10 @@ import org.erlide.engine.new_model.IErlProject
 class ErlProjectBody extends Body {
     var IResource[] nonErlResources
 
-    def IResource[] getNonErlResources(IErlProject fooProject) throws CoreException
+    def IResource[] getNonErlResources(IErlProject erlProject) throws CoreException
     {
         if (nonErlResources === null)
-            nonErlResources = computeNonErlResources(fooProject)
+            nonErlResources = computeNonErlResources(erlProject)
         nonErlResources
     }
 
@@ -23,10 +23,10 @@ class ErlProjectBody extends Body {
         this.nonErlResources = resources
     }
 
-    def private IResource[] computeNonErlResources(IErlProject fooProject) throws CoreException
+    def private IResource[] computeNonErlResources(IErlProject erlProject) throws CoreException
     {
         val List<IResource> result = new ArrayList<IResource>()
-        val IResource[] members = fooProject.getWorkspaceProject().members()
+        val IResource[] members = erlProject.getWorkspaceProject().members()
         for (member : members) {
             if (!(member instanceof IFile))
                 result.add(member)

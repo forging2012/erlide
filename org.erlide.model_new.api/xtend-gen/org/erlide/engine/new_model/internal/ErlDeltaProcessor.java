@@ -441,12 +441,12 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
         handleDelta = this.currentDelta;
       } else {
         if ((parent instanceof IProject)) {
-          final IErlProject fooProject = ErlModelCore.create(((IProject)parent));
-          HandleDelta _deltaFor = this.currentDelta.getDeltaFor(fooProject);
+          final IErlProject erlProject = ErlModelCore.create(((IProject)parent));
+          HandleDelta _deltaFor = this.currentDelta.getDeltaFor(erlProject);
           handleDelta = _deltaFor;
           boolean _tripleEquals = (handleDelta == null);
           if (_tripleEquals) {
-            HandleDelta _handleDelta = new HandleDelta(fooProject);
+            HandleDelta _handleDelta = new HandleDelta(erlProject);
             handleDelta = _handleDelta;
             this.currentDelta.insert(handleDelta);
           }
@@ -455,7 +455,7 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
           int _bitwiseAnd = (_kind & _bitwiseOr);
           boolean _notEquals = (_bitwiseAnd != 0);
           if (_notEquals) {
-            Body _findBody = ErlDeltaProcessor.findBody(fooProject);
+            Body _findBody = ErlDeltaProcessor.findBody(erlProject);
             final ErlProjectBody body = ((ErlProjectBody) _findBody);
             boolean _tripleNotEquals = (body != null);
             if (_tripleNotEquals) {

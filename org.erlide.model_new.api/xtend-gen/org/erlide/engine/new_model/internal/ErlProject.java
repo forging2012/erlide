@@ -1,14 +1,21 @@
 package org.erlide.engine.new_model.internal;
 
 import com.google.common.base.Objects;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.xtend.lib.annotations.Data;
@@ -43,6 +50,56 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     this.workspaceProject = workspaceProject;
   }
   
+  public void create(final IProgressMonitor monitor) throws CoreException {
+    this.create(null, monitor);
+  }
+  
+  public void create(final URI location, final IProgressMonitor monitor) {
+    try {
+      ErlModel _parent = this.getParent();
+      final IWorkspace workspace = _parent.getWorkspace();
+      workspace.run(
+        new IWorkspaceRunnable() {
+          public void run(final IProgressMonitor monitor0) {
+            try {
+              IProgressMonitor _elvis = null;
+              if (monitor0 != null) {
+                _elvis = monitor0;
+              } else {
+                NullProgressMonitor _nullProgressMonitor = new NullProgressMonitor();
+                _elvis = _nullProgressMonitor;
+              }
+              final IProgressMonitor monitor = _elvis;
+              try {
+                monitor.beginTask("", 4);
+                final IProjectDescription description = workspace.newProjectDescription(ErlProject.this.name);
+                description.setLocationURI(location);
+                SubProgressMonitor _subProgressMonitor = new SubProgressMonitor(monitor, 1);
+                ErlProject.this.workspaceProject.create(description, _subProgressMonitor);
+                SubProgressMonitor _subProgressMonitor_1 = new SubProgressMonitor(monitor, 1);
+                ErlProject.this.workspaceProject.open(_subProgressMonitor_1);
+                description.setNatureIds(new String[] { IErlProject.NATURE_ID });
+                SubProgressMonitor _subProgressMonitor_2 = new SubProgressMonitor(monitor, 1);
+                ErlProject.this.workspaceProject.setDescription(description, _subProgressMonitor_2);
+                SubProgressMonitor _subProgressMonitor_3 = new SubProgressMonitor(monitor, 1);
+                ErlProject.this.workspaceProject.setDefaultCharset("UTF-8", _subProgressMonitor_3);
+              } finally {
+                monitor.done();
+              }
+            } catch (Throwable _e) {
+              throw Exceptions.sneakyThrow(_e);
+            }
+          }
+        }, monitor);
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
+  public ErlModel getParent() {
+    return ((ErlModel) this.parent);
+  }
+  
   public IResource getResource() {
     return this.workspaceProject;
   }
@@ -52,7 +109,7 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     return ((ErlangProjectProperties) _properties);
   }
   
-  protected void buildStructure(final Body body, final Map<IHandle, Body> newElements) throws CoreException {
+  public void buildStructure(final Body body, final Map<IHandle, Body> newElements) throws CoreException {
     final IResource[] members = this.workspaceProject.members();
     final List<IErlSource> erlFiles = CollectionLiterals.<IErlSource>newArrayList();
     for (final IResource file : members) {

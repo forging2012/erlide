@@ -1,24 +1,32 @@
 package org.erlide.ui.actions;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.navigator.ILinkHelper;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.IErlElement;
+import org.erlide.engine.new_model.ErlModelCore;
+import org.erlide.engine.new_model.IErlSource;
 import org.erlide.ui.editors.util.EditorUtility;
+import org.erlide.ui.navigator.ErlangNavigator;
 import org.erlide.ui.util.ErlModelUtils;
+import org.erlide.util.SystemConfiguration;
+import org.erlide.util.SystemConfiguration.Features;
 
 public class ErlangLinkHelperAction implements ILinkHelper {
 
     @Override
     public void activateEditor(final IWorkbenchPage page,
             final IStructuredSelection selection) {
-
         final Object element = selection.getFirstElement();
         final IEditorPart part = EditorUtility.isOpenInEditor(element);
         if (part != null) {
@@ -27,44 +35,48 @@ public class ErlangLinkHelperAction implements ILinkHelper {
                 EditorUtility.revealInEditor(part, (IErlElement) element);
             }
         }
-
-        // if (selection == null || selection.isEmpty()) {
-        // return;
-        // }
-        //
-        // final Object firstElement = selection.getFirstElement();
-        //
-        // if (firstElement instanceof IErlElement) {
-        // final IErlElement e = (IErlElement) firstElement;
-        //
-        // }
-        // // if it is an erlang element, let's first get the actual object for
-        // // finding the editor
-        //
-        // // and now, if it is really a file...
-        // if (firstElement instanceof IFile) {
-        // final IEditorInput fileInput = new FileEditorInput(
-        // (IFile) firstElement);
-        // IEditorPart editor = null;
-        // if ((editor = page.findEditor(fileInput)) != null) {
-        // page.bringToTop(editor);
-        // }
-        // }
-
     }
 
     @Override
     public IStructuredSelection findSelection(final IEditorInput input) {
-        try {
-            final IErlModule module = ErlModelUtils.getModule(input);
-            if (module != null) {
-                final IResource resource = module.getCorrespondingResource();
-                if (resource != null) {
-                    return new StructuredSelection(resource);
+        if (SystemConfiguration.hasFeatureEnabled(Features.NEW_MODEL)) {
+            if (input instanceof IFileEditorInput) {
+                final IFile file = ((IFileEditorInput) input).getFile();
+                final IErlSource fooFile = ErlModelCore.create(file);
+                if (fooFile != null) {
+                    final IViewPart navigatorView = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow().getActivePage()
+                            .findView(ErlangNavigator.ID);
+                    if (navigatorView != null) {
+                        final IStructuredSelection currentSelection = (IStructuredSelection) navigatorView
+                                .getSite().getSelectionProvider().getSelection();
+                        if (currentSelection != null && currentSelection.size() == 1) {
+                            final Object element = currentSelection.getFirstElement();
+                            if (element instanceof org.erlide.engine.new_model.IErlElement) {
+                                if (fooFile
+                                        .equals(((org.erlide.engine.new_model.IErlElement) element)
+                                                .getAncestor(IErlSource.class))) {
+                                    return currentSelection;
+                                }
+                            }
+                        }
+                    }
+                    return new StructuredSelection(fooFile);
                 }
-                return new StructuredSelection(module);
+                return new StructuredSelection(file);
             }
-        } catch (final CoreException e) {
+        } else {
+            try {
+                final IErlModule module = ErlModelUtils.getModule(input);
+                if (module != null) {
+                    final IResource resource = module.getCorrespondingResource();
+                    if (resource != null) {
+                        return new StructuredSelection(resource);
+                    }
+                    return new StructuredSelection(module);
+                }
+            } catch (final CoreException e) {
+            }
         }
         return StructuredSelection.EMPTY;
     }

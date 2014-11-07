@@ -100,6 +100,9 @@ public class ErlangElementImageProvider {
     private ImageDescriptor computeDescriptor(final Object element, final int flags) {
         if (element instanceof IErlElement) {
             return getErlImageDescriptor((IErlElement) element, flags);
+        } else if (element instanceof org.erlide.engine.new_model.IErlElement) {
+            return getErlImageDescriptor(
+                    (org.erlide.engine.new_model.IErlElement) element, flags);
         } else if (element instanceof IFile) {
             final IFile file = (IFile) element;
             if ("erl".equals(file.getFileExtension())) { //$NON-NLS-1$
@@ -149,10 +152,26 @@ public class ErlangElementImageProvider {
      */
     static public ImageDescriptor getErlImageDescriptor(final IErlElement element,
             final int flags) {
-        final int adornmentFlags = 0; // computeAdornmentFlags(element,
-        // flags);
+        final int adornmentFlags = 0;
+        // computeAdornmentFlags(element, flags);
         final Point size = useSmallSize(flags) ? SMALL_SIZE : BIG_SIZE;
         return new ErlangElementImageDescriptor(getBaseImageDescriptor(element, flags),
+                adornmentFlags, size);
+    }
+
+    /**
+     * Returns an image descriptor for an erlang element. The descriptor
+     * includes overlays, if specified.
+     */
+    static public ImageDescriptor getErlImageDescriptor(
+            final org.erlide.engine.new_model.IErlElement element, final int flags) {
+        final int adornmentFlags = 0;
+        // computeAdornmentFlags(element, flags);
+        final Point size = useSmallSize(flags) ? SMALL_SIZE : BIG_SIZE;
+        // FIXME
+        return new ErlangElementImageDescriptor(
+                ErlideImage.FUNCTION_EXPORTED.getDescriptor(),
+                // getBaseImageDescriptor(element, flags),
                 adornmentFlags, size);
     }
 

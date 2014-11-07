@@ -61,6 +61,12 @@ public class ErlModelUtils {
         EditorUtility.revealInEditor(editor, element);
     }
 
+    public static void openElement(final org.erlide.engine.new_model.IErlElement element)
+            throws PartInitException {
+        final IEditorPart editor = EditorUtility.openInEditor(element);
+        EditorUtility.revealInEditor(editor, element);
+    }
+
     public static void openSourceRange(final IErlModule module,
             final ISourceRange sourceRange) throws PartInitException {
         final IEditorPart editor = EditorUtility.openInEditor(module);

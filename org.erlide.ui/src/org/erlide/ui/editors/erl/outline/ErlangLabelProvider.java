@@ -35,13 +35,9 @@ public class ErlangLabelProvider implements ILabelProvider, IColorProvider {
     private static final int LABEL_LENGTH_LIMIT = 200;
 
     protected ListenerList fListeners = new ListenerList(1);
-
     protected ErlangElementImageProvider fImageLabelProvider;
-
     private List<ILabelDecorator> fLabelDecorators;
-
     private int fImageFlags;
-
     private long fTextFlags;
 
     /**

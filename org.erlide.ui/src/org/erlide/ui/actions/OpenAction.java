@@ -26,6 +26,7 @@ import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.erlang.ISourceReference;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.engine.new_model.IErlSource;
 import org.erlide.engine.services.search.OpenResult;
 import org.erlide.engine.services.search.OpenService;
 import org.erlide.ui.editors.erl.AbstractErlangEditor;
@@ -102,6 +103,9 @@ public class OpenAction extends SelectionDispatchAction {
             if (element instanceof IErlModule) {
                 continue;
             }
+            if (element instanceof IErlSource) {
+                continue;
+            }
             return false;
         }
         return true;
@@ -165,10 +169,18 @@ public class OpenAction extends SelectionDispatchAction {
         if (!checkEnabled(selection)) {
             return;
         }
-        for (final Object i : selection.toArray()) {
-            if (i instanceof IErlElement) {
+        for (final Object obj : selection.toArray()) {
+            if (obj instanceof IErlElement) {
                 try {
-                    ErlModelUtils.openElement((IErlElement) i);
+                    ErlModelUtils.openElement((IErlElement) obj);
+                } catch (final CoreException e) {
+                    ErlLogger.error(e);
+                }
+            }
+            if (obj instanceof org.erlide.engine.new_model.IErlElement) {
+                try {
+                    ErlModelUtils
+                            .openElement((org.erlide.engine.new_model.IErlElement) obj);
                 } catch (final CoreException e) {
                     ErlLogger.error(e);
                 }

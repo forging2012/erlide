@@ -147,6 +147,15 @@ public class EditorUtility {
         return false;
     }
 
+    public static boolean revealInEditor(final IEditorPart part,
+            final org.erlide.engine.new_model.IErlElement element) {
+        if (element != null && part instanceof ErlangEditor) {
+            ((ErlangEditor) part).setSelection(element);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Selects and reveals the given region in the given editor part.
      */

@@ -1,5 +1,6 @@
 package org.erlide.ui.navigator;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
@@ -15,6 +16,9 @@ public class NewErlLabelProvider extends LabelProvider {
     public String getText(final Object element) {
         if (element instanceof IErlElement) {
             return ((IErlElement) element).getName();
+        }
+        if (element instanceof IResource) {
+            return ((IResource) element).getName();
         }
         return super.getText(element);
     }

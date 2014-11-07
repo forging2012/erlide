@@ -16,12 +16,12 @@ import org.erlide.engine.new_model.IErlSource;
 public class ErlProjectBody extends Body {
   private IResource[] nonErlResources;
   
-  public IResource[] getNonErlResources(final IErlProject fooProject) throws CoreException {
+  public IResource[] getNonErlResources(final IErlProject erlProject) throws CoreException {
     IResource[] _xblockexpression = null;
     {
       boolean _tripleEquals = (this.nonErlResources == null);
       if (_tripleEquals) {
-        IResource[] _computeNonErlResources = this.computeNonErlResources(fooProject);
+        IResource[] _computeNonErlResources = this.computeNonErlResources(erlProject);
         this.nonErlResources = _computeNonErlResources;
       }
       _xblockexpression = this.nonErlResources;
@@ -33,11 +33,11 @@ public class ErlProjectBody extends Body {
     this.nonErlResources = resources;
   }
   
-  private IResource[] computeNonErlResources(final IErlProject fooProject) throws CoreException {
+  private IResource[] computeNonErlResources(final IErlProject erlProject) throws CoreException {
     List<IResource> _xblockexpression = null;
     {
       final List<IResource> result = new ArrayList<IResource>();
-      IProject _workspaceProject = fooProject.getWorkspaceProject();
+      IProject _workspaceProject = erlProject.getWorkspaceProject();
       final IResource[] members = _workspaceProject.members();
       for (final IResource member : members) {
         if ((!(member instanceof IFile))) {

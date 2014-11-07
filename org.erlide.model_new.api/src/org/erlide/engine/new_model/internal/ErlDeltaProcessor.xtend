@@ -307,16 +307,16 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
 		if (parent instanceof IWorkspaceRoot)
 			handleDelta = currentDelta
 		else if (parent instanceof IProject) {
-			val IErlProject fooProject = ErlModelCore.create(parent)
-			handleDelta = currentDelta.getDeltaFor(fooProject)
+			val IErlProject erlProject = ErlModelCore.create(parent)
+			handleDelta = currentDelta.getDeltaFor(erlProject)
 			if (handleDelta === null) {
-				handleDelta = new HandleDelta(fooProject)
+				handleDelta = new HandleDelta(erlProject)
 				currentDelta.insert(handleDelta)
 			}
 			if ((delta.getKind().bitwiseAnd(IResourceDelta.ADDED.bitwiseOr(IResourceDelta.REMOVED))) != 0) {
 
 				// reset non-Erl resources
-				val ErlProjectBody body = findBody(fooProject) as ErlProjectBody
+				val ErlProjectBody body = findBody(erlProject) as ErlProjectBody
 				if (body !== null)
 					body.nonErlResources = null
 			}

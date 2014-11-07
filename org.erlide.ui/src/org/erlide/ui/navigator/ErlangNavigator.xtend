@@ -23,7 +23,6 @@ class ErlangNavigator extends CommonNavigator implements IElementChangeListener 
 	override void init(IViewSite site) throws PartInitException
     {
 		super.init(site)
-		println('''INIT---------''')
 		ErlModelCore.getErlModel().addElementChangeListener(this)
 	}
 
