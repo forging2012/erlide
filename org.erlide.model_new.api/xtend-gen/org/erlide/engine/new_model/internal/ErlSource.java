@@ -12,9 +12,13 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.impl.Body;
+import org.eclipse.handly.model.impl.ElementChangeEvent;
+import org.eclipse.handly.model.impl.HandleDelta;
+import org.eclipse.handly.model.impl.HandleDeltaBuilder;
 import org.eclipse.handly.model.impl.HandleManager;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 import org.eclipse.xtend.lib.annotations.Data;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
@@ -42,6 +46,22 @@ import org.erlide.util.Util;
 @Data
 @SuppressWarnings("all")
 public abstract class ErlSource extends SourceFile implements IErlSource {
+  public class NotifyingReconcileOperation extends SourceFile.ReconcileOperation {
+    public void reconcile(final Object ast, final NonExpiringSnapshot snapshot, final boolean forced) throws CoreException {
+      final HandleDeltaBuilder deltaBuilder = new HandleDeltaBuilder(ErlSource.this);
+      super.reconcile(ast, snapshot, forced);
+      deltaBuilder.buildDelta();
+      HandleDelta _delta = deltaBuilder.getDelta();
+      boolean _isEmpty = _delta.isEmpty();
+      boolean _not = (!_isEmpty);
+      if (_not) {
+        HandleDelta _delta_1 = deltaBuilder.getDelta();
+        ElementChangeEvent _elementChangeEvent = new ElementChangeEvent(ElementChangeEvent.POST_RECONCILE, _delta_1);
+        ErlModelManager.INSTANCE.fireElementChangeEvent(_elementChangeEvent);
+      }
+    }
+  }
+  
   public ErlSource(final ErlProject parent, final IFile file) {
     super(parent, file);
   }
@@ -51,11 +71,11 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
     builder.buildStructure(this, body);
   }
   
-  protected Object createStructuralAst(final String source) throws CoreException {
+  protected Object createStructuralAst(final String text) throws CoreException {
     try {
       IFile _file = this.getFile();
       String _charset = _file.getCharset();
-      return this.parse(source, _charset);
+      return this.parse(text, _charset);
     } catch (final Throwable _t) {
       if (_t instanceof IOException) {
         final IOException e = (IOException)_t;
@@ -95,6 +115,10 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
   
   protected HandleManager getHandleManager() {
     return ErlModelManager.INSTANCE.getHandleManager();
+  }
+  
+  public SourceFile.ReconcileOperation getReconcileOperation() {
+    return new ErlSource.NotifyingReconcileOperation();
   }
   
   public Iterable<IErlForm> getForms() {
@@ -174,6 +198,20 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
       return _portableString.substring(1);
     }
     return "dummy";
+  }
+  
+  public void workingCopyModeChanged() {
+    super.workingCopyModeChanged();
+    IHandle _root = this.getRoot();
+    final HandleDelta delta = new HandleDelta(_root);
+    boolean _exists = this.file.exists();
+    if (_exists) {
+      delta.insertChanged(this, HandleDelta.F_WORKING_COPY);
+    } else {
+      delta.insertAdded(this, HandleDelta.F_WORKING_COPY);
+    }
+    ElementChangeEvent _elementChangeEvent = new ElementChangeEvent(ElementChangeEvent.POST_CHANGE, delta);
+    ErlModelManager.INSTANCE.fireElementChangeEvent(_elementChangeEvent);
   }
   
   @Override

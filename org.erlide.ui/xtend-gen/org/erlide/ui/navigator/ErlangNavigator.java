@@ -10,19 +10,32 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.navigator.CommonViewer;
+import org.eclipse.xtend2.lib.StringConcatenation;
+import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.erlide.engine.new_model.ErlModelCore;
 import org.erlide.engine.new_model.IErlModel;
+import org.erlide.util.SystemConfiguration;
 
 @SuppressWarnings("all")
 public class ErlangNavigator extends CommonNavigator implements IElementChangeListener {
   public final static String ID = "org.erlide.ui.views.navigator.view";
   
   protected Object getInitialInput() {
-    return ErlModelCore.getErlModel();
+    Object _xifexpression = null;
+    boolean _hasFeatureEnabled = SystemConfiguration.hasFeatureEnabled(SystemConfiguration.Features.NEW_MODEL);
+    if (_hasFeatureEnabled) {
+      _xifexpression = ErlModelCore.getErlModel();
+    } else {
+      _xifexpression = super.getInitialInput();
+    }
+    return _xifexpression;
   }
   
   public void init(final IViewSite site) throws PartInitException {
     super.init(site);
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("INIT---------");
+    InputOutput.<String>println(_builder.toString());
     IErlModel _erlModel = ErlModelCore.getErlModel();
     _erlModel.addElementChangeListener(this);
   }

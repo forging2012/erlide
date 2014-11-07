@@ -79,7 +79,6 @@ public class ErlReconcilingStrategy implements IErlReconcilingStrategy,
 
     private void reconcile(final boolean force) {
         if (documentProvider == null) {
-            System.out.println("Wrong document provider");
             return;
         }
         final ISourceFile workingCopy = documentProvider.getWorkingCopy(editor

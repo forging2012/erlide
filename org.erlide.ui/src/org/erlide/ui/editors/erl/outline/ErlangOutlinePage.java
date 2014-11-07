@@ -86,7 +86,8 @@ import org.erlide.ui.editors.erl.outline.filters.OutlineFilterUtils;
 import org.erlide.ui.editors.erl.outline.filters.PatternFilter;
 import org.erlide.ui.internal.ErlideUIPlugin;
 import org.erlide.ui.navigator.ErlElementSorter;
-import org.erlide.ui.navigator.ErlangFileContentProvider;
+import org.erlide.ui.navigator.NewErlContentProvider;
+import org.erlide.ui.navigator.NewErlLabelProvider;
 import org.erlide.ui.prefs.PreferenceConstants;
 import org.erlide.ui.prefs.plugin.ErlEditorMessages;
 import org.erlide.ui.util.ErlModelUtils;
@@ -218,6 +219,9 @@ public class ErlangOutlinePage extends ContentOutlinePage implements
 
                 @Override
                 public void run() {
+                    if (c.isDisposed()) {
+                        return;
+                    }
                     c.setRedraw(false);
                     if (getTreeViewer().getControl() != null
                             && !getTreeViewer().getControl().isDisposed()) {
@@ -239,9 +243,8 @@ public class ErlangOutlinePage extends ContentOutlinePage implements
         fOutlineViewer.setAutoExpandLevel(0);
         fOutlineViewer.setUseHashlookup(true);
         if (SystemConfiguration.hasFeatureEnabled(Features.NEW_MODEL)) {
-            // FIXME content provider!
-            fOutlineViewer.setContentProvider(new ErlangFileContentProvider());
-            // fOutlineViewer.setLabelProvider(editor.createOutlineLabelProvider());
+            fOutlineViewer.setContentProvider(new NewErlContentProvider());
+            fOutlineViewer.setLabelProvider(new NewErlLabelProvider());
             fOutlineViewer.setInput(computeInput());
         } else {
             fOutlineViewer.setContentProvider(editor.createOutlineContentProvider());

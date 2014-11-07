@@ -82,9 +82,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
- * Implementation of <code>IErlModel<code>. The Erlang Model maintains a cache of
- * active <code>IErlProject</code>s in a workspace. A Erlang Model is specific to a
- * workspace. To retrieve a workspace's model, use the
+ * Implementation of
+ * <code>IErlModel<code>. The Erlang Model maintains a cache of
+ * active <code>IErlProject</code>s in a workspace. A Erlang Model is specific
+ * to a workspace. To retrieve a workspace's model, use the
  * <code>#getErlangModel(IWorkspace)</code> method.
  *
  * @see IErlModel
@@ -98,8 +99,8 @@ public class ErlModel extends ErlElement implements IErlModel {
     OtpErlangList fCachedPathVars;
 
     /**
-     * Constructs a new Erlang Model on the given workspace. Note that only one instance
-     * of ErlModel handle should ever be created.
+     * Constructs a new Erlang Model on the given workspace. Note that only one
+     * instance of ErlModel handle should ever be created.
      */
     public ErlModel() {
         super(null, ""); //$NON-NLS-1$
@@ -416,22 +417,23 @@ public class ErlModel extends ErlElement implements IErlModel {
     }
 
     /**
-     * Adds the given listener for changes to Erlang elements. Has no effect if an
-     * identical listener is already registered. After completion of this method, the
-     * given listener will be registered for exactly the specified events. If they were
-     * previously registered for other events, they will be deregistered.
+     * Adds the given listener for changes to Erlang elements. Has no effect if
+     * an identical listener is already registered. After completion of this
+     * method, the given listener will be registered for exactly the specified
+     * events. If they were previously registered for other events, they will be
+     * deregistered.
      * <p>
-     * Once registered, a listener starts receiving notification of changes to Erlang
-     * elements in the model. The listener continues to receive notifications until it is
-     * replaced or removed.
+     * Once registered, a listener starts receiving notification of changes to
+     * Erlang elements in the model. The listener continues to receive
+     * notifications until it is replaced or removed.
      * </p>
      * <p>
      * Listeners can listen for several types of event as defined in
-     * <code>ElementChangeEvent</code>. Clients are free to register for any number of
-     * event types however if they register for more than one, it is their responsibility
-     * to ensure they correctly handle the case where the same Erlang element change shows
-     * up in multiple notifications. Clients are guaranteed to receive only the events for
-     * which they are registered.
+     * <code>ElementChangeEvent</code>. Clients are free to register for any
+     * number of event types however if they register for more than one, it is
+     * their responsibility to ensure they correctly handle the case where the
+     * same Erlang element change shows up in multiple notifications. Clients
+     * are guaranteed to receive only the events for which they are registered.
      * </p>
      *
      * @param listener
@@ -449,8 +451,8 @@ public class ErlModel extends ErlElement implements IErlModel {
     }
 
     /**
-     * Removes the given element changed listener. Has no affect if an identical listener
-     * is not registered.
+     * Removes the given element changed listener. Has no affect if an identical
+     * listener is not registered.
      *
      * @param listener
      *            the listener
@@ -461,14 +463,14 @@ public class ErlModel extends ErlElement implements IErlModel {
     }
 
     /**
-     * Adds the given listener for changes to Erlang elements. Has no effect if an
-     * identical listener is already registered.
+     * Adds the given listener for changes to Erlang elements. Has no effect if
+     * an identical listener is already registered.
      *
-     * This listener will only be notified during the POST_CHANGE resource change
-     * notification and any reconcile operation (POST_RECONCILE). For finer control of the
-     * notification, use
-     * <code>addElementChangedListener(IElementChangedListener,int)</code>, which allows
-     * to specify a different eventMask.
+     * This listener will only be notified during the POST_CHANGE resource
+     * change notification and any reconcile operation (POST_RECONCILE). For
+     * finer control of the notification, use
+     * <code>addElementChangedListener(IElementChangedListener,int)</code>,
+     * which allows to specify a different eventMask.
      *
      * @param listener
      *            the listener
@@ -526,10 +528,10 @@ public class ErlModel extends ErlElement implements IErlModel {
     }
 
     /**
-     * Registers the given delta with this manager. This API is to be used to registered
-     * deltas that are created explicitly by the Erlang Model. Deltas created as
-     * translations of <code>IResourceDeltas</code> are to be registered with
-     * <code>#registerResourceDelta</code>.
+     * Registers the given delta with this manager. This API is to be used to
+     * registered deltas that are created explicitly by the Erlang Model. Deltas
+     * created as translations of <code>IResourceDeltas</code> are to be
+     * registered with <code>#registerResourceDelta</code>.
      */
     @Override
     public void registerModelDelta(final IErlElementDelta delta) {
@@ -623,9 +625,9 @@ public class ErlModel extends ErlElement implements IErlModel {
     }
 
     /**
-     * Returns the Erlang element corresponding to the given file, its project being the
-     * given project. Returns <code>null</code> if unable to associate the given file with
-     * a Erlang element.
+     * Returns the Erlang element corresponding to the given file, its project
+     * being the given project. Returns <code>null</code> if unable to associate
+     * the given file with a Erlang element.
      *
      * <p>
      * The file must be one of:
@@ -636,8 +638,8 @@ public class ErlModel extends ErlElement implements IErlModel {
      * <code>IBeamFile</code></li>
      * </ul>
      * <p>
-     * Creating a Erlang element has the side effect of creating and opening all of the
-     * element's parents if they are not yet open.
+     * Creating a Erlang element has the side effect of creating and opening all
+     * of the element's parents if they are not yet open.
      */
     public IErlElement createFile(final IFile file, final IErlElement parent0) {
         if (file == null) {
@@ -692,16 +694,16 @@ public class ErlModel extends ErlElement implements IErlModel {
     /**
      * Returns the Erlang project corresponding to the given project.
      * <p>
-     * Creating a Erlang Project has the side effect of creating and opening all of the
-     * project's parents if they are not yet open.
+     * Creating a Erlang Project has the side effect of creating and opening all
+     * of the project's parents if they are not yet open.
      * <p>
-     * Note that no check is done at this time on the existence or the Erlang nature of
-     * this project.
+     * Note that no check is done at this time on the existence or the Erlang
+     * nature of this project.
      *
      * @param project
      *            the given project
-     * @return the Erlang project corresponding to the given project, null if the given
-     *         project is null
+     * @return the Erlang project corresponding to the given project, null if
+     *         the given project is null
      */
     public IErlProject createProject(final IProject project) {
         if (project == null) {
@@ -712,26 +714,29 @@ public class ErlModel extends ErlElement implements IErlModel {
 
     /**
      * Returns the Erlang element corresponding to the given resource, or
-     * <code>null</code> if unable to associate the given resource with a Erlang element.
+     * <code>null</code> if unable to associate the given resource with a Erlang
+     * element.
      * <p>
      * The resource must be one of:
      * <ul>
-     * <li>a project - the element returned is the corresponding <code>IErlProject</code></li>
+     * <li>a project - the element returned is the corresponding
+     * <code>IErlProject</code></li>
      * <li>a <code>.erl</code> file - the element returned is the corresponding
      * <code>IErlModule</code></li>
-     * <li>a folder - the element returned is the corresponding <code>IErlFolder</code></li>
+     * <li>a folder - the element returned is the corresponding
+     * <code>IErlFolder</code></li>
      * <li>the workspace root resource - the element returned is the
      * <code>IErlModel</code></li>
      * </ul>
      * <p>
-     * Creating a Erlang element has the side effect of creating and opening all of the
-     * element's parents if they are not yet open.
+     * Creating a Erlang element has the side effect of creating and opening all
+     * of the element's parents if they are not yet open.
      *
      * @param resource
      *            the given resource
      * @return the Erlang element corresponding to the given resource, or
-     *         <code>null</code> if unable to associate the given resource with a Erlang
-     *         element
+     *         <code>null</code> if unable to associate the given resource with
+     *         a Erlang element
      */
     @Override
     public IErlElement create(final IResource resource) {

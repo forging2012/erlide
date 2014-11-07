@@ -1,10 +1,12 @@
 package org.erlide.engine.new_model.internal;
 
+import com.google.common.base.Objects;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -21,6 +23,8 @@ import org.eclipse.handly.model.impl.HandleDelta;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
+import org.eclipse.xtext.xbase.lib.Functions.Function1;
+import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.erlide.engine.new_model.ErlModelCore;
 import org.erlide.engine.new_model.IErlElement;
 import org.erlide.engine.new_model.IErlModel;
@@ -37,7 +41,7 @@ import org.erlide.util.ErlLogger;
 public class ErlDeltaProcessor implements IResourceDeltaVisitor {
   private final HandleDelta currentDelta = new HandleDelta(ErlModelCore.getErlModel());
   
-  private final Set<String> oldErlProjectNames = new HashSet<String>();
+  private Set<String> oldErlProjectNames = new HashSet<String>();
   
   /**
    * Returns the Erl element delta built from the resource delta.
@@ -75,6 +79,14 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
     boolean _xblockexpression = false;
     {
       this.initOldErlProjectNames();
+      int _flags = delta.getFlags();
+      int _bitwiseAnd = (_flags & IResourceDelta.MARKERS);
+      boolean _notEquals = (_bitwiseAnd != 0);
+      if (_notEquals) {
+        IErlModel _erlModel = ErlModelCore.getErlModel();
+        IMarkerDelta[] _markerDeltas = delta.getMarkerDeltas();
+        this.markersChanged(_erlModel, _markerDeltas);
+      }
       _xblockexpression = true;
     }
     return _xblockexpression;
@@ -190,6 +202,13 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
         }
       }
       if (isErlProject) {
+        int _flags_2 = delta.getFlags();
+        int _bitwiseAnd_2 = (_flags_2 & IResourceDelta.MARKERS);
+        boolean _notEquals_2 = (_bitwiseAnd_2 != 0);
+        if (_notEquals_2) {
+          IMarkerDelta[] _markerDeltas = delta.getMarkerDeltas();
+          this.markersChanged(erlProject, _markerDeltas);
+        }
         IHandle _parent = erlProject.getParent();
         final Body parentBody = ErlDeltaProcessor.findBody(_parent);
         final IHandle[] children = parentBody.getChildren();
@@ -277,19 +296,34 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       if (_notEquals) {
         this.contentChanged(erlFile);
       }
+      int _flags_1 = delta.getFlags();
+      int _bitwiseAnd_1 = (_flags_1 & IResourceDelta.MARKERS);
+      boolean _notEquals_1 = (_bitwiseAnd_1 != 0);
+      if (_notEquals_1) {
+        IMarkerDelta[] _markerDeltas = delta.getMarkerDeltas();
+        this.markersChanged(erlFile, _markerDeltas);
+      }
+      int _flags_2 = delta.getFlags();
+      int _bitwiseAnd_2 = (_flags_2 & IResourceDelta.SYNC);
+      boolean _notEquals_2 = (_bitwiseAnd_2 != 0);
+      if (_notEquals_2) {
+        this.currentDelta.insertChanged(erlFile, IHandleDelta.F_SYNC);
+      }
     } else {
       this.addResourceDelta(delta);
     }
     return false;
   }
   
-  private HandleDelta contentChanged(final IErlSource source) {
-    HandleDelta _xblockexpression = null;
-    {
-      ErlDeltaProcessor.close(source);
-      _xblockexpression = this.currentDelta.insertChanged(source, IHandleDelta.F_CONTENT);
+  private void contentChanged(final IErlSource source) {
+    boolean _isWorkingCopy = source.isWorkingCopy();
+    if (_isWorkingCopy) {
+      int _bitwiseOr = (IHandleDelta.F_CONTENT | IHandleDelta.F_UNDERLYING_RESOURCE);
+      this.currentDelta.insertChanged(source, _bitwiseOr);
+      return;
     }
-    return _xblockexpression;
+    ErlDeltaProcessor.close(source);
+    this.currentDelta.insertChanged(source, IHandleDelta.F_CONTENT);
   }
   
   private static void addToModel(final IHandle element) {
@@ -383,10 +417,14 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
   private void initOldErlProjectNames() {
     IErlModel _erlModel = ErlModelCore.getErlModel();
     final Iterable<IErlProject> erlProjects = _erlModel.getProjects();
-    for (final IErlProject erlProject : erlProjects) {
-      String _name = erlProject.getName();
-      this.oldErlProjectNames.add(_name);
-    }
+    final Function1<IErlProject, String> _function = new Function1<IErlProject, String>() {
+      public String apply(final IErlProject it) {
+        return it.getName();
+      }
+    };
+    Iterable<String> _map = IterableExtensions.<IErlProject, String>map(erlProjects, _function);
+    Set<String> _set = IterableExtensions.<String>toSet(_map);
+    this.oldErlProjectNames = _set;
   }
   
   private boolean wasErlProject(final IProject project) {
@@ -440,5 +478,16 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }
+  }
+  
+  private void markersChanged(final IErlElement erlElement, final IMarkerDelta[] markerDeltas) {
+    HandleDelta delta = this.currentDelta.getDeltaFor(erlElement);
+    boolean _equals = Objects.equal(delta, null);
+    if (_equals) {
+      HandleDelta _handleDelta = new HandleDelta(erlElement);
+      delta = _handleDelta;
+      this.currentDelta.insert(delta);
+    }
+    delta.setMarkerDeltas(markerDeltas);
   }
 }
