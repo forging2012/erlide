@@ -14,20 +14,33 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.handly.model.IElementChangeEvent;
+import org.eclipse.handly.model.IElementChangeListener;
+import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.commands.ActionHandler;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.viewers.IPostSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -37,9 +50,13 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.OpenAndLinkWithEditorHelper;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.actions.ActionGroup;
@@ -56,6 +73,7 @@ import org.erlide.engine.model.IErlModelChangeListener;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.erlang.ISourceReference;
 import org.erlide.engine.model.root.IErlElement;
+import org.erlide.engine.new_model.ErlModelCore;
 import org.erlide.ui.ErlideImage;
 import org.erlide.ui.actions.ActionMessages;
 import org.erlide.ui.actions.CompositeActionGroup;
@@ -68,10 +86,13 @@ import org.erlide.ui.editors.erl.outline.filters.OutlineFilterUtils;
 import org.erlide.ui.editors.erl.outline.filters.PatternFilter;
 import org.erlide.ui.internal.ErlideUIPlugin;
 import org.erlide.ui.navigator.ErlElementSorter;
+import org.erlide.ui.navigator.ErlangFileContentProvider;
 import org.erlide.ui.prefs.PreferenceConstants;
 import org.erlide.ui.prefs.plugin.ErlEditorMessages;
 import org.erlide.ui.util.ErlModelUtils;
 import org.erlide.util.ErlLogger;
+import org.erlide.util.SystemConfiguration;
+import org.erlide.util.SystemConfiguration.Features;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -83,14 +104,14 @@ import com.google.common.collect.Sets;
  */
 
 public class ErlangOutlinePage extends ContentOutlinePage implements
-        IErlModelChangeListener, ISortableContentOutlinePage {
+        IErlModelChangeListener, ISortableContentOutlinePage, IElementChangeListener {
 
     IErlModule fModule;
-    private ErlangEditor fEditor;
+    private ErlangEditor editor;
     private CompositeActionGroup fActionGroups;
     private TreeViewer fOutlineViewer;
     private SortAction fSortAction;
-    private OpenAndLinkWithEditorHelper fOpenAndLinkWithEditorHelper;
+    private LinkingHelper fLinkHelper;
     private ToggleLinkingAction fToggleLinkingAction;
     private final PatternFilter fPatternFilter = new PatternFilter();
     private IPartListener fPartListener;
@@ -128,10 +149,20 @@ public class ErlangOutlinePage extends ContentOutlinePage implements
      *
      */
     public ErlangOutlinePage(final ErlangEditor editor) {
-        // myDocProvider = documentProvider;
-        fEditor = editor;
+        this.editor = editor;
         ErlangEngine.getInstance().getModel().addModelChangeListener(this);
+        ErlModelCore.getErlModel().addElementChangeListener(this);
+        editor.addPropertyListener(editorInputListener);
     }
+
+    private final IPropertyListener editorInputListener = new IPropertyListener() {
+        @Override
+        public void propertyChanged(final Object source, final int propId) {
+            if (propId == IEditorPart.PROP_INPUT) {
+                getTreeViewer().setInput(computeInput());
+            }
+        }
+    };
 
     /**
      *
@@ -187,10 +218,15 @@ public class ErlangOutlinePage extends ContentOutlinePage implements
 
                 @Override
                 public void run() {
+                    c.setRedraw(false);
                     if (getTreeViewer().getControl() != null
                             && !getTreeViewer().getControl().isDisposed()) {
-                        getTreeViewer().refresh(fModule);
+                        final TreePath[] treePaths = getTreeViewer()
+                                .getExpandedTreePaths();
+                        getTreeViewer().refresh();
+                        getTreeViewer().setExpandedTreePaths(treePaths);
                     }
+                    c.setRedraw(true);
                 }
             });
         }
@@ -202,13 +238,20 @@ public class ErlangOutlinePage extends ContentOutlinePage implements
         fOutlineViewer = new TreeViewer(tree);
         fOutlineViewer.setAutoExpandLevel(0);
         fOutlineViewer.setUseHashlookup(true);
-        fOutlineViewer.setContentProvider(fEditor.createOutlineContentProvider());
-        fOutlineViewer.setLabelProvider(fEditor.createOutlineLabelProvider());
+        if (SystemConfiguration.hasFeatureEnabled(Features.NEW_MODEL)) {
+            // FIXME content provider!
+            fOutlineViewer.setContentProvider(new ErlangFileContentProvider());
+            // fOutlineViewer.setLabelProvider(editor.createOutlineLabelProvider());
+            fOutlineViewer.setInput(computeInput());
+        } else {
+            fOutlineViewer.setContentProvider(editor.createOutlineContentProvider());
+            fOutlineViewer.setLabelProvider(editor.createOutlineLabelProvider());
+            fOutlineViewer.setInput(fModule);
+        }
+
         fOutlineViewer.addPostSelectionChangedListener(this);
-        fOutlineViewer.setInput(fModule);
         final IPageSite site = getSite();
-        fOpenAndLinkWithEditorHelper = new OpenAndLinkWithEditorHelper(fOutlineViewer,
-                fEditor, site.getPage());
+        fLinkHelper = new LinkingHelper();
 
         final IContextService service = (IContextService) site
                 .getService(IContextService.class);
@@ -234,9 +277,9 @@ public class ErlangOutlinePage extends ContentOutlinePage implements
         // register global actions
         final IActionBars actionBars = site.getActionBars();
         actionBars.setGlobalActionHandler(ITextEditorActionConstants.UNDO,
-                fEditor.getAction(ITextEditorActionConstants.UNDO));
+                editor.getAction(ITextEditorActionConstants.UNDO));
         actionBars.setGlobalActionHandler(ITextEditorActionConstants.REDO,
-                fEditor.getAction(ITextEditorActionConstants.REDO));
+                editor.getAction(ITextEditorActionConstants.REDO));
         fActionGroups.fillActionBars(actionBars);
         registerToolbarActions(actionBars);
         final IHandlerService handlerService = (IHandlerService) site
@@ -320,11 +363,12 @@ public class ErlangOutlinePage extends ContentOutlinePage implements
     @Override
     public void dispose() {
         getSite().getPage().removePartListener(fPartListener);
-        if (fEditor != null) {
-            fEditor.outlinePageClosed();
-            fEditor = null;
-        }
         ErlangEngine.getInstance().getModel().removeModelChangeListener(this);
+        ErlModelCore.getErlModel().removeElementChangeListener(this);
+        fLinkHelper.dispose();
+        editor.removePropertyListener(editorInputListener);
+        editor.outlinePageClosed();
+        editor = null;
 
         super.dispose();
     }
@@ -388,7 +432,7 @@ public class ErlangOutlinePage extends ContentOutlinePage implements
             final boolean isLinkingEnabled = prefsNode.getBoolean(
                     PreferenceConstants.ERLANG_OUTLINE_LINK_WITH_EDITOR, true);
             setChecked(isLinkingEnabled);
-            fOpenAndLinkWithEditorHelper.setLinkWithEditor(isLinkingEnabled);
+            fLinkHelper.setLinkWithEditor(isLinkingEnabled);
         }
 
         /**
@@ -400,10 +444,10 @@ public class ErlangOutlinePage extends ContentOutlinePage implements
             final boolean isChecked = isChecked();
             prefsNode.putBoolean(PreferenceConstants.ERLANG_OUTLINE_LINK_WITH_EDITOR,
                     isChecked);
-            if (isChecked && fEditor != null) {
+            if (isChecked && editor != null) {
                 getTreeViewer().refresh();
             }
-            fOpenAndLinkWithEditorHelper.setLinkWithEditor(isChecked);
+            fLinkHelper.setLinkWithEditor(isChecked);
         }
 
     }
@@ -413,7 +457,153 @@ public class ErlangOutlinePage extends ContentOutlinePage implements
     }
 
     public boolean isLinkedWithEditor() {
-        return fOpenAndLinkWithEditorHelper.isLinkedWithEditor();
+        return fLinkHelper.isLinkedWithEditor();
     }
 
+    @Override
+    public void elementChanged(final IElementChangeEvent event) {
+        if (!(getTreeViewer().getInput() instanceof IHandle)) {
+            return;
+        }
+        if (affects(event.getDelta(), (IHandle) getTreeViewer().getInput())) {
+            final Control control = getTreeViewer().getControl();
+            control.getDisplay().asyncExec(new Runnable() {
+                @Override
+                public void run() {
+                    if (!control.isDisposed()) {
+                        refresh();
+                    }
+                }
+            });
+        }
+    }
+
+    private boolean affects(final IHandleDelta delta, final IHandle element) {
+        if (delta.getElement().equals(element)) {
+            return true;
+        }
+        final IHandleDelta[] children = delta.getAffectedChildren();
+        for (final IHandleDelta child : children) {
+            if (affects(child, element)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Object computeInput() {
+        final IEditorInput editorInput = editor.getEditorInput();
+        if (editorInput instanceof IFileEditorInput) {
+            final IFile file = ((IFileEditorInput) editorInput).getFile();
+            return ErlModelCore.create(file);
+        }
+        return null;
+    }
+
+    private class LinkingHelper extends OpenAndLinkWithEditorHelper {
+        private final ISelectionChangedListener editorListener = new ISelectionChangedListener() {
+            @Override
+            public void selectionChanged(final SelectionChangedEvent event) {
+                if (!getTreeViewer().getControl().isFocusControl()) {
+                    linkToOutline(event.getSelection());
+                }
+            }
+        };
+        private boolean linking;
+
+        public LinkingHelper() {
+            super(getTreeViewer());
+            setLinkWithEditor(true);
+            final ISelectionProvider selectionProvider = editor.getSite()
+                    .getSelectionProvider();
+            if (selectionProvider instanceof IPostSelectionProvider) {
+                ((IPostSelectionProvider) selectionProvider)
+                        .addPostSelectionChangedListener(editorListener);
+            } else {
+                selectionProvider.addSelectionChangedListener(editorListener);
+            }
+        }
+
+        public boolean isLinkedWithEditor() {
+            return linking;
+        }
+
+        @Override
+        public void dispose() {
+            final ISelectionProvider selectionProvider = editor.getSite()
+                    .getSelectionProvider();
+            if (selectionProvider instanceof IPostSelectionProvider) {
+                ((IPostSelectionProvider) selectionProvider)
+                        .removePostSelectionChangedListener(editorListener);
+            } else {
+                selectionProvider.removeSelectionChangedListener(editorListener);
+            }
+            super.dispose();
+        }
+
+        @Override
+        public void setLinkWithEditor(final boolean enabled) {
+            super.setLinkWithEditor(enabled);
+            linking = enabled;
+            if (enabled) {
+                linkToOutline(editor.getSite().getSelectionProvider().getSelection());
+            }
+        }
+
+        @Override
+        protected void activate(final ISelection selection) {
+            linkToEditor(selection);
+        }
+
+        @Override
+        protected void open(final ISelection selection, final boolean activate) {
+            linkToEditor(selection);
+        }
+
+        @Override
+        protected void linkToEditor(final ISelection selection) {
+            if (selection == null || selection.isEmpty()) {
+                return;
+            }
+            final Object element = ((IStructuredSelection) selection).getFirstElement();
+            if (!(element instanceof ISourceElement)) {
+                return;
+            }
+            SourceElementUtil.revealInTextEditor(editor, (ISourceElement) element);
+        }
+
+        @SuppressWarnings("unchecked")
+        protected void linkToOutline(final ISelection selection) {
+            if (selection == null || selection.isEmpty()) {
+                return;
+            }
+            IStructuredSelection linkedSelection = null;
+            if (selection instanceof ITextSelection) {
+                linkedSelection = getLinkedSelection((ITextSelection) selection);
+            }
+            if (linkedSelection != null) {
+                final IStructuredSelection currentSelection = (IStructuredSelection) getTreeViewer()
+                        .getSelection();
+                if (currentSelection == null
+                        || !currentSelection.toList().containsAll(
+                                linkedSelection.toList())) {
+                    getTreeViewer().setSelection(linkedSelection, true);
+                }
+            }
+        }
+
+        private IStructuredSelection getLinkedSelection(final ITextSelection selection) {
+            final Object input = getTreeViewer().getInput();
+            if (!(input instanceof ISourceElement)) {
+                return null;
+            }
+            final ISourceFile sourceFile = ((ISourceElement) input).getSourceFile();
+            final ISourceElement element = SourceElementUtil.getSourceElement(sourceFile,
+                    selection.getOffset());
+            if (element == null) {
+                return null;
+            }
+            return new StructuredSelection(element);
+        }
+    }
 }
