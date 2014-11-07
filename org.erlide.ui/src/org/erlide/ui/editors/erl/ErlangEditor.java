@@ -62,7 +62,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.actions.ActionGroup;
 import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
@@ -197,7 +196,7 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     @Override
     protected void initializeEditor() {
         colorManager = new ColorManager();
-        setDocumentProvider(new TextFileDocumentProvider());
+        setDocumentProvider(new ErlFileDocumentProvider());
 
         final IPreferenceStore store = getErlangEditorPreferenceStore();
         setPreferenceStore(store);

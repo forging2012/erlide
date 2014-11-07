@@ -2114,4 +2114,12 @@
            label="Convert multi-line string to concatenation">
      </quickfix>
   </extension>
+  <extension
+        point="org.eclipse.ui.editors.documentProviders">
+     <provider
+           class="org.erlide.ui.editors.erl.ErlFileDocumentProvider"
+           extensions="erl,hrl"
+           id="org.erlide.ui.document.provider">
+     </provider>
+  </extension>
 </plugin>

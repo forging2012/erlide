@@ -290,7 +290,6 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
     def private void addResourceDelta(IResourceDelta delta) {
         var HandleDelta handleDelta
         val IResource parent = delta.resource.parent
-        println(">> "+delta.resource)
         if (parent instanceof IWorkspaceRoot)
             handleDelta = currentDelta
         else if (parent instanceof IProject) {

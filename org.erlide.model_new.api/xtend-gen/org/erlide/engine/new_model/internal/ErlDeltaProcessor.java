@@ -21,7 +21,6 @@ import org.eclipse.handly.model.impl.HandleDelta;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.erlide.engine.new_model.ErlModelCore;
 import org.erlide.engine.new_model.IErlElement;
 import org.erlide.engine.new_model.IErlModel;
@@ -400,9 +399,6 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       HandleDelta handleDelta = null;
       IResource _resource = delta.getResource();
       final IResource parent = _resource.getParent();
-      IResource _resource_1 = delta.getResource();
-      String _plus = (">> " + _resource_1);
-      InputOutput.<String>println(_plus);
       if ((parent instanceof IWorkspaceRoot)) {
         handleDelta = this.currentDelta;
       } else {

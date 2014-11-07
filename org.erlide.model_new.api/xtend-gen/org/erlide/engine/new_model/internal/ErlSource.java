@@ -68,7 +68,7 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
     }
   }
   
-  public ErlangAST parse(final String contents, final String encoding) {
+  private ErlangAST parse(final String contents, final String encoding) {
     ErlangAST _xblockexpression = null;
     {
       IErlangEngine _instance = ErlangEngine.getInstance();

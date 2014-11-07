@@ -11,7 +11,11 @@
 package org.erlide.ui.editors.internal.reconciling;
 
 // import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.reconciler.DirtyRegion;
@@ -19,26 +23,34 @@ import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
 import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.services.parsing.ScannerService;
 import org.erlide.ui.editors.erl.AbstractErlangEditor;
+import org.erlide.ui.editors.erl.ErlFileDocumentProvider;
 import org.erlide.util.ErlLogger;
 
 public class ErlReconcilingStrategy implements IErlReconcilingStrategy,
         IReconcilingStrategyExtension {
 
-    private IErlModule fModule;
-    private final AbstractErlangEditor fEditor;
+    private IErlModule module;
+    private final AbstractErlangEditor editor;
+    private final ErlFileDocumentProvider documentProvider;
     // private IDocument fDoc;
     private IProgressMonitor mon;
-    private ScannerService fScanner;
+    private ScannerService scanner;
 
     // private boolean initialInsert;
 
     public ErlReconcilingStrategy(final AbstractErlangEditor editor) {
-        fEditor = editor;
+        this.editor = editor;
+        if (editor.getDocumentProvider() instanceof ErlFileDocumentProvider) {
+            documentProvider = (ErlFileDocumentProvider) editor.getDocumentProvider();
+        } else {
+            System.out.println(">> " + editor.getDocumentProvider());
+            documentProvider = null;
+        }
     }
 
     @Override
     public void setDocument(final IDocument document) {
-        if (fEditor == null) {
+        if (editor == null) {
             return;
         }
         // fDoc = document;
@@ -56,12 +68,34 @@ public class ErlReconcilingStrategy implements IErlReconcilingStrategy,
 
     @Override
     public void initialReconcile() {
-        fModule = fEditor != null ? fEditor.getModule() : null;
-        fScanner = fEditor != null ? fEditor.getScanner() : null;
-        if (fModule != null) {
-            fModule.initialReconcile();
+        module = editor != null ? editor.getModule() : null;
+        scanner = editor != null ? editor.getScanner() : null;
+        if (module != null) {
+            module.initialReconcile();
         }
+        reconcile(true);
         // notify(new OtpErlangAtom("initialReconcile"));
+    }
+
+    private void reconcile(final boolean force) {
+        if (documentProvider == null) {
+            System.out.println("Wrong document provider");
+            return;
+        }
+        final ISourceFile workingCopy = documentProvider.getWorkingCopy(editor
+                .getEditorInput());
+        if (workingCopy != null) {
+            SafeRunner.run(new ISafeRunnable() {
+                @Override
+                public void run() throws CoreException {
+                    workingCopy.reconcile(force, mon);
+                }
+
+                @Override
+                public void handleException(final Throwable exception) {
+                }
+            });
+        }
     }
 
     @Override
@@ -71,29 +105,30 @@ public class ErlReconcilingStrategy implements IErlReconcilingStrategy,
 
     @Override
     public void uninstall() {
-        if (fModule != null) {
-            fModule.finalReconcile();
+        if (module != null) {
+            module.finalReconcile();
         }
     }
 
     @Override
     public void chunkReconciled() {
-        if (fModule != null) {
-            fModule.postReconcile(mon);
+        if (module != null) {
+            module.postReconcile(mon);
         }
     }
 
     @Override
     public void reconcile(final ErlDirtyRegion r) {
-        if (fModule != null) {
-            fModule.reconcileText(r.getOffset(), r.getLength(), r.getText(), mon);
-        } else if (fScanner != null) {
-            fScanner.replaceText(r.getOffset(), r.getLength(), r.getText());
+        if (module != null) {
+            module.reconcileText(r.getOffset(), r.getLength(), r.getText(), mon);
+        } else if (scanner != null) {
+            scanner.replaceText(r.getOffset(), r.getLength(), r.getText());
         }
+        reconcile(false);
     }
 
     public IErlModule getModule() {
-        return fModule;
+        return module;
     }
 
 }

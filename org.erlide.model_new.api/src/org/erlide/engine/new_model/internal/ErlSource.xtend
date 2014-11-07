@@ -42,7 +42,7 @@ abstract class ErlSource extends SourceFile implements IErlSource {
         }
     }
 
-    def ErlangAST parse(String contents, String encoding) {
+    def private ErlangAST parse(String contents, String encoding) {
         val parser = ErlangEngine.instance.parserService
         val result = parser.parse(createScannerName, contents)
         if (Util.isOk(result)) {
