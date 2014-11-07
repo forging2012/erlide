@@ -27,6 +27,40 @@ import org.erlide.engine.new_model.IErlModule
 import org.erlide.engine.new_model.IErlHeader
 
 @Data
+class ErlModule extends ErlSource implements IErlModule {
+
+	new(ErlProject parent, IFile file) {
+		super(parent, file)
+		if (!file.getParent().equals(parent.resource))
+			throw new IllegalArgumentException()
+		if (!extension.equals(file.getFileExtension()))
+			throw new IllegalArgumentException()
+	}
+
+	override getExtension() {
+		"erl"
+	}
+
+}
+
+@Data
+class ErlHeader extends ErlSource implements IErlHeader {
+
+	new(ErlProject parent, IFile file) {
+		super(parent, file)
+		if (!file.getParent().equals(parent.resource))
+			throw new IllegalArgumentException()
+		if (!extension.equals(file.getFileExtension()))
+			throw new IllegalArgumentException()
+	}
+
+	override getExtension() {
+		"hrl"
+	}
+
+}
+
+@Data
 abstract class ErlSource extends SourceFile implements IErlSource {
 
 	new(ErlProject parent, IFile file) {
@@ -133,39 +167,5 @@ abstract class ErlSource extends SourceFile implements IErlSource {
 		}
 
 	}
-
 }
 
-@Data
-class ErlModule extends ErlSource implements IErlModule {
-
-	new(ErlProject parent, IFile file) {
-		super(parent, file)
-		if (!file.getParent().equals(parent.resource))
-			throw new IllegalArgumentException()
-		if (!extension.equals(file.getFileExtension()))
-			throw new IllegalArgumentException()
-	}
-
-	override getExtension() {
-		"erl"
-	}
-
-}
-
-@Data
-class ErlHeader extends ErlSource implements IErlHeader {
-
-	new(ErlProject parent, IFile file) {
-		super(parent, file)
-		if (!file.getParent().equals(parent.resource))
-			throw new IllegalArgumentException()
-		if (!extension.equals(file.getFileExtension()))
-			throw new IllegalArgumentException()
-	}
-
-	override getExtension() {
-		"hrl"
-	}
-
-}
