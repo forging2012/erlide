@@ -140,7 +140,7 @@ public class ErlangProjectBuilderPage extends ErlangWizardPage {
                           boolean _tripleEquals = (builder == BuilderTool.INTERNAL);
                           it.setSelection(_tripleEquals);
                           boolean _and = false;
-                          boolean _hasFeatureEnabled = SystemConfiguration.hasFeatureEnabled("erlide.newbuilders");
+                          boolean _hasFeatureEnabled = SystemConfiguration.hasFeatureEnabled(SystemConfiguration.Features.NEW_BUILDERS);
                           boolean _not = (!_hasFeatureEnabled);
                           if (!_not) {
                             _and = false;
@@ -159,7 +159,7 @@ public class ErlangProjectBuilderPage extends ErlangWizardPage {
                           String _description = ErlangProjectBuilderPage.this.getDescription(builder);
                           it.setText(_description);
                           boolean _and = false;
-                          boolean _hasFeatureEnabled = SystemConfiguration.hasFeatureEnabled("erlide.newbuilders");
+                          boolean _hasFeatureEnabled = SystemConfiguration.hasFeatureEnabled(SystemConfiguration.Features.NEW_BUILDERS);
                           boolean _not = (!_hasFeatureEnabled);
                           if (!_not) {
                             _and = false;
@@ -218,7 +218,7 @@ public class ErlangProjectBuilderPage extends ErlangWizardPage {
                           boolean _tripleEquals = (config == ProjectConfigType.INTERNAL);
                           it.setSelection(_tripleEquals);
                           boolean _and = false;
-                          boolean _hasFeatureEnabled = SystemConfiguration.hasFeatureEnabled("erlide.newbuilders");
+                          boolean _hasFeatureEnabled = SystemConfiguration.hasFeatureEnabled(SystemConfiguration.Features.NEW_BUILDERS);
                           boolean _not = (!_hasFeatureEnabled);
                           if (!_not) {
                             _and = false;

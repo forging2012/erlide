@@ -23,6 +23,7 @@ import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.util.ResourceUtil;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.SystemConfiguration;
+import org.erlide.util.SystemConfiguration.Features;
 import org.erlide.util.erlang.ErlUtils;
 
 import com.ericsson.otp.erlang.OtpErlangAtom;
@@ -270,7 +271,7 @@ public final class MarkerUtils {
     }
 
     public static void createTaskMarkers(final IResource resource) {
-        if (SystemConfiguration.hasFeatureEnabled("erlide.skip.tasks")) {
+        if (SystemConfiguration.hasFeatureEnabled(Features.SKIP_TASKS)) {
             return;
         }
         getScanMarkersFor(resource);

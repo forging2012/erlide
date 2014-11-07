@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.erlide.util.SystemConfiguration.Features;
+
 import com.ericsson.otp.erlang.OtpNode;
 import com.google.common.collect.Lists;
 
@@ -14,7 +16,7 @@ public class ErlangHostnameRetriever {
     private String nodeName;
 
     private final static boolean verbose = !SystemConfiguration
-            .hasFeatureEnabled("erlide.ericsson.user");
+            .hasFeatureEnabled(Features.ERICSSON_USER);
 
     public ErlangHostnameRetriever(final String otpHome) {
         this.otpHome = otpHome;

@@ -116,7 +116,8 @@ public class TestSourcePathProvider implements SourcePathProvider,
                     return true;
                 }
             });
-            if (SystemConfiguration.hasFeatureEnabled("erlide.debug.tspp")) {
+            if (SystemConfiguration
+                    .hasFeatureEnabled(SystemConfiguration.Features.DEBUG_TSPP)) {
                 ErlLogger.debug("TSPP took " + (System.currentTimeMillis() - time));
             }
         } catch (final CoreException e) {

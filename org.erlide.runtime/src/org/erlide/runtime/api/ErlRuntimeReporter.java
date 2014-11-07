@@ -11,6 +11,7 @@ import org.erlide.util.ErlLogger;
 import org.erlide.util.LogUtil;
 import org.erlide.util.MessageReporter;
 import org.erlide.util.SystemConfiguration;
+import org.erlide.util.SystemConfiguration.Features;
 import org.erlide.util.event_tracer.ErlideEventTracer;
 
 public class ErlRuntimeReporter {
@@ -47,7 +48,7 @@ public class ErlRuntimeReporter {
                     + user
                     + "_<timestamp>.txt' has been created in your home directory, "
                     + "please consider reporting the problem. \n"
-                    + (SystemConfiguration.hasFeatureEnabled("erlide.ericsson.user") ? ""
+                    + (SystemConfiguration.hasFeatureEnabled(Features.ERICSSON_USER) ? ""
                             : "https://github.com/erlide/erlide/issues");
             MessageReporter.showError(msg, msg1 + "\n\n" + details);
         }
@@ -75,7 +76,7 @@ public class ErlRuntimeReporter {
                     + "An error log has been created at "
                     + report
                     + ". Please report the problem so that we can fix it.\n"
-                    + (SystemConfiguration.hasFeatureEnabled("erlide.ericsson.user") ? ""
+                    + (SystemConfiguration.hasFeatureEnabled(Features.ERICSSON_USER) ? ""
                             : "https://github.com/erlide/erlide/issues") : "";
             MessageReporter
                     .showError(

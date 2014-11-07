@@ -51,6 +51,7 @@ import org.erlide.engine.model.root.IErlProject;
 import org.erlide.runtime.rpc.RpcFuture;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.SystemConfiguration;
+import org.erlide.util.SystemConfiguration.Features;
 
 import com.ericsson.otp.erlang.OtpErlangList;
 import com.ericsson.otp.erlang.OtpErlangObject;
@@ -272,7 +273,7 @@ public class InternalBuilder extends ErlangBuilder {
 
     private void handleAppFile(final IProject project, final String outPath,
             final Collection<IPath> sources) {
-        if (SystemConfiguration.hasFeatureEnabled("erlide.no_app_src")) {
+        if (SystemConfiguration.hasFeatureEnabled(Features.NO_APP_SRC)) {
             return;
         }
         // if project doesn't look like an OTP app, skip this step

@@ -9,6 +9,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.erlide.engine.new_model.ErlModelCore;
 import org.erlide.engine.new_model.IErlElement;
 import org.erlide.util.SystemConfiguration;
+import org.erlide.util.SystemConfiguration.Features;
 
 public class NewErlContentProvider implements ITreeContentProvider {
     protected static final Object[] NO_CHILDREN = new Object[0];
@@ -20,7 +21,7 @@ public class NewErlContentProvider implements ITreeContentProvider {
 
     @Override
     public Object[] getChildren(final Object parentElement) {
-        if (!SystemConfiguration.hasFeatureEnabled("erlide.new_model")) {
+        if (!SystemConfiguration.hasFeatureEnabled(Features.NEW_MODEL)) {
             return NO_CHILDREN;
         }
         if (parentElement instanceof IProject || parentElement instanceof IFile) {

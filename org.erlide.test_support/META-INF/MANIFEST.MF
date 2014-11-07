@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.ui,
  org.erlide.runtime,
  org.erlide.libs,
  org.erlide.util,
- org.erlide.model.api
+ org.erlide.model.api,
+ org.erlide.util_eclipse
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: org.erlide.test_support,

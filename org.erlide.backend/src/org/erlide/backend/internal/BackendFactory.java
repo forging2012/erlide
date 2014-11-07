@@ -32,6 +32,7 @@ import org.erlide.runtime.runtimeinfo.RuntimeInfo;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.HostnameUtils;
 import org.erlide.util.SystemConfiguration;
+import org.erlide.util.SystemConfiguration.Features;
 
 import com.google.common.collect.Maps;
 
@@ -106,7 +107,7 @@ public class BackendFactory implements IBackendFactory {
         result.setConsole(SystemConfiguration.getInstance().isDeveloper());
         result.setManaged(true);
         result.setRestartable(true);
-        result.setLongName(SystemConfiguration.hasFeatureEnabled("erlide.shortname") ? false
+        result.setLongName(SystemConfiguration.hasFeatureEnabled(Features.USE_SHORTNAME) ? false
                 : HostnameUtils.canUseLongNames());
         result.setInternal(true);
         result.setReportErrors(true);

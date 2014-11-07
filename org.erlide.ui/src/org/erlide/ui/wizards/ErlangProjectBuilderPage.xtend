@@ -71,14 +71,14 @@ class ErlangProjectBuilderPage extends ErlangWizardPage {
                         data = builder
                         addSelectionListener(builderListener)
                         selection = (builder === BuilderTool.INTERNAL)
-                        if (!SystemConfiguration.hasFeatureEnabled("erlide.newbuilders") &&
+                        if (!SystemConfiguration.hasFeatureEnabled(SystemConfiguration.Features.NEW_BUILDERS) &&
                             builder !== BuilderTool.INTERNAL) {
                             enabled = false
                         }
                     ]
                     newControl(Label, SWT.NONE) [
                         text = getDescription(builder)
-                        if (!SystemConfiguration.hasFeatureEnabled("erlide.newbuilders") &&
+                        if (!SystemConfiguration.hasFeatureEnabled(SystemConfiguration.Features.NEW_BUILDERS) &&
                             builder !== BuilderTool.INTERNAL) {
                             enabled = false
                         }
@@ -104,7 +104,7 @@ class ErlangProjectBuilderPage extends ErlangWizardPage {
                         data = config
                         addSelectionListener(configListener)
                         selection = (config === ProjectConfigType.INTERNAL)
-                        if (!SystemConfiguration.hasFeatureEnabled("erlide.newbuilders") &&
+                        if (!SystemConfiguration.hasFeatureEnabled(SystemConfiguration.Features.NEW_BUILDERS) &&
                             config !== ProjectConfigType.INTERNAL) {
                             enabled = false
                         }

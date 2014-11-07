@@ -2,6 +2,27 @@ package org.erlide.util;
 
 public final class SystemConfiguration {
 
+    public static enum Features {
+        // @formatter:off
+        DEVELOPER("erlide.devel"),
+        TEST("erlide.test"),
+        ERICSSON_USER("erlide.ericsson.user"),
+        CLEAR_CACHE_AVAILABLE("erlide.clearCacheAvailable"),
+        NEW_BUILDERS("erlide.newbuilders"),
+        NEW_MODEL("erlide.new_model"),
+        USE_SHORTNAME("erlide.shortname"),
+        NO_APP_SRC("erlide.no_app_src"),
+        SKIP_TASKS("erlide.skip.tasks"),
+        DEBUG_TSPP("erlide.debug.tspp");
+        // @formatter:on
+
+        String id;
+
+        Features(final String id) {
+            this.id = id;
+        }
+    }
+
     private static SystemConfiguration instance = new SystemConfiguration();
 
     public static SystemConfiguration getInstance() {
@@ -20,10 +41,10 @@ public final class SystemConfiguration {
     private static final int MIN_KILL_LIMIT = 10;
 
     private SystemConfiguration() {
-        mustDefineTclLib = hasFeatureEnabled("erlide.ericsson.user");
-        developer = hasFeatureEnabled("erlide.devel");
-        test = hasFeatureEnabled("erlide.test");
-        clearCacheAvailable = hasFeatureEnabled("erlide.clearCacheAvailable");
+        mustDefineTclLib = hasFeatureEnabled(Features.ERICSSON_USER);
+        developer = hasFeatureEnabled(Features.DEVELOPER);
+        test = hasFeatureEnabled(Features.TEST);
+        clearCacheAvailable = hasFeatureEnabled(Features.CLEAR_CACHE_AVAILABLE);
         onWindows = System.getProperty("os.name").toLowerCase().contains("windows");
         setWarnProcessSizeLimit(System
                 .getProperty("erlide.process.heap.warn.limit", "10"));
@@ -77,8 +98,8 @@ public final class SystemConfiguration {
         return name.substring(0, i);
     }
 
-    public static boolean hasFeatureEnabled(final String feature) {
-        return Boolean.parseBoolean(System.getProperty(feature));
+    public static boolean hasFeatureEnabled(final Features feature) {
+        return Boolean.parseBoolean(System.getProperty(feature.id));
     }
 
     public void setWarnProcessSizeLimit(final String text) {
