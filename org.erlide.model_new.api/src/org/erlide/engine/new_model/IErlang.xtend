@@ -14,11 +14,11 @@ interface IErlElement extends IHandle {
 }
 
 interface IErlModel extends IErlElement {
-	def IWorkspace getWorkspace()
+    def IWorkspace getWorkspace()
 
-	def Iterable<IErlProject> getProjects()
+    def Iterable<IErlProject> getProjects()
 
-	def IErlProject getProject(String name)
+    def IErlProject getProject(String name)
 
    /**
      * Adds the given listener for changes to elements in the Erlang Model.
@@ -44,67 +44,76 @@ interface IErlModel extends IErlElement {
 }
 
 interface IErlLibrary extends IErlElement, IErlLibraryContainer {
-	def ErlangLibraryProperties getProperties()
+    def ErlangLibraryProperties getProperties()
 
-	def Iterable<IErlFolder> getFolders()
+    def Iterable<IErlFolder> getFolders()
 
-	def Iterable<IErlFolder> getSourceFolders()
+    def Iterable<IErlFolder> getSourceFolders()
 
-	def Iterable<IErlFolder> getIncludeFolders()
+    def Iterable<IErlFolder> getIncludeFolders()
 
-	def IErlFolder getBinaryFolder()
+    def IErlFolder getBinaryFolder()
 
-	def Iterable<IResource> getNonErlangResources()
+    def Iterable<IResource> getNonErlangResources()
 }
 
 interface IErlProject extends IErlLibrary, IErlLibraryContainer {
-	val static String NATURE_ID = "org.erlide.core.erlnature"
+    val static String NATURE_ID = "org.erlide.core.erlnature"
 
-	def IProject getWorkspaceProject()
+    def IProject getWorkspaceProject()
 
-	def ErlangProjectProperties getProjectProperties()
+    def ErlangProjectProperties getProjectProperties()
 
-	def Iterable<IErlSource> getSourceFiles()
+    /**
+     * Returns the non-Erlang resources contained in this project.
+     *
+     * @return the non-Erlang resources contained in this project (never <code>null</code>)
+     * @throws CoreException if this element does not exist or if an exception
+     *  occurs while accessing its corresponding resource
+     */
+    def IResource[] getNonErlResources()
 
-	def IErlSource getSourceFile(String name)
+    def Iterable<IErlSource> getSourceFiles()
 
-	def Iterable<IErlModule> getModules()
+    def IErlSource getSourceFile(String name)
 
-	def Iterable<IErlHeader> getHeaders()
+    def Iterable<IErlModule> getModules()
 
-	def IErlOtpLibrary getOtpLibrary()
+    def Iterable<IErlHeader> getHeaders()
+
+    def IErlOtpLibrary getOtpLibrary()
 }
 
 interface IErlLibraryContainer extends IErlElement {
-	def Iterable<IErlLibrary> getLibraries()
+    def Iterable<IErlLibrary> getLibraries()
 }
 
 interface IErlOtpLibrary extends IErlLibrary {
-	def String getVersion()
+    def String getVersion()
 }
 
 interface IErlFolder extends IErlElement {
-	def IFolder getWorkspaceFolder()
+    def IFolder getWorkspaceFolder()
 
-	def Iterable<IErlSource> getSources()
+    def Iterable<IErlSource> getSources()
 }
 
 interface IErlSource extends IErlElement, ISourceFile {
-	def Iterable<IErlForm> getForms()
+    def Iterable<IErlForm> getForms()
 
-	def String getExtension()
+    def String getExtension()
 
-	def IErlComment getHeaderComment()
+    def IErlComment getHeaderComment()
 
-	def Iterable<IErlAttribute> getAttributes()
+    def Iterable<IErlAttribute> getAttributes()
 
-	def Iterable<IErlAttribute> getAttributesWithTag(String tag)
+    def Iterable<IErlAttribute> getAttributesWithTag(String tag)
 
-	def Iterable<IErlFunction> getFunctions()
+    def Iterable<IErlFunction> getFunctions()
 
-	def IErlFunction getFunction(String name, int arity)
+    def IErlFunction getFunction(String name, int arity)
 
-	def Iterable<IErlError> getErrors()
+    def Iterable<IErlError> getErrors()
 }
 
 public interface IErlModule extends IErlSource {

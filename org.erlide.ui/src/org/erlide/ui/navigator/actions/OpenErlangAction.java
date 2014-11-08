@@ -28,6 +28,7 @@ public class OpenErlangAction extends Action {
     private final Set<IProject> selectedClosedProjects;
     private final OpenResourceAction openResourceAction;
     private final ICommonActionExtensionSite site;
+    private org.erlide.engine.new_model.IErlElement selectedElement2;
 
     /**
      * Construct the OpenPropertyAction with the given page.
@@ -61,6 +62,12 @@ public class OpenErlangAction extends Action {
                 selectedElement = (IErlElement) sSelection.getFirstElement();
                 return true;
             }
+            if (sSelection.size() == 1
+                    && sSelection.getFirstElement() instanceof org.erlide.engine.new_model.IErlElement) {
+                selectedElement2 = (org.erlide.engine.new_model.IErlElement) sSelection
+                        .getFirstElement();
+                return true;
+            }
             for (final Object element : sSelection.toList()) {
                 if (element instanceof IProject) {
                     final IProject project = (IProject) element;
@@ -79,6 +86,11 @@ public class OpenErlangAction extends Action {
 
         if (isEnabled()) {
             try {
+                if (selectedElement2 != null) {
+                    final IEditorPart part = EditorUtility.openInEditor(selectedElement,
+                            true);
+                    EditorUtility.revealInEditor(part, selectedElement);
+                }
                 if (selectedElement != null) {
                     if (selectedElement instanceof IErlExternal) {
                         final StructuredViewer structuredViewer = site

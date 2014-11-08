@@ -1,6 +1,9 @@
 package org.erlide.engine.new_model.internal
 
+import java.util.HashSet
+import java.util.Set
 import org.eclipse.core.resources.IFile
+import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IResourceDelta
@@ -17,8 +20,7 @@ import org.erlide.engine.new_model.ErlModelCore
 import org.erlide.engine.new_model.IErlElement
 import org.erlide.engine.new_model.IErlProject
 import org.erlide.engine.new_model.IErlSource
-import java.util.Set
-import java.util.HashSet
+import org.erlide.util.ErlLogger
 
 /**
  * This class is used by the <code>ErlModelManager</code> to process
@@ -72,19 +74,25 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
 
     def private boolean processAddedProject(IResourceDelta delta) {
         val IProject project = delta.getResource() as IProject
-        if (project.open && project.hasNature(IErlProject.NATURE_ID)) {
+        if (project.hasNature(IErlProject.NATURE_ID)) {
             val IErlProject erlProject = ErlModelCore.create(project)
             addToModel(erlProject)
             translateAddedDelta(delta, erlProject)
+        } else {
+            addResourceDelta(delta)
         }
         false
     }
 
     def private boolean processRemovedProject(IResourceDelta delta) {
         val IProject project = delta.getResource() as IProject
-        val IErlProject erlProject = ErlModelCore.create(project)
-        removeFromModel(erlProject)
-        translateRemovedDelta(delta, erlProject)
+        if (wasErlProject(project)) {
+            val IErlProject erlProject = ErlModelCore.create(project)
+            removeFromModel(erlProject)
+            translateRemovedDelta(delta, erlProject)
+        } else {
+            addResourceDelta(delta)
+        }
         false
     }
 
@@ -97,11 +105,15 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
                 if (project.hasNature(IErlProject.NATURE_ID)) {
                     addToModel(erlProject)
                     currentDelta.insertAdded(erlProject, IHandleDelta.F_OPEN)
+                } else {
+                    addResourceDelta(delta)
                 }
             } else {
                 if (wasErlProject(project)) {
                     removeFromModel(erlProject)
                     currentDelta.insertRemoved(erlProject, IHandleDelta.F_OPEN)
+                } else {
+                    addResourceDelta(delta)
                 }
             }
             return false
@@ -160,6 +172,8 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
         if (erlFile !== null) {
             addToModel(erlFile)
             translateAddedDelta(delta, erlFile)
+        } else {
+            addResourceDelta(delta)
         }
         false
     }
@@ -170,6 +184,8 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
         if (erlFile !== null) {
             removeFromModel(erlFile)
             translateRemovedDelta(delta, erlFile)
+        } else {
+            addResourceDelta(delta)
         }
         false
     }
@@ -181,6 +197,8 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
             if ((delta.getFlags().bitwiseAnd(IResourceDelta.MARKERS.bitwiseOr(IResourceDelta.SYNC)).bitwiseNot) != 0) {
                 contentChanged(erlFile)
             }
+        } else {
+            addResourceDelta(delta)
         }
         return false
     }
@@ -267,5 +285,35 @@ class ErlDeltaProcessor implements IResourceDeltaVisitor {
 
     def private boolean wasErlProject(IProject project) {
         oldErlProjectNames.contains(project.getName())
+    }
+
+    def private void addResourceDelta(IResourceDelta delta) {
+        var HandleDelta handleDelta
+        val IResource parent = delta.resource.parent
+        println(">> "+delta.resource)
+        if (parent instanceof IWorkspaceRoot)
+            handleDelta = currentDelta
+        else if (parent instanceof IProject) {
+            val IErlProject fooProject = ErlModelCore.create(parent)
+            handleDelta = currentDelta.getDeltaFor(fooProject)
+            if (handleDelta === null) {
+                handleDelta = new HandleDelta(fooProject)
+                currentDelta.insert(handleDelta)
+            }
+            if ((delta.getKind().bitwiseAnd(IResourceDelta.ADDED.bitwiseOr(IResourceDelta.REMOVED))) != 0) {
+
+                // reset non-Erl resources
+                val ErlProjectBody body = findBody(fooProject) as ErlProjectBody
+                if (body !== null)
+                    body.setNonErlResources(null)
+            }
+        } else if (parent instanceof IFolder) {
+            // TODO
+            return
+        } else {
+            ErlLogger.warn('''addResourceDelta ? parent=«parent»''')
+            throw new AssertionError()
+        }
+        handleDelta.addResourceDelta(delta)
     }
 }

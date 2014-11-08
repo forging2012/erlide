@@ -19,12 +19,13 @@ public class ErlideNoparse {
 
     public static OtpErlangTuple initialParse(final IOtpRpc b,
             final String scannerModuleName, final String moduleFileName,
-            final String initialText, final String stateDir, final boolean updateRefs) {
+            final String initialText, final String stateDir, final boolean useCache,
+            final boolean updateRefs) {
         OtpErlangTuple res = null;
         try {
             res = (OtpErlangTuple) b.call(200000, ERLIDE_NOPARSE, "initial_parse",
                     "asssoo", scannerModuleName, moduleFileName, initialText, stateDir,
-                    true, updateRefs);
+                    useCache, updateRefs);
         } catch (final RpcTimeoutException e) {
             ErlLogger.warn(e);
         } catch (final RpcException e) {

@@ -18,7 +18,7 @@ public class ErlangNavigator extends CommonNavigator implements IElementChangeLi
   public final static String ID = "org.erlide.ui.views.navigator.view";
   
   protected Object getInitialInput() {
-    return super.getInitialInput();
+    return ErlModelCore.getErlModel();
   }
   
   public void init(final IViewSite site) throws PartInitException {

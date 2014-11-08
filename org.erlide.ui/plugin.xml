@@ -1331,7 +1331,7 @@
                   pattern="org\.eclipse\.ui\.navigator\.resourceContent">
             </contentExtension>
             <contentExtension
-                  pattern="org.eclipse.ui.navigator.resources.filters.*">
+                  pattern="org\.eclipse\.ui\.navigator\.resources\.filters\..*">
             </contentExtension>
             <contentExtension
                   pattern="org.erlide.ui.navigator.filters.*">
@@ -1551,6 +1551,7 @@
       <navigatorContent
             activeByDefault="true"
             contentProvider="org.erlide.ui.navigator.NewErlContentProvider"
+            icon="icons/full/obj16/erlang_editor.gif"
             id="org.erlide.ui.navigator.new"
             labelProvider="org.erlide.ui.navigator.NewErlLabelProvider"
             name="New Erlang model"
@@ -1572,6 +1573,12 @@
             <or>
                <instanceof
                      value="org.erlide.engine.new_model.IErlElement">
+               </instanceof>
+               <instanceof
+                     value="org.eclipse.core.resources.IFolder">
+               </instanceof>
+               <instanceof
+                     value="org.eclipse.core.resources.IFile">
                </instanceof>
             </or>
          </possibleChildren>

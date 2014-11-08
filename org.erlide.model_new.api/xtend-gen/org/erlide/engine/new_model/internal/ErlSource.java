@@ -6,6 +6,7 @@ import com.google.common.base.Objects;
 import java.io.IOException;
 import java.util.Map;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -72,9 +73,8 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
     {
       IErlangEngine _instance = ErlangEngine.getInstance();
       final ParserService parser = _instance.getParserService();
-      IPath _projectRelativePath = this.file.getProjectRelativePath();
-      String _oSString = _projectRelativePath.toOSString();
-      final OtpErlangObject result = parser.parse(_oSString, contents);
+      String _createScannerName = this.createScannerName();
+      final OtpErlangObject result = parser.parse(_createScannerName, contents);
       ErlangAST _xifexpression = null;
       boolean _isOk = Util.isOk(result);
       if (_isOk) {
@@ -162,6 +162,18 @@ public abstract class ErlSource extends SourceFile implements IErlSource {
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }
+  }
+  
+  private String createScannerName() {
+    IResource _resource = this.getResource();
+    boolean _tripleNotEquals = (_resource != null);
+    if (_tripleNotEquals) {
+      IResource _resource_1 = this.getResource();
+      IPath _fullPath = _resource_1.getFullPath();
+      String _portableString = _fullPath.toPortableString();
+      return _portableString.substring(1);
+    }
+    return "dummy";
   }
   
   @Override

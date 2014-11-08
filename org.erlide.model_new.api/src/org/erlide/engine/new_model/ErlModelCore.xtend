@@ -51,7 +51,6 @@ class ErlModelCore {
             case IResource.ROOT:
                 getErlModel()
             default: {
-                println("? " + resource)
                 null
             }
         }

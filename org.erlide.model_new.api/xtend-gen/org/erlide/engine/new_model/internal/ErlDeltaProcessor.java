@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -17,13 +18,17 @@ import org.eclipse.handly.model.IHandleDelta;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Handle;
 import org.eclipse.handly.model.impl.HandleDelta;
+import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
+import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.erlide.engine.new_model.ErlModelCore;
 import org.erlide.engine.new_model.IErlElement;
 import org.erlide.engine.new_model.IErlModel;
 import org.erlide.engine.new_model.IErlProject;
 import org.erlide.engine.new_model.IErlSource;
+import org.erlide.engine.new_model.internal.ErlProjectBody;
+import org.erlide.util.ErlLogger;
 
 /**
  * This class is used by the <code>ErlModelManager</code> to process
@@ -101,18 +106,13 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       {
         IResource _resource = delta.getResource();
         final IProject project = ((IProject) _resource);
-        boolean _and = false;
-        boolean _isOpen = project.isOpen();
-        if (!_isOpen) {
-          _and = false;
-        } else {
-          boolean _hasNature = project.hasNature(IErlProject.NATURE_ID);
-          _and = _hasNature;
-        }
-        if (_and) {
+        boolean _hasNature = project.hasNature(IErlProject.NATURE_ID);
+        if (_hasNature) {
           final IErlProject erlProject = ErlModelCore.create(project);
           ErlDeltaProcessor.addToModel(erlProject);
           this.translateAddedDelta(delta, erlProject);
+        } else {
+          this.addResourceDelta(delta);
         }
         _xblockexpression = false;
       }
@@ -127,9 +127,14 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
     {
       IResource _resource = delta.getResource();
       final IProject project = ((IProject) _resource);
-      final IErlProject erlProject = ErlModelCore.create(project);
-      ErlDeltaProcessor.removeFromModel(erlProject);
-      this.translateRemovedDelta(delta, erlProject);
+      boolean _wasErlProject = this.wasErlProject(project);
+      if (_wasErlProject) {
+        final IErlProject erlProject = ErlModelCore.create(project);
+        ErlDeltaProcessor.removeFromModel(erlProject);
+        this.translateRemovedDelta(delta, erlProject);
+      } else {
+        this.addResourceDelta(delta);
+      }
       _xblockexpression = false;
     }
     return _xblockexpression;
@@ -150,12 +155,16 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
           if (_hasNature) {
             ErlDeltaProcessor.addToModel(erlProject);
             this.currentDelta.insertAdded(erlProject, IHandleDelta.F_OPEN);
+          } else {
+            this.addResourceDelta(delta);
           }
         } else {
           boolean _wasErlProject = this.wasErlProject(project);
           if (_wasErlProject) {
             ErlDeltaProcessor.removeFromModel(erlProject);
             this.currentDelta.insertRemoved(erlProject, IHandleDelta.F_OPEN);
+          } else {
+            this.addResourceDelta(delta);
           }
         }
         return false;
@@ -229,6 +238,8 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       if (_tripleNotEquals) {
         ErlDeltaProcessor.addToModel(erlFile);
         this.translateAddedDelta(delta, erlFile);
+      } else {
+        this.addResourceDelta(delta);
       }
       _xblockexpression = false;
     }
@@ -245,6 +256,8 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       if (_tripleNotEquals) {
         ErlDeltaProcessor.removeFromModel(erlFile);
         this.translateRemovedDelta(delta, erlFile);
+      } else {
+        this.addResourceDelta(delta);
       }
       _xblockexpression = false;
     }
@@ -265,6 +278,8 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       if (_notEquals) {
         this.contentChanged(erlFile);
       }
+    } else {
+      this.addResourceDelta(delta);
     }
     return false;
   }
@@ -378,5 +393,56 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
   private boolean wasErlProject(final IProject project) {
     String _name = project.getName();
     return this.oldErlProjectNames.contains(_name);
+  }
+  
+  private void addResourceDelta(final IResourceDelta delta) {
+    try {
+      HandleDelta handleDelta = null;
+      IResource _resource = delta.getResource();
+      final IResource parent = _resource.getParent();
+      IResource _resource_1 = delta.getResource();
+      String _plus = (">> " + _resource_1);
+      InputOutput.<String>println(_plus);
+      if ((parent instanceof IWorkspaceRoot)) {
+        handleDelta = this.currentDelta;
+      } else {
+        if ((parent instanceof IProject)) {
+          final IErlProject fooProject = ErlModelCore.create(((IProject)parent));
+          HandleDelta _deltaFor = this.currentDelta.getDeltaFor(fooProject);
+          handleDelta = _deltaFor;
+          boolean _tripleEquals = (handleDelta == null);
+          if (_tripleEquals) {
+            HandleDelta _handleDelta = new HandleDelta(fooProject);
+            handleDelta = _handleDelta;
+            this.currentDelta.insert(handleDelta);
+          }
+          int _kind = delta.getKind();
+          int _bitwiseOr = (IResourceDelta.ADDED | IResourceDelta.REMOVED);
+          int _bitwiseAnd = (_kind & _bitwiseOr);
+          boolean _notEquals = (_bitwiseAnd != 0);
+          if (_notEquals) {
+            Body _findBody = ErlDeltaProcessor.findBody(fooProject);
+            final ErlProjectBody body = ((ErlProjectBody) _findBody);
+            boolean _tripleNotEquals = (body != null);
+            if (_tripleNotEquals) {
+              body.setNonErlResources(null);
+            }
+          }
+        } else {
+          if ((parent instanceof IFolder)) {
+            return;
+          } else {
+            StringConcatenation _builder = new StringConcatenation();
+            _builder.append("addResourceDelta ? parent=");
+            _builder.append(parent, "");
+            ErlLogger.warn(_builder.toString());
+            throw new AssertionError();
+          }
+        }
+      }
+      handleDelta.addResourceDelta(delta);
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
   }
 }

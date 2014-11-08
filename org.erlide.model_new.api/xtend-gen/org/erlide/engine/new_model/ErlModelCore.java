@@ -4,7 +4,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.erlide.engine.new_model.IErlElement;
 import org.erlide.engine.new_model.IErlModel;
 import org.erlide.engine.new_model.IErlProject;
@@ -81,12 +80,7 @@ public class ErlModelCore {
           _switchResult = ErlModelCore.getErlModel();
           break;
         default:
-          Object _xblockexpression_1 = null;
-          {
-            InputOutput.<String>println(("? " + resource));
-            _xblockexpression_1 = null;
-          }
-          _switchResult = ((IErlElement)_xblockexpression_1);
+          _switchResult = null;
           break;
       }
       _xblockexpression = _switchResult;

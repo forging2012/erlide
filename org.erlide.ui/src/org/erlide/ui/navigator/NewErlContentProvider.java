@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.erlide.engine.new_model.ErlModelCore;
 import org.erlide.engine.new_model.IErlElement;
+import org.erlide.engine.new_model.IErlProject;
 import org.erlide.util.SystemConfiguration;
 import org.erlide.util.SystemConfiguration.Features;
 
@@ -32,6 +33,15 @@ public class NewErlContentProvider implements ITreeContentProvider {
             }
             try {
                 return elem.getChildren();
+            } catch (final CoreException e) {
+            }
+        }
+        if (parentElement instanceof IErlProject) {
+            try {
+                final Object[] children = ((IErlElement) parentElement).getChildren();
+                final Object[] nonErlResources = ((IErlProject) parentElement)
+                        .getNonErlResources();
+                return concat(children, nonErlResources);
             } catch (final CoreException e) {
             }
         }
@@ -64,5 +74,12 @@ public class NewErlContentProvider implements ITreeContentProvider {
 
     @Override
     public void dispose() {
+    }
+
+    private static Object[] concat(final Object[] a, final Object[] b) {
+        final Object[] c = new Object[a.length + b.length];
+        System.arraycopy(a, 0, c, 0, a.length);
+        System.arraycopy(b, 0, c, a.length, b.length);
+        return c;
     }
 }

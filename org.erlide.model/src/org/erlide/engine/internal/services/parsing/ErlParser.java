@@ -96,7 +96,7 @@ public final class ErlParser implements ParserService {
             final String stateDir = ErlangEngine.getInstance().getStateDir();
             final String pathNotNull = path == null ? "" : path;
             res = ErlideNoparse.initialParse(backend, scannerName, pathNotNull,
-                    initialText, stateDir, updateSearchServer);
+                    initialText, stateDir, true, updateSearchServer);
         } else {
             res = ErlideNoparse.reparse(backend, scannerName, updateSearchServer);
         }
@@ -139,7 +139,8 @@ public final class ErlParser implements ParserService {
     @Override
     public OtpErlangObject parse(final String module, final String text) {
         final String stateDir = ErlangEngine.getInstance().getStateDir();
-        return ErlideNoparse.initialParse(backend, module, module, text, stateDir, false);
+        return ErlideNoparse.initialParse(backend, module, module, text, stateDir, false,
+                false);
     }
 
     private List<IErlComment> createComments(final IErlModule module,

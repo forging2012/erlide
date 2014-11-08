@@ -12,8 +12,8 @@ class ErlangNavigator extends CommonNavigator implements IElementChangeListener 
     val public static final String ID = "org.erlide.ui.views.navigator.view"
 
     override protected Object getInitialInput() {
-        //ErlModelCore.getErlModel()
-        super.initialInput
+        ErlModelCore.getErlModel()
+        // TODO super.initialInput
     }
 
     override void init(IViewSite site) throws PartInitException

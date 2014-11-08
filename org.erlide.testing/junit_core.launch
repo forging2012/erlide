@@ -18,7 +18,7 @@
 <listEntry value="/org.erlide.core/bin"/>
 </listAttribute>
 <stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/pde-junit"/>
-<booleanAttribute key="default" value="false"/>
+<booleanAttribute key="default" value="true"/>
 <stringAttribute key="deselected_workspace_plugins" value="org.erlide.branding,org.erlide.cover.api,org.erlide.cover.core,org.erlide.cover.erlang,org.erlide.cover.ui,org.erlide.dialyzer.core,org.erlide.dialyzer.tests,org.erlide.dialyzer.ui,org.erlide.help,org.erlide.test_support,org.erlide.test_support.tests,org.erlide.tracing.core,org.erlide.tracing.erlang,org.erlide.tracing.help,org.erlide.tracing.ttbe,org.erlide.ui,org.erlide.ui.tests,org.erlide.wrangler.core,org.erlide.wrangler.help,org.erlide.wrangler.refactoring,org.erlide.wrangler.refactoring.codeinspection,org.erlide.wrangler.refactoring.duplicatedcode"/>
 <stringAttribute key="featureDefaultLocation" value="workspace"/>
 <stringAttribute key="featurePluginResolution" value="workspace"/>

@@ -30,6 +30,7 @@ import org.erlide.engine.new_model.internal.ErlHeader;
 import org.erlide.engine.new_model.internal.ErlLibrary;
 import org.erlide.engine.new_model.internal.ErlModel;
 import org.erlide.engine.new_model.internal.ErlModule;
+import org.erlide.engine.new_model.internal.ErlProjectBody;
 import org.erlide.engine.new_model.internal.ErlSource;
 
 @Data
@@ -86,6 +87,15 @@ public class ErlProject extends ErlLibrary implements IErlProject {
       _switchResult = null;
     }
     return _switchResult;
+  }
+  
+  public IResource[] getNonErlResources() {
+    try {
+      Body _body = this.getBody();
+      return ((ErlProjectBody) _body).getNonErlResources(this);
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
   }
   
   public Iterable<IErlSource> getSourceFiles() {
@@ -147,6 +157,10 @@ public class ErlProject extends ErlLibrary implements IErlProject {
       IStatus _createErrorStatus_2 = NewModelActivator.createErrorStatus(_format_2, null);
       throw new CoreException(_createErrorStatus_2);
     }
+  }
+  
+  public Body newBody() {
+    return new ErlProjectBody();
   }
   
   @Override

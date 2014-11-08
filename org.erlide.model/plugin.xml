@@ -17,6 +17,20 @@
                type="org.erlide.engine.model.root.IErlElement">
          </adapter>
       </factory>
+      <factory
+            adaptableType="org.eclipse.core.resources.IResource"
+            class="org.erlide.engine.internal.util.ElementAdapterFactory">
+         <adapter
+               type="org.erlide.engine.new_model.IErlElement">
+         </adapter>
+      </factory>
+      <factory
+            adaptableType="org.erlide.engine.new_model.IErlElement"
+            class="org.erlide.engine.internal.util.ElementAdapterFactory">
+         <adapter
+               type="org.eclipse.core.resources.IResource">
+         </adapter>
+      </factory>
    </extension>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
