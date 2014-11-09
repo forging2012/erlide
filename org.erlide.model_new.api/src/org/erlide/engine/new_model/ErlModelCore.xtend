@@ -22,7 +22,7 @@ class ErlModelCore {
         if (file === null)
             return null
 
-        // TODO fixme
+        // TODO new_model
         if (file.parent.type != IResource.PROJECT)
             return null
         val project = create(file.project)

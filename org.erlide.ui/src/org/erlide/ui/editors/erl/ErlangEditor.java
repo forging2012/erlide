@@ -933,7 +933,7 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
         if (element == null || element instanceof IErlSource) {
             return;
         }
-        // FIXME
+        // FIXME new_model
     }
 
     private IWorkbenchPart getActivePart() {

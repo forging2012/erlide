@@ -29,7 +29,7 @@ public class ErlLibrary extends ErlElement implements IErlLibrary {
   }
   
   protected void buildStructure(final Body body, final Map<IHandle, Body> newElements) throws CoreException {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   protected void validateExistence() throws CoreException {
@@ -40,27 +40,27 @@ public class ErlLibrary extends ErlElement implements IErlLibrary {
   }
   
   public Iterable<IErlFolder> getFolders() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   public Iterable<IErlFolder> getSourceFolders() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   public Iterable<IErlFolder> getIncludeFolders() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   public IErlFolder getBinaryFolder() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   public Iterable<IErlLibrary> getLibraries() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   public Iterable<IResource> getNonErlangResources() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   @Override

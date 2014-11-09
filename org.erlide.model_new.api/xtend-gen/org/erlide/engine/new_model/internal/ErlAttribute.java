@@ -12,7 +12,7 @@ import org.erlide.engine.new_model.internal.ErlForm;
 @SuppressWarnings("all")
 public class ErlAttribute extends ErlForm implements IErlAttribute {
   public Iterable<IErlExpression> getValues() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   public ErlAttribute(final Handle parent, final String name) {

@@ -16,15 +16,15 @@ public class ErlFunction extends ErlForm implements IErlFunction {
   private final int arity;
   
   public Iterable<IErlFunctionClause> getClauses() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   public IErlTypeSpec getTypeSpecification() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   public IErlComment getComment() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   public ErlFunction(final Handle parent, final String name, final int arity) {

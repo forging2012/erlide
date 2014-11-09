@@ -1,12 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
+ * Copyright (c) 2000, 2005 IBM Corporation and others. All rights reserved. This program
+ * and the accompanying materials are made available under the terms of the Eclipse Public
+ * License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     IBM Corporation - initial API and implementation
+ * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.erlide.ui.editors.erl.outline;
 
@@ -29,8 +27,7 @@ import org.erlide.ui.internal.ErlideUIPlugin;
 import org.erlide.ui.util.ImageDescriptorRegistry;
 
 /**
- * Default strategy of the Erlang plugin for the construction of Erlang element
- * icons.
+ * Default strategy of the Erlang plugin for the construction of Erlang element icons.
  */
 public class ErlangElementImageProvider {
 
@@ -72,9 +69,9 @@ public class ErlangElementImageProvider {
     }
 
     /**
-     * Returns the icon for a given element. The icon depends on the element
-     * type and element properties. If configured, overlay icons are constructed
-     * for <code>ISourceReference</code>s.
+     * Returns the icon for a given element. The icon depends on the element type and
+     * element properties. If configured, overlay icons are constructed for
+     * <code>ISourceReference</code>s.
      *
      * @param flags
      *            Flags as defined by the ErlangImageLabelProvider
@@ -137,8 +134,8 @@ public class ErlangElementImageProvider {
     }
 
     /**
-     * Returns an image descriptor for a module not on the class path. The
-     * descriptor includes overlays, if specified.
+     * Returns an image descriptor for a module not on the class path. The descriptor
+     * includes overlays, if specified.
      */
     public ImageDescriptor getErlResourceImageDescriptor(final IFile file, final int flags) {
         final Point size = useSmallSize(flags) ? SMALL_SIZE : BIG_SIZE;
@@ -147,8 +144,8 @@ public class ErlangElementImageProvider {
     }
 
     /**
-     * Returns an image descriptor for an erlang element. The descriptor
-     * includes overlays, if specified.
+     * Returns an image descriptor for an erlang element. The descriptor includes
+     * overlays, if specified.
      */
     static public ImageDescriptor getErlImageDescriptor(final IErlElement element,
             final int flags) {
@@ -160,15 +157,15 @@ public class ErlangElementImageProvider {
     }
 
     /**
-     * Returns an image descriptor for an erlang element. The descriptor
-     * includes overlays, if specified.
+     * Returns an image descriptor for an erlang element. The descriptor includes
+     * overlays, if specified.
      */
     static public ImageDescriptor getErlImageDescriptor(
             final org.erlide.engine.new_model.IErlElement element, final int flags) {
         final int adornmentFlags = 0;
         // computeAdornmentFlags(element, flags);
         final Point size = useSmallSize(flags) ? SMALL_SIZE : BIG_SIZE;
-        // FIXME
+        // FIXME new_model
         return new ErlangElementImageDescriptor(
                 ErlideImage.FUNCTION_EXPORTED.getDescriptor(),
                 // getBaseImageDescriptor(element, flags),
@@ -176,9 +173,9 @@ public class ErlangElementImageProvider {
     }
 
     /**
-     * Returns an image descriptor for a IAdaptable. The descriptor includes
-     * overlays, if specified (only error ticks apply). Returns
-     * <code>null</code> if no image could be found.
+     * Returns an image descriptor for a IAdaptable. The descriptor includes overlays, if
+     * specified (only error ticks apply). Returns <code>null</code> if no image could be
+     * found.
      */
     public ImageDescriptor getWorkbenchImageDescriptor(final IAdaptable adaptable,
             final int flags) {
@@ -200,8 +197,8 @@ public class ErlangElementImageProvider {
     // -------------------------------------------------
 
     /**
-     * Returns an image descriptor for an Erlang element. This is the base
-     * image, no overlays.
+     * Returns an image descriptor for an Erlang element. This is the base image, no
+     * overlays.
      */
     static public ImageDescriptor getBaseImageDescriptor(final IErlElement element,
             final int renderFlags) {

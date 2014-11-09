@@ -185,11 +185,11 @@ public class ErlProject extends ErlLibrary implements IErlProject {
   }
   
   public IErlOtpLibrary getOtpLibrary() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   public Iterable<IErlLibrary> getLibraries() {
-    throw new UnsupportedOperationException("TODO: auto-generated method stub");
+    throw new UnsupportedOperationException("auto-generated method stub");
   }
   
   protected void validateExistence() throws CoreException {
