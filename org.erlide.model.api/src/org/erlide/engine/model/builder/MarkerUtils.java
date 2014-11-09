@@ -13,6 +13,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.erlide.engine.ErlangEngine;
 import org.erlide.engine.model.erlang.IErlFunction;
@@ -279,8 +280,13 @@ public final class MarkerUtils {
 
     public static void getScanMarkersFor(final IResource resource) {
         try {
-            final BufferedReader reader = new BufferedReader(new FileReader(resource
-                    .getLocation().toPortableString()));
+            final IPath location = resource.getLocation();
+            if (location == null) {
+                ErlLogger.warn("can't locate " + resource);
+                return;
+            }
+            final BufferedReader reader = new BufferedReader(new FileReader(
+                    location.toPortableString()));
             try {
                 String line = reader.readLine();
                 final List<Pair<String, Integer>> cl = new ArrayList<Pair<String, Integer>>();

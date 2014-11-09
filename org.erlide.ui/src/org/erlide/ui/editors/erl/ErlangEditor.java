@@ -1,13 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2004 Eric Merritt and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2004 Eric Merritt and others. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the Eclipse Public License
+ * v1.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     Eric Merritt
- *     Vlad Dumitrescu
- *     Alain O'Dea
+ * Contributors: Eric Merritt Vlad Dumitrescu Alain O'Dea
  *******************************************************************************/
 package org.erlide.ui.editors.erl;
 
@@ -62,6 +59,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.actions.ActionGroup;
 import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
@@ -106,6 +104,7 @@ import org.erlide.ui.views.ErlangPropertySource;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.IDisposable;
 import org.erlide.util.SystemConfiguration;
+import org.erlide.util.SystemConfiguration.Features;
 
 /**
  * The actual editor itself
@@ -197,7 +196,11 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     @Override
     protected void initializeEditor() {
         colorManager = new ColorManager();
-        setDocumentProvider(new ErlFileDocumentProvider());
+        if (SystemConfiguration.hasFeatureEnabled(Features.NEW_MODEL)) {
+            setDocumentProvider(new ErlFileDocumentProvider());
+        } else {
+            setDocumentProvider(new TextFileDocumentProvider());
+        }
 
         final IPreferenceStore store = getErlangEditorPreferenceStore();
         setPreferenceStore(store);
@@ -464,16 +467,16 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     }
 
     /**
-     * Returns the signed current selection. The length will be negative if the
-     * resulting selection is right-to-left (RtoL).
+     * Returns the signed current selection. The length will be negative if the resulting
+     * selection is right-to-left (RtoL).
      * <p>
      * The selection offset is model based.
      * </p>
      *
      * @param sourceViewer
      *            the source viewer
-     * @return a region denoting the current signed selection, for a resulting
-     *         RtoL selections length is < 0
+     * @return a region denoting the current signed selection, for a resulting RtoL
+     *         selections length is < 0
      */
     protected IRegion getSignedSelection(final ISourceViewer sourceViewer) {
         final StyledText text = sourceViewer.getTextWidget();
@@ -623,9 +626,8 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     /**
      * Returns the most narrow element including the given offset. If
      * <code>reconcile</code> is <code>true</code> the editor's input element is
-     * reconciled in advance. If it is <code>false</code> this method only
-     * returns a result if the editor's input element does not need to be
-     * reconciled.
+     * reconciled in advance. If it is <code>false</code> this method only returns a
+     * result if the editor's input element does not need to be reconciled.
      *
      * @param offset
      *            the offset included by the retrieved element
@@ -658,10 +660,10 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
             ISelectionChangedListener {
 
         /**
-         * Installs this selection changed listener with the given selection
-         * provider. If the selection provider is a post selection provider,
-         * post selection changed events are the preferred choice, otherwise
-         * normal selection changed events are requested.
+         * Installs this selection changed listener with the given selection provider. If
+         * the selection provider is a post selection provider, post selection changed
+         * events are the preferred choice, otherwise normal selection changed events are
+         * requested.
          *
          * @param selectionProvider
          */
@@ -679,8 +681,7 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
         }
 
         /**
-         * Removes this selection changed listener from the given selection
-         * provider.
+         * Removes this selection changed listener from the given selection provider.
          *
          * @param selectionProvider
          *            the selection provider
@@ -701,14 +702,12 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     }
 
     /**
-     * Updates the Erlang outline page selection and this editor's range
-     * indicator.
+     * Updates the Erlang outline page selection and this editor's range indicator.
      */
     class EditorSelectionChangedListener extends AbstractSelectionChangedListener {
 
         /*
-         * @see
-         * org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged
+         * @see org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged
          * (org.eclipse.jface.viewers.SelectionChangedEvent)
          */
         @Override
@@ -718,8 +717,7 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     }
 
     /**
-     * Called from
-     * org.erlide.ui.editors.erl.outline.ErlangOutlinePage.createControl
+     * Called from org.erlide.ui.editors.erl.outline.ErlangOutlinePage.createControl
      * (...).new OpenAndLinkWithEditorHelper() {...}.linkToEditor(ISelection)
      *
      * @param selection
@@ -790,8 +788,7 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     }
 
     /**
-     * Synchronizes the outliner selection with the given element position in
-     * the editor.
+     * Synchronizes the outliner selection with the given element position in the editor.
      *
      * @param element
      *            the java element to select
@@ -801,14 +798,12 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     }
 
     /**
-     * Synchronizes the outliner selection with the given element position in
-     * the editor.
+     * Synchronizes the outliner selection with the given element position in the editor.
      *
      * @param element
      *            the java element to select
      * @param checkIfOutlinePageActive
-     *            <code>true</code> if check for active outline page needs to be
-     *            done
+     *            <code>true</code> if check for active outline page needs to be done
      */
     protected void synchronizeOutlinePage(final ISourceReference element,
             final boolean checkIfOutlinePageActive) {
@@ -818,8 +813,7 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     }
 
     /**
-     * Synchronizes the outliner selection with the actual cursor position in
-     * the editor.
+     * Synchronizes the outliner selection with the actual cursor position in the editor.
      */
     public void synchronizeOutlinePageSelection() {
         synchronizeOutlinePage(computeHighlightRangeSourceReference());
@@ -1108,21 +1102,19 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     }
 
     /**
-     * Runner that will toggle folding either instantly (if the editor is
-     * visible) or the next time it becomes visible. If a runner is started when
-     * there is already one registered, the registered one is canceled as
-     * toggling folding twice is a no-op.
+     * Runner that will toggle folding either instantly (if the editor is visible) or the
+     * next time it becomes visible. If a runner is started when there is already one
+     * registered, the registered one is canceled as toggling folding twice is a no-op.
      * <p>
-     * The access to the fFoldingRunner field is not thread-safe, it is assumed
-     * that <code>runWhenNextVisible</code> is only called from the UI thread.
+     * The access to the fFoldingRunner field is not thread-safe, it is assumed that
+     * <code>runWhenNextVisible</code> is only called from the UI thread.
      * </p>
      *
      * @since 3.1
      */
     final class ToggleFoldingRunner implements IPartListener2 {
         /**
-         * The workbench page we registered the part listener with, or
-         * <code>null</code>.
+         * The workbench page we registered the part listener with, or <code>null</code>.
          */
         private IWorkbenchPage fPage;
 
@@ -1143,11 +1135,10 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
         }
 
         /**
-         * Makes sure that the editor's folding state is correct the next time
-         * it becomes visible. If it already is visible, it toggles the folding
-         * state. If not, it either registers a part listener to toggle folding
-         * when the editor becomes visible, or cancels an already registered
-         * runner.
+         * Makes sure that the editor's folding state is correct the next time it becomes
+         * visible. If it already is visible, it toggles the folding state. If not, it
+         * either registers a part listener to toggle folding when the editor becomes
+         * visible, or cancels an already registered runner.
          */
         public void runWhenNextVisible() {
             // if there is one already: toggling twice is the identity
@@ -1289,9 +1280,8 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
     }
 
     /**
-     * Mutex for the reconciler. See
-     * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63898 for a description of
-     * the problem.
+     * Mutex for the reconciler. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=63898
+     * for a description of the problem.
      * <p>
      * remove once the underlying problem
      * (https://bugs.eclipse.org/bugs/show_bug.cgi?id=66176) is solved.
@@ -1301,8 +1291,8 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
 
     /**
      * Returns the mutex for the reconciler. See
-     * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63898 for a description of
-     * the problem.
+     * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63898 for a description of the
+     * problem.
      * <p>
      * remove once the underlying problem
      * (https://bugs.eclipse.org/bugs/show_bug.cgi?id=66176) is solved.
@@ -1330,8 +1320,7 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
      *
      * @param annotation
      *            the annotation
-     * @return <code>true</code> if this is a target, <code>false</code>
-     *         otherwise
+     * @return <code>true</code> if this is a target, <code>false</code> otherwise
      * @since 3.0
      */
     @Override
@@ -1345,8 +1334,7 @@ public class ErlangEditor extends AbstractErlangEditor implements IOutlineConten
      *
      * @param annotation
      *            the annotation
-     * @return <code>true</code> if this is a target, <code>false</code>
-     *         otherwise
+     * @return <code>true</code> if this is a target, <code>false</code> otherwise
      * @since 3.0
      */
     @Override
