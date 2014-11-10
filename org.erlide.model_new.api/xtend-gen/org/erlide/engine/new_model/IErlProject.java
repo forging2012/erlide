@@ -7,7 +7,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.erlide.engine.model.root.ErlangProjectProperties;
-import org.erlide.engine.new_model.IErlHeader;
 import org.erlide.engine.new_model.IErlLibrary;
 import org.erlide.engine.new_model.IErlLibraryContainer;
 import org.erlide.engine.new_model.IErlModule;
@@ -105,8 +104,6 @@ public interface IErlProject extends IErlLibrary, IErlLibraryContainer {
   public abstract IErlSource getSourceFile(final String name);
   
   public abstract Iterable<IErlModule> getModules() throws CoreException;
-  
-  public abstract Iterable<IErlHeader> getHeaders() throws CoreException;
   
   public abstract IErlOtpLibrary getOtpLibrary();
 }

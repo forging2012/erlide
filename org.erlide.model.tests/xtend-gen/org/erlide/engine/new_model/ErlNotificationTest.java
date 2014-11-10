@@ -62,7 +62,7 @@ public class ErlNotificationTest extends WorkspaceTest {
       HandleDelta _newDelta = this.newDelta();
       HandleDelta _insertAdded = _newDelta.insertAdded(erlProject2);
       ErlNotificationTest.assertEquality(_insertAdded, this.listener.delta);
-      final IErlSource erlFile1 = erlProject1.getSourceFile("nop.erl");
+      final IErlSource erlFile1 = erlProject1.getSourceFile("src/nop.erl");
       IFile _file = erlFile1.getFile();
       _file.touch(null);
       HandleDelta _newDelta_1 = this.newDelta();

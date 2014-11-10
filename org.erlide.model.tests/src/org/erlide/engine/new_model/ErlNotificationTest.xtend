@@ -40,7 +40,7 @@ class ErlNotificationTest extends WorkspaceTest {
         setUpProject("Test002")
         assertEquality(newDelta().insertAdded(erlProject2), listener.delta)
 
-        val IErlSource erlFile1 = erlProject1.getSourceFile("nop.erl")
+        val IErlSource erlFile1 = erlProject1.getSourceFile("src/nop.erl")
         erlFile1.getFile().touch(null)
         assertEquality(newDelta().insertChanged(erlFile1, HandleDelta.F_CONTENT), listener.delta)
 

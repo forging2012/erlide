@@ -116,10 +116,6 @@ class ErlProject extends ErlLibrary implements IErlProject {
         getDeepChildren(sourceFolders, IErlModule)
     }
 
-    override getHeaders() {
-        getDeepChildren(includeFolders, IErlHeader)
-    }
-
     override getOtpLibrary() {
 
         //TODO: auto-generated method stub

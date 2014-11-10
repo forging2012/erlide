@@ -151,8 +151,6 @@ interface IErlProject extends IErlLibrary, IErlLibraryContainer {
 
     def Iterable<IErlModule> getModules() throws CoreException
 
-    def Iterable<IErlHeader> getHeaders() throws CoreException
-
     def IErlOtpLibrary getOtpLibrary()
 }
 

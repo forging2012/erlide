@@ -29,7 +29,6 @@ import org.erlide.engine.NewModelActivator;
 import org.erlide.engine.model.root.ErlangLibraryProperties;
 import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.new_model.IErlFolder;
-import org.erlide.engine.new_model.IErlHeader;
 import org.erlide.engine.new_model.IErlLibrary;
 import org.erlide.engine.new_model.IErlModule;
 import org.erlide.engine.new_model.IErlOtpLibrary;
@@ -40,6 +39,7 @@ import org.erlide.engine.new_model.internal.ErlLibrary;
 import org.erlide.engine.new_model.internal.ErlModel;
 import org.erlide.engine.new_model.internal.ErlModule;
 import org.erlide.engine.new_model.internal.ErlProjectBody;
+import org.erlide.engine.new_model.internal.ErlSource;
 
 @Data
 @SuppressWarnings("all")
@@ -126,7 +126,7 @@ public class ErlProject extends ErlLibrary implements IErlProject {
   }
   
   private IErlSource createSourceFile(final IFile file) {
-    IErlSource _switchResult = null;
+    ErlSource _switchResult = null;
     String _fileExtension = file.getFileExtension();
     boolean _matched = false;
     if (!_matched) {
@@ -164,11 +164,6 @@ public class ErlProject extends ErlLibrary implements IErlProject {
   public Iterable<IErlModule> getModules() {
     Iterable<IErlFolder> _sourceFolders = this.getSourceFolders();
     return this.<IErlModule>getDeepChildren(_sourceFolders, IErlModule.class);
-  }
-  
-  public Iterable<IErlHeader> getHeaders() {
-    Iterable<IErlFolder> _includeFolders = this.getIncludeFolders();
-    return this.<IErlHeader>getDeepChildren(_includeFolders, IErlHeader.class);
   }
   
   public IErlOtpLibrary getOtpLibrary() {
