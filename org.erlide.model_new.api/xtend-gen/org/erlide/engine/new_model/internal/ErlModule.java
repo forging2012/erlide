@@ -1,8 +1,6 @@
 package org.erlide.engine.new_model.internal;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.xtend.lib.annotations.Data;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
@@ -15,18 +13,11 @@ import org.erlide.engine.new_model.internal.ErlSource;
 public class ErlModule extends ErlSource implements IErlModule {
   public ErlModule(final ErlProject parent, final IFile file) {
     super(parent, file);
-    IContainer _parent = file.getParent();
-    IResource _resource = parent.getResource();
-    boolean _equals = _parent.equals(_resource);
-    boolean _not = (!_equals);
-    if (_not) {
-      throw new IllegalArgumentException();
-    }
     String _extension = this.getExtension();
     String _fileExtension = file.getFileExtension();
-    boolean _equals_1 = _extension.equals(_fileExtension);
-    boolean _not_1 = (!_equals_1);
-    if (_not_1) {
+    boolean _equals = _extension.equals(_fileExtension);
+    boolean _not = (!_equals);
+    if (_not) {
       throw new IllegalArgumentException();
     }
   }
