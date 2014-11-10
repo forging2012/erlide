@@ -59,6 +59,7 @@ import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.model.root.IErlElement;
 import org.erlide.engine.model.root.IErlProject;
+import org.erlide.engine.new_model.internal.ErlModelManager;
 import org.erlide.util.ErlLogger;
 import org.junit.After;
 import org.junit.Assert;
@@ -82,15 +83,16 @@ import org.junit.Before;
 @SuppressWarnings("all")
 public class WorkspaceTest {
   /**
-   * Turns auto-build off, cleans up the workspace.
+   * Turns auto-build off, cleans up the workspace, inits the model.
    */
   @Before
   public void setUp() throws Exception {
+    this.tearDown();
     ModelActivator.initModel();
+    ErlModelManager.INSTANCE.startup();
     this.setAutoBuilding(false);
     IWorkspaceRoot _workspaceRoot = this.getWorkspaceRoot();
     _workspaceRoot.setDefaultCharset("UTF-8", null);
-    this.tearDown();
   }
   
   /**
@@ -99,6 +101,7 @@ public class WorkspaceTest {
   @After
   public void tearDown() throws Exception {
     this.cleanUpWorkspace();
+    ErlModelManager.INSTANCE.shutdown();
     IErlModel _model = this.getModel();
     _model.close();
     ModelActivator.cleanupStateDir();
