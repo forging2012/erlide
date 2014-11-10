@@ -43,7 +43,6 @@ public class ErlReconcilingStrategy implements IErlReconcilingStrategy,
         if (editor.getDocumentProvider() instanceof ErlFileDocumentProvider) {
             documentProvider = (ErlFileDocumentProvider) editor.getDocumentProvider();
         } else {
-            System.out.println(">> " + editor.getDocumentProvider());
             documentProvider = null;
         }
     }

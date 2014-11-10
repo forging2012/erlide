@@ -1,6 +1,5 @@
 package org.erlide.engine.new_model.internal;
 
-import com.google.common.base.Objects;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -117,8 +116,15 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
       {
         IResource _resource = delta.getResource();
         final IProject project = ((IProject) _resource);
-        boolean _hasNature = project.hasNature(IErlProject.NATURE_ID);
-        if (_hasNature) {
+        boolean _and = false;
+        boolean _isOpen = project.isOpen();
+        if (!_isOpen) {
+          _and = false;
+        } else {
+          boolean _hasNature = project.hasNature(IErlProject.NATURE_ID);
+          _and = _hasNature;
+        }
+        if (_and) {
           final IErlProject erlProject = ErlModelCore.create(project);
           ErlDeltaProcessor.addToModel(erlProject);
           this.translateAddedDelta(delta, erlProject);
@@ -415,16 +421,20 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
   }
   
   private void initOldErlProjectNames() {
-    IErlModel _erlModel = ErlModelCore.getErlModel();
-    final Iterable<IErlProject> erlProjects = _erlModel.getProjects();
-    final Function1<IErlProject, String> _function = new Function1<IErlProject, String>() {
-      public String apply(final IErlProject it) {
-        return it.getName();
-      }
-    };
-    Iterable<String> _map = IterableExtensions.<IErlProject, String>map(erlProjects, _function);
-    Set<String> _set = IterableExtensions.<String>toSet(_map);
-    this.oldErlProjectNames = _set;
+    try {
+      IErlModel _erlModel = ErlModelCore.getErlModel();
+      final Iterable<IErlProject> erlProjects = _erlModel.getProjects();
+      final Function1<IErlProject, String> _function = new Function1<IErlProject, String>() {
+        public String apply(final IErlProject it) {
+          return it.getName();
+        }
+      };
+      Iterable<String> _map = IterableExtensions.<IErlProject, String>map(erlProjects, _function);
+      Set<String> _set = IterableExtensions.<String>toSet(_map);
+      this.oldErlProjectNames = _set;
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
   }
   
   private boolean wasErlProject(final IProject project) {
@@ -482,8 +492,8 @@ public class ErlDeltaProcessor implements IResourceDeltaVisitor {
   
   private void markersChanged(final IErlElement erlElement, final IMarkerDelta[] markerDeltas) {
     HandleDelta delta = this.currentDelta.getDeltaFor(erlElement);
-    boolean _equals = Objects.equal(delta, null);
-    if (_equals) {
+    boolean _tripleEquals = (delta == null);
+    if (_tripleEquals) {
       HandleDelta _handleDelta = new HandleDelta(erlElement);
       delta = _handleDelta;
       this.currentDelta.insert(delta);

@@ -1,6 +1,7 @@
 package org.erlide.engine.new_model;
 
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.erlide.engine.new_model.IErlElement;
 import org.erlide.engine.new_model.IErlProject;
@@ -9,7 +10,7 @@ import org.erlide.engine.new_model.IErlProject;
 public interface IErlModel extends IErlElement {
   public abstract IWorkspace getWorkspace();
   
-  public abstract Iterable<IErlProject> getProjects();
+  public abstract Iterable<IErlProject> getProjects() throws CoreException;
   
   public abstract IErlProject getProject(final String name);
   

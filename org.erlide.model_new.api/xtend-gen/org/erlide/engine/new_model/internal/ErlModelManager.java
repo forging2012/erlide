@@ -49,8 +49,11 @@ public class ErlModelManager implements IErlModelManager, IResourceChangeListene
   }
   
   public void shutdown() {
-    IWorkspace _workspace = this.erlModel.getWorkspace();
-    _workspace.removeResourceChangeListener(this);
+    boolean _tripleNotEquals = (this.erlModel != null);
+    if (_tripleNotEquals) {
+      IWorkspace _workspace = this.erlModel.getWorkspace();
+      _workspace.removeResourceChangeListener(this);
+    }
     this.listenerList = null;
     this.handleManager = null;
     this.erlModel = null;

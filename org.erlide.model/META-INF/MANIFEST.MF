@@ -7,13 +7,13 @@ Bundle-Vendor: erlide.org project
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.eclipse.core.filesystem,
+ org.eclipse.handly,
  org.erlide.model.api,
+ org.erlide.model_new.api,
  org.erlide.runtime,
  org.erlide.util,
  org.erlide.libs,
- org.erlide.util_eclipse,
- org.erlide.model_new.api,
- org.eclipse.handly
+ org.erlide.util_eclipse
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: org.erlide.engine.internal;x-internal:=true,

@@ -4,6 +4,7 @@ import java.util.HashSet
 import java.util.Set
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IFolder
+import org.eclipse.core.resources.IMarkerDelta
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IResourceDelta
@@ -21,323 +22,323 @@ import org.erlide.engine.new_model.IErlElement
 import org.erlide.engine.new_model.IErlProject
 import org.erlide.engine.new_model.IErlSource
 import org.erlide.util.ErlLogger
-import org.eclipse.core.resources.IMarkerDelta
 
 /**
  * This class is used by the <code>ErlModelManager</code> to process
  * resource deltas and update the Erl Model accordingly.
  */
 class ErlDeltaProcessor implements IResourceDeltaVisitor {
-  val HandleDelta currentDelta = new HandleDelta(ErlModelCore.getErlModel())
-  var Set<String> oldErlProjectNames = new HashSet<String>()
+    val HandleDelta currentDelta = new HandleDelta(ErlModelCore.getErlModel())
+    var Set<String> oldErlProjectNames = new HashSet<String>()
 
-  /**
+    /**
      * Returns the Erl element delta built from the resource delta.
      * Returns an empty delta if no Erl elements were affected
      * by the resource change.
      *
      * @return Erl element delta (never <code>null</code>)
      */
-  def HandleDelta getDelta() {
-    currentDelta
-  }
-
-  override boolean visit(IResourceDelta delta) {
-    switch (delta.getResource().getType()) {
-      case IResource.ROOT:
-        processRoot(delta)
-      case IResource.PROJECT:
-        processProject(delta)
-      case IResource.FILE:
-        processFile(delta)
-      default:
-        true
+    def HandleDelta getDelta() {
+        currentDelta
     }
-  }
 
-  def private boolean processRoot(IResourceDelta delta) {
-    initOldErlProjectNames()
-    if ((delta.getFlags().bitwiseAnd(IResourceDelta.MARKERS)) != 0)
-      markersChanged(ErlModelCore.getErlModel(), delta.getMarkerDeltas())
-    true
-  }
-
-  def private boolean processProject(IResourceDelta delta) {
-    switch (delta.getKind()) {
-      case IResourceDelta.ADDED:
-        processAddedProject(delta)
-      case IResourceDelta.REMOVED:
-        processRemovedProject(delta)
-      case IResourceDelta.CHANGED:
-        return processChangedProject(delta)
-      default:
-        true
-    }
-  }
-
-  def private boolean processAddedProject(IResourceDelta delta) {
-    val IProject project = delta.getResource() as IProject
-    if (project.hasNature(IErlProject.NATURE_ID)) {
-      val IErlProject erlProject = ErlModelCore.create(project)
-      addToModel(erlProject)
-      translateAddedDelta(delta, erlProject)
-    } else {
-      addResourceDelta(delta)
-    }
-    false
-  }
-
-  def private boolean processRemovedProject(IResourceDelta delta) {
-    val IProject project = delta.getResource() as IProject
-    if (wasErlProject(project)) {
-      val IErlProject erlProject = ErlModelCore.create(project)
-      removeFromModel(erlProject)
-      translateRemovedDelta(delta, erlProject)
-    } else {
-      addResourceDelta(delta)
-    }
-    false
-  }
-
-  def private boolean processChangedProject(IResourceDelta delta) {
-    val IProject project = delta.getResource() as IProject
-    val IErlProject erlProject = ErlModelCore.create(project)
-
-    if ((delta.getFlags().bitwiseAnd(IResourceDelta.OPEN)) != 0) {
-      if (project.isOpen()) {
-        if (project.hasNature(IErlProject.NATURE_ID)) {
-          addToModel(erlProject)
-          currentDelta.insertAdded(erlProject, IHandleDelta.F_OPEN)
-        } else {
-          addResourceDelta(delta)
+    override boolean visit(IResourceDelta delta) {
+        switch (delta.getResource().getType()) {
+            case IResource.ROOT:
+                processRoot(delta)
+            case IResource.PROJECT:
+                processProject(delta)
+            case IResource.FILE:
+                processFile(delta)
+            default:
+                true
         }
-      } else {
+    }
+
+    def private boolean processRoot(IResourceDelta delta) {
+        initOldErlProjectNames()
+        if ((delta.getFlags().bitwiseAnd(IResourceDelta.MARKERS)) != 0)
+            markersChanged(ErlModelCore.erlModel, delta.markerDeltas)
+        true
+    }
+
+    def private boolean processProject(IResourceDelta delta) {
+        switch (delta.getKind()) {
+            case IResourceDelta.ADDED:
+                processAddedProject(delta)
+            case IResourceDelta.REMOVED:
+                processRemovedProject(delta)
+            case IResourceDelta.CHANGED:
+                return processChangedProject(delta)
+            default:
+                true
+        }
+    }
+
+    def private boolean processAddedProject(IResourceDelta delta) {
+        val IProject project = delta.getResource() as IProject
+        if (project.open && project.hasNature(IErlProject.NATURE_ID)) {
+            val IErlProject erlProject = ErlModelCore.create(project)
+            addToModel(erlProject)
+            translateAddedDelta(delta, erlProject)
+        } else {
+            addResourceDelta(delta)
+        }
+        false
+    }
+
+    def private boolean processRemovedProject(IResourceDelta delta) {
+        val IProject project = delta.getResource() as IProject
         if (wasErlProject(project)) {
-          removeFromModel(erlProject)
-          currentDelta.insertRemoved(erlProject, IHandleDelta.F_OPEN)
+            val IErlProject erlProject = ErlModelCore.create(project)
+            removeFromModel(erlProject)
+            translateRemovedDelta(delta, erlProject)
         } else {
-          addResourceDelta(delta)
+            addResourceDelta(delta)
         }
-      }
-      return false
+        false
     }
 
-    val boolean isErlProject = project.hasNature(IErlProject.NATURE_ID)
-    if ((delta.getFlags().bitwiseAnd(IResourceDelta.DESCRIPTION) ) != 0) {
+    def private boolean processChangedProject(IResourceDelta delta) {
+        val IProject project = delta.getResource() as IProject
+        val IErlProject erlProject = ErlModelCore.create(project)
 
-      val boolean wasErlProject = wasErlProject(project)
-      if (wasErlProject != isErlProject) {
+        if ((delta.getFlags().bitwiseAnd(IResourceDelta.OPEN)) != 0) {
+            if (project.isOpen()) {
+                if (project.hasNature(IErlProject.NATURE_ID)) {
+                    addToModel(erlProject)
+                    currentDelta.insertAdded(erlProject, IHandleDelta.F_OPEN)
+                } else {
+                    addResourceDelta(delta)
+                }
+            } else {
+                if (wasErlProject(project)) {
+                    removeFromModel(erlProject)
+                    currentDelta.insertRemoved(erlProject, IHandleDelta.F_OPEN)
+                } else {
+                    addResourceDelta(delta)
+                }
+            }
+            return false
+        }
 
-        // Erl nature has been added or removed
+        val boolean isErlProject = project.hasNature(IErlProject.NATURE_ID)
+        if ((delta.getFlags().bitwiseAnd(IResourceDelta.DESCRIPTION) ) != 0) {
+
+            val boolean wasErlProject = wasErlProject(project)
+            if (wasErlProject != isErlProject) {
+
+                // Erl nature has been added or removed
+                if (isErlProject) {
+                    addToModel(erlProject)
+                    currentDelta.insertAdded(erlProject, IHandleDelta.F_DESCRIPTION)
+                } else {
+                    removeFromModel(erlProject)
+                    currentDelta.insertRemoved(erlProject, IHandleDelta.F_DESCRIPTION)
+                }
+                return false // when Erl nature is added/removed don't process children
+            } else {
+                if (isErlProject) {
+                    currentDelta.insertChanged(erlProject, IHandleDelta.F_DESCRIPTION)
+                }
+            }
+        }
+
         if (isErlProject) {
-          addToModel(erlProject)
-          currentDelta.insertAdded(erlProject, IHandleDelta.F_DESCRIPTION)
+            if ((delta.getFlags().bitwiseAnd(IResourceDelta.MARKERS)) != 0)
+                markersChanged(erlProject, delta.getMarkerDeltas());
+
+            val Body parentBody = findBody(erlProject.getParent())
+            val children = parentBody.getChildren()
+            if (!children.contains(erlProject))
+                addToModel(erlProject) // in case the project was removed then added then changed
+
+            return true
         } else {
-          removeFromModel(erlProject)
-          currentDelta.insertRemoved(erlProject, IHandleDelta.F_DESCRIPTION)
+            return false
         }
-        return false // when Erl nature is added/removed don't process children
-      } else {
-        if (isErlProject) {
-          currentDelta.insertChanged(erlProject, IHandleDelta.F_DESCRIPTION)
+    }
+
+    def private boolean processFile(IResourceDelta delta) {
+        switch (delta.getKind()) {
+            case IResourceDelta.ADDED:
+                processAddedFile(delta)
+            case IResourceDelta.REMOVED:
+                processRemovedFile(delta)
+            case IResourceDelta.CHANGED:
+                processChangedFile(delta)
+            default:
+                true
         }
-      }
     }
 
-    if (isErlProject) {
-      if ((delta.getFlags().bitwiseAnd(IResourceDelta.MARKERS)) != 0)
-        markersChanged(erlProject, delta.getMarkerDeltas());
-
-      val Body parentBody = findBody(erlProject.getParent())
-      val children = parentBody.getChildren()
-      if (!children.contains(erlProject))
-        addToModel(erlProject) // in case the project was removed then added then changed
-
-      return true
-    } else {
-      return false
-    }
-  }
-
-  def private boolean processFile(IResourceDelta delta) {
-    switch (delta.getKind()) {
-      case IResourceDelta.ADDED:
-        processAddedFile(delta)
-      case IResourceDelta.REMOVED:
-        processRemovedFile(delta)
-      case IResourceDelta.CHANGED:
-        processChangedFile(delta)
-      default:
-        true
-    }
-  }
-
-  def private boolean processAddedFile(IResourceDelta delta) {
-    val IFile file = delta.resource as IFile
-    val IErlSource erlFile = ErlModelCore.create(file)
-    if (erlFile !== null) {
-      addToModel(erlFile)
-      translateAddedDelta(delta, erlFile)
-    } else {
-      addResourceDelta(delta)
-    }
-    false
-  }
-
-  def private boolean processRemovedFile(IResourceDelta delta) {
-    val IFile file = delta.resource as IFile
-    val IErlSource erlFile = ErlModelCore.create(file)
-    if (erlFile !== null) {
-      removeFromModel(erlFile)
-      translateRemovedDelta(delta, erlFile)
-    } else {
-      addResourceDelta(delta)
-    }
-    false
-  }
-
-  def private boolean processChangedFile(IResourceDelta delta) {
-    val IFile file = delta.resource as IFile
-    val IErlSource erlFile = ErlModelCore.create(file)
-    if (erlFile !== null) {
-      if ((delta.getFlags().bitwiseAnd(IResourceDelta.MARKERS.bitwiseOr(IResourceDelta.SYNC)).bitwiseNot) != 0) {
-        contentChanged(erlFile)
-      }
-      if ((delta.getFlags().bitwiseAnd(IResourceDelta.MARKERS)) != 0)
-        markersChanged(erlFile, delta.getMarkerDeltas());
-
-      if ((delta.getFlags().bitwiseAnd(IResourceDelta.SYNC)) != 0)
-        currentDelta.insertChanged(erlFile, IHandleDelta.F_SYNC);
-    } else {
-      addResourceDelta(delta)
-    }
-    return false
-  }
-
-  def private contentChanged(IErlSource source) {
-    if (source.isWorkingCopy()) {
-      currentDelta.insertChanged(source, IHandleDelta.F_CONTENT.bitwiseOr(IHandleDelta.F_UNDERLYING_RESOURCE))
-      return
+    def private boolean processAddedFile(IResourceDelta delta) {
+        val IFile file = delta.resource as IFile
+        val IErlSource erlFile = ErlModelCore.create(file)
+        if (erlFile !== null) {
+            addToModel(erlFile)
+            translateAddedDelta(delta, erlFile)
+        } else {
+            addResourceDelta(delta)
+        }
+        false
     }
 
-    close(source)
-    currentDelta.insertChanged(source, IHandleDelta.F_CONTENT)
-  }
-
-  def private static void addToModel(IHandle element) {
-    val Body parentBody = findBody(element.getParent())
-    if (parentBody !== null)
-      parentBody.addChild(element)
-    close(element)
-  }
-
-  def private static void removeFromModel(IHandle element) {
-    val Body parentBody = findBody(element.getParent())
-    if (parentBody !== null)
-      parentBody.removeChild(element)
-    close(element)
-  }
-
-  def private static Body findBody(IHandle element) {
-    (element as Handle).findBody()
-  }
-
-  def private static void close(IHandle element) {
-    (element as Handle).close()
-  }
-
-  def private void translateAddedDelta(IResourceDelta delta, IErlElement element) {
-    if ((delta.getFlags().bitwiseAnd(IResourceDelta.MOVED_FROM)) == 0) {
-
-      // regular addition
-      currentDelta.insertAdded(element)
-    } else {
-      val IErlElement movedFromElement = ErlModelCore.create(
-        getResource(delta.getMovedFromPath(), delta.getResource().getType()))
-      if (movedFromElement === null)
-        currentDelta.insertAdded(element)
-      else
-        currentDelta.insertMovedTo(element, movedFromElement)
+    def private boolean processRemovedFile(IResourceDelta delta) {
+        val IFile file = delta.resource as IFile
+        val IErlSource erlFile = ErlModelCore.create(file)
+        if (erlFile !== null) {
+            removeFromModel(erlFile)
+            translateRemovedDelta(delta, erlFile)
+        } else {
+            addResourceDelta(delta)
+        }
+        false
     }
-  }
 
-  def private void translateRemovedDelta(IResourceDelta delta, IErlElement element) {
-    if ((delta.getFlags().bitwiseAnd(IResourceDelta.MOVED_TO) ) == 0) {
+    def private boolean processChangedFile(IResourceDelta delta) {
+        val IFile file = delta.resource as IFile
+        val IErlSource erlFile = ErlModelCore.create(file)
+        if (erlFile !== null) {
+            if ((delta.getFlags().bitwiseAnd(IResourceDelta.MARKERS.bitwiseOr(IResourceDelta.SYNC)).bitwiseNot) != 0) {
+                contentChanged(erlFile)
+            }
+            if ((delta.getFlags().bitwiseAnd(IResourceDelta.MARKERS)) != 0)
+                markersChanged(erlFile, delta.getMarkerDeltas());
 
-      // regular removal
-      currentDelta.insertRemoved(element)
-    } else {
-      val IErlElement movedToElement = ErlModelCore.create(
-        getResource(delta.movedToPath, delta.resource.type))
-      if (movedToElement === null)
-        currentDelta.insertRemoved(element)
-      else
-        currentDelta.insertMovedFrom(element, movedToElement)
+            if ((delta.getFlags().bitwiseAnd(IResourceDelta.SYNC)) != 0)
+                currentDelta.insertChanged(erlFile, IHandleDelta.F_SYNC);
+        } else {
+            addResourceDelta(delta)
+        }
+        return false
     }
-  }
 
-  def private static IResource getResource(IPath fullPath, int resourceType) {
-    val IWorkspaceRoot root = ResourcesPlugin.workspace.root
-    switch (resourceType) {
-      case IResource.ROOT:
-        return root
-      case IResource.PROJECT:
-        return root.getProject(fullPath.lastSegment())
-      case IResource.FOLDER:
-        return root.getFolder(fullPath)
-      case IResource.FILE:
-        return root.getFile(fullPath)
-      default:
-        return null
+    def private contentChanged(IErlSource source) {
+        if (source.isWorkingCopy()) {
+            currentDelta.insertChanged(source, IHandleDelta.F_CONTENT.bitwiseOr(IHandleDelta.F_UNDERLYING_RESOURCE))
+            return
+        }
+
+        close(source)
+        currentDelta.insertChanged(source, IHandleDelta.F_CONTENT)
     }
-  }
 
-  def private void initOldErlProjectNames() {
-    val erlProjects = ErlModelCore.erlModel.projects
-    oldErlProjectNames = erlProjects.map[name].toSet
-  }
-
-  def private boolean wasErlProject(IProject project) {
-    oldErlProjectNames.contains(project.name)
-  }
-
-  def private void addResourceDelta(IResourceDelta delta) {
-    var HandleDelta handleDelta
-    val IResource parent = delta.resource.parent
-    if (parent instanceof IWorkspaceRoot)
-      handleDelta = currentDelta
-    else if (parent instanceof IProject) {
-      val IErlProject erlProject = ErlModelCore.create(parent)
-      handleDelta = currentDelta.getDeltaFor(erlProject)
-      if (handleDelta === null) {
-        handleDelta = new HandleDelta(erlProject)
-        currentDelta.insert(handleDelta)
-      }
-      if ((delta.getKind().bitwiseAnd(IResourceDelta.ADDED.bitwiseOr(IResourceDelta.REMOVED))) != 0) {
-
-        // reset non-Erl resources
-        val ErlProjectBody body = findBody(erlProject) as ErlProjectBody
-        if (body !== null)
-          body.nonErlResources = null
-      }
-    } else if (parent instanceof IFolder) {
-
-      // TODO new_model
-      return
-    } else {
-      ErlLogger.warn('''addResourceDelta ? parent=«parent»''')
-      throw new AssertionError()
+    def private static void addToModel(IHandle element) {
+        val Body parentBody = findBody(element.getParent())
+        if (parentBody !== null) {
+            parentBody.addChild(element)
+        }
+        close(element)
     }
-    handleDelta.addResourceDelta(delta)
-  }
 
-  def private void markersChanged(IErlElement erlElement, IMarkerDelta[] markerDeltas) {
-    var HandleDelta delta = currentDelta.getDeltaFor(erlElement)
-    if (delta == null) {
-      delta = new HandleDelta(erlElement)
-      currentDelta.insert(delta)
+    def private static void removeFromModel(IHandle element) {
+        val Body parentBody = findBody(element.getParent())
+        if (parentBody !== null)
+            parentBody.removeChild(element)
+        close(element)
     }
-    delta.setMarkerDeltas(markerDeltas)
-  }
+
+    def private static Body findBody(IHandle element) {
+        (element as Handle).findBody()
+    }
+
+    def private static void close(IHandle element) {
+        (element as Handle).close()
+    }
+
+    def private void translateAddedDelta(IResourceDelta delta, IErlElement element) {
+        if ((delta.getFlags().bitwiseAnd(IResourceDelta.MOVED_FROM)) == 0) {
+
+            // regular addition
+            currentDelta.insertAdded(element)
+        } else {
+            val IErlElement movedFromElement = ErlModelCore.create(
+                getResource(delta.getMovedFromPath(), delta.getResource().getType()))
+            if (movedFromElement === null)
+                currentDelta.insertAdded(element)
+            else
+                currentDelta.insertMovedTo(element, movedFromElement)
+        }
+    }
+
+    def private void translateRemovedDelta(IResourceDelta delta, IErlElement element) {
+        if ((delta.getFlags().bitwiseAnd(IResourceDelta.MOVED_TO) ) == 0) {
+
+            // regular removal
+            currentDelta.insertRemoved(element)
+        } else {
+            val IErlElement movedToElement = ErlModelCore.create(
+                getResource(delta.movedToPath, delta.resource.type))
+            if (movedToElement === null)
+                currentDelta.insertRemoved(element)
+            else
+                currentDelta.insertMovedFrom(element, movedToElement)
+        }
+    }
+
+    def private static IResource getResource(IPath fullPath, int resourceType) {
+        val IWorkspaceRoot root = ResourcesPlugin.workspace.root
+        switch (resourceType) {
+            case IResource.ROOT:
+                return root
+            case IResource.PROJECT:
+                return root.getProject(fullPath.lastSegment())
+            case IResource.FOLDER:
+                return root.getFolder(fullPath)
+            case IResource.FILE:
+                return root.getFile(fullPath)
+            default:
+                return null
+        }
+    }
+
+    def private void initOldErlProjectNames() {
+        val erlProjects = ErlModelCore.erlModel.projects
+        oldErlProjectNames = erlProjects.map[name].toSet
+    }
+
+    def private boolean wasErlProject(IProject project) {
+        oldErlProjectNames.contains(project.name)
+    }
+
+    def private void addResourceDelta(IResourceDelta delta) {
+        var HandleDelta handleDelta
+        val IResource parent = delta.resource.parent
+        if (parent instanceof IWorkspaceRoot)
+            handleDelta = currentDelta
+        else if (parent instanceof IProject) {
+            val IErlProject erlProject = ErlModelCore.create(parent)
+            handleDelta = currentDelta.getDeltaFor(erlProject)
+            if (handleDelta === null) {
+                handleDelta = new HandleDelta(erlProject)
+                currentDelta.insert(handleDelta)
+            }
+            if ((delta.getKind().bitwiseAnd(IResourceDelta.ADDED.bitwiseOr(IResourceDelta.REMOVED))) != 0) {
+
+                // reset non-Erl resources
+                val ErlProjectBody body = findBody(erlProject) as ErlProjectBody
+                if (body !== null)
+                    body.nonErlResources = null
+            }
+        } else if (parent instanceof IFolder) {
+
+            // TODO new_model
+            return
+        } else {
+            ErlLogger.warn('''addResourceDelta ? parent=«parent»''')
+            throw new AssertionError()
+        }
+        handleDelta.addResourceDelta(delta)
+    }
+
+    def private void markersChanged(IErlElement erlElement, IMarkerDelta[] markerDeltas) {
+        var HandleDelta delta = currentDelta.getDeltaFor(erlElement)
+        if (delta === null) {
+            delta = new HandleDelta(erlElement)
+            currentDelta.insert(delta)
+        }
+        delta.setMarkerDeltas(markerDeltas)
+    }
 
 }

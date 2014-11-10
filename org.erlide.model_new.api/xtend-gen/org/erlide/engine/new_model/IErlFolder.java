@@ -1,6 +1,7 @@
 package org.erlide.engine.new_model;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.runtime.CoreException;
 import org.erlide.engine.new_model.IErlElement;
 import org.erlide.engine.new_model.IErlSource;
 
@@ -8,5 +9,5 @@ import org.erlide.engine.new_model.IErlSource;
 public interface IErlFolder extends IErlElement {
   public abstract IFolder getWorkspaceFolder();
   
-  public abstract Iterable<IErlSource> getSources();
+  public abstract Iterable<IErlSource> getSources() throws CoreException;
 }

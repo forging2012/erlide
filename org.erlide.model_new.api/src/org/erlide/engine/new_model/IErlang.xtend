@@ -17,13 +17,13 @@ interface IErlElement extends IHandle {
 }
 
 interface IErlModel extends IErlElement {
-	def IWorkspace getWorkspace()
+    def IWorkspace getWorkspace()
 
-	def Iterable<IErlProject> getProjects()
+    def Iterable<IErlProject> getProjects() throws CoreException
 
-	def IErlProject getProject(String name)
+    def IErlProject getProject(String name)
 
-	/**
+    /**
      * Adds the given listener for changes to elements in the Erlang Model.
      * Has no effect if an identical listener is already registered.
      * <p>
@@ -35,35 +35,35 @@ interface IErlModel extends IErlElement {
      * @param listener the listener (not <code>null</code>)
      * @see #removeElementChangeListener(IElementChangeListener)
      */
-	def void addElementChangeListener(IElementChangeListener listener)
+    def void addElementChangeListener(IElementChangeListener listener)
 
-	/**
+    /**
      * Removes the given element change listener.
      * Has no effect if an identical listener is not registered.
      *
      * @param listener the listener (not <code>null</code>)
      */
-	def void removeElementChangeListener(IElementChangeListener listener)
+    def void removeElementChangeListener(IElementChangeListener listener)
 }
 
 interface IErlLibrary extends IErlElement, IErlLibraryContainer {
-	def ErlangLibraryProperties getProperties()
+    def ErlangLibraryProperties getProperties()
 
-	def Iterable<IErlFolder> getFolders()
+    def Iterable<IErlFolder> getFolders() throws CoreException
 
-	def Iterable<IErlFolder> getSourceFolders()
+    def Iterable<IErlFolder> getSourceFolders() throws CoreException
 
-	def Iterable<IErlFolder> getIncludeFolders()
+    def Iterable<IErlFolder> getIncludeFolders() throws CoreException
 
-	def IErlFolder getBinaryFolder()
+    def IErlFolder getBinaryFolder()
 
-	def Iterable<IResource> getNonErlangResources()
+    def Iterable<IResource> getNonErlangResources() throws CoreException
 }
 
 interface IErlProject extends IErlLibrary, IErlLibraryContainer {
-	val static String NATURE_ID = "org.erlide.core.erlnature"
+    val static String NATURE_ID = "org.erlide.core.erlnature"
 
-	/**
+    /**
      * Creates a new Erlang project in the workspace with files in the default
      * location in the local file system.
      * <p>
@@ -93,9 +93,9 @@ interface IErlProject extends IErlLibrary, IErlLibraryContainer {
      * </ul>
      * @see #create(URI, IProgressMonitor)
      */
-	def void create(IProgressMonitor monitor) throws CoreException
+    def void create(IProgressMonitor monitor) throws CoreException
 
-	/**
+    /**
      * Creates a new Erlang project in the workspace. Upon successful completion,
      * the corresponding project resource will exist and be open.
      * <p>
@@ -103,9 +103,8 @@ interface IErlProject extends IErlLibrary, IErlLibraryContainer {
      * <ul>
      * <li>the given project location</li>
      * <li>no references to other projects</li>
-     * <li>Xtext project nature and builder</li>
      * <li>Erlang project nature</li>
-     * <li>UTF-8 as the default charset</li>
+     * <li>charset based on the default Erlang target</li>
      * </ul>
      * </p><p>
      * This method changes resources; these changes will be reported
@@ -133,62 +132,62 @@ interface IErlProject extends IErlLibrary, IErlLibraryContainer {
      * </ul>
      * @see IWorkspace#validateProjectLocationURI(IProject, URI)
      */
-	def void create(URI location, IProgressMonitor monitor) throws CoreException
+    def void create(URI location, IProgressMonitor monitor) throws CoreException
 
-	def IProject getWorkspaceProject()
+    def IProject getWorkspaceProject()
 
-	def ErlangProjectProperties getProjectProperties()
+    def ErlangProjectProperties getProjectProperties()
 
-	/**
+    /**
      * Returns the non-Erlang resources contained in this project.
      *
      * @return the non-Erlang resources contained in this project (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      */
-	def IResource[] getNonErlResources()
+    def IResource[] getNonErlResources() throws CoreException
 
-	def Iterable<IErlSource> getSourceFiles()
+    def IErlSource getSourceFile(String name)
 
-	def IErlSource getSourceFile(String name)
+    def Iterable<IErlModule> getModules() throws CoreException
 
-	def Iterable<IErlModule> getModules()
+    def Iterable<IErlHeader> getHeaders() throws CoreException
 
-	def Iterable<IErlHeader> getHeaders()
-
-	def IErlOtpLibrary getOtpLibrary()
+    def IErlOtpLibrary getOtpLibrary()
 }
 
 interface IErlLibraryContainer extends IErlElement {
-	def Iterable<IErlLibrary> getLibraries()
+    def IErlLibrary getLibrary(String name)
+
+    def Iterable<IErlLibrary> getLibraries() throws CoreException
 }
 
 interface IErlOtpLibrary extends IErlLibrary {
-	def String getVersion()
+    def String getVersion()
 }
 
 interface IErlFolder extends IErlElement {
-	def IFolder getWorkspaceFolder()
+    def IFolder getWorkspaceFolder()
 
-	def Iterable<IErlSource> getSources()
+    def Iterable<IErlSource> getSources() throws CoreException
 }
 
 interface IErlSource extends IErlElement, ISourceFile {
-	def Iterable<IErlForm> getForms()
+    def Iterable<IErlForm> getForms() throws CoreException
 
-	def String getExtension()
+    def String getExtension()
 
-	def IErlComment getHeaderComment()
+    def IErlComment getHeaderComment()
 
-	def Iterable<IErlAttribute> getAttributes()
+    def Iterable<IErlAttribute> getAttributes() throws CoreException
 
-	def Iterable<IErlAttribute> getAttributesWithTag(String tag)
+    def Iterable<IErlAttribute> getAttributesWithTag(String tag)
 
-	def Iterable<IErlFunction> getFunctions()
+    def Iterable<IErlFunction> getFunctions() throws CoreException
 
-	def IErlFunction getFunction(String name, int arity)
+    def IErlFunction getFunction(String name, int arity)
 
-	def Iterable<IErlError> getErrors()
+    def Iterable<IErlError> getErrors() throws CoreException
 }
 
 public interface IErlModule extends IErlSource {

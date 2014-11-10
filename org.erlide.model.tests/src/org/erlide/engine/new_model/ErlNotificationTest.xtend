@@ -15,23 +15,25 @@ import static org.hamcrest.MatcherAssert.*
 import static org.hamcrest.Matchers.*
 
 class ErlNotificationTest extends WorkspaceTest {
-    val IErlModel erlModel = ErlModelCore.erlModel
     val ErlModelListener listener = new ErlModelListener()
 
     @Before
     def void setup() {
         setUpProject("Test001")
+
+        val erlModel = ErlModelCore.erlModel
         erlModel.addElementChangeListener(listener)
     }
 
     @After
     def void teardown() {
+        val erlModel = ErlModelCore.erlModel
         erlModel.removeElementChangeListener(listener)
-        super.tearDown()
     }
 
     @Test
     def void testErlModelNotification() {
+        val erlModel = ErlModelCore.erlModel
         val IErlProject erlProject1 = erlModel.getProject("Test001")
         val IErlProject erlProject2 = erlModel.getProject("Test002")
 
@@ -71,7 +73,8 @@ class ErlNotificationTest extends WorkspaceTest {
 
         description.setNatureIds(oldNatures)
         erlProject1.workspaceProject.setDescription(description, null)
-        assertEquality(newDelta().insertAdded(erlProject1, HandleDelta.F_DESCRIPTION), listener.delta)
+        assertEquality(newDelta().insertChanged(erlProject1, HandleDelta.F_DESCRIPTION.bitwiseOr(HandleDelta.F_CONTENT)),
+            listener.delta)
 
         val IErlProject movedErlProject1 = erlModel.getProject("Test")
         erlProject1.workspaceProject.move(new Path("Test"), true, null)
@@ -81,6 +84,7 @@ class ErlNotificationTest extends WorkspaceTest {
     }
 
     def private HandleDelta newDelta() {
+        val erlModel = ErlModelCore.erlModel
         return new HandleDelta(erlModel)
     }
 
@@ -90,8 +94,8 @@ class ErlNotificationTest extends WorkspaceTest {
             return
         }
         assertThat(actual, is(not(nullValue)))
-        assertThat(expected.getElement(), is(actual.getElement()))
-        assertThat(expected.getKind(), is(actual.getKind()))
+        assertThat(expected.element, is(actual.element))
+        assertThat(expected.kind, is(actual.kind))
         assertThat(expected.getFlags(), is(actual.getFlags()))
         assertThat(expected.getMovedToElement(), is(actual.getMovedToElement()))
         assertThat(expected.getMovedFromElement(), is(actual.getMovedFromElement()))

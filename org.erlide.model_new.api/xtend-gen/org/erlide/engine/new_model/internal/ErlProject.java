@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.xtend.lib.annotations.Data;
+import org.eclipse.xtext.xbase.lib.CollectionExtensions;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
@@ -27,6 +28,7 @@ import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 import org.erlide.engine.NewModelActivator;
 import org.erlide.engine.model.root.ErlangLibraryProperties;
 import org.erlide.engine.model.root.ErlangProjectProperties;
+import org.erlide.engine.new_model.IErlFolder;
 import org.erlide.engine.new_model.IErlHeader;
 import org.erlide.engine.new_model.IErlLibrary;
 import org.erlide.engine.new_model.IErlModule;
@@ -38,16 +40,19 @@ import org.erlide.engine.new_model.internal.ErlLibrary;
 import org.erlide.engine.new_model.internal.ErlModel;
 import org.erlide.engine.new_model.internal.ErlModule;
 import org.erlide.engine.new_model.internal.ErlProjectBody;
-import org.erlide.engine.new_model.internal.ErlSource;
 
 @Data
 @SuppressWarnings("all")
 public class ErlProject extends ErlLibrary implements IErlProject {
-  private final IProject workspaceProject;
+  private transient IProject workspaceProject;
   
   public ErlProject(final ErlModel parent, final IProject workspaceProject, final ErlangLibraryProperties properties) {
     super(parent, workspaceProject.getName(), properties);
     this.workspaceProject = workspaceProject;
+  }
+  
+  public IProject getWorkspaceProject() {
+    return this.workspaceProject;
   }
   
   public void create(final IProgressMonitor monitor) throws CoreException {
@@ -56,8 +61,8 @@ public class ErlProject extends ErlLibrary implements IErlProject {
   
   public void create(final URI location, final IProgressMonitor monitor) {
     try {
-      ErlModel _parent = this.getParent();
-      final IWorkspace workspace = _parent.getWorkspace();
+      IHandle _parent = this.getParent();
+      final IWorkspace workspace = ((ErlModel) _parent).getWorkspace();
       workspace.run(
         new IWorkspaceRunnable() {
           public void run(final IProgressMonitor monitor0) {
@@ -96,10 +101,6 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     }
   }
   
-  public ErlModel getParent() {
-    return ((ErlModel) this.parent);
-  }
-  
   public IResource getResource() {
     return this.workspaceProject;
   }
@@ -114,7 +115,7 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     final List<IErlSource> erlFiles = CollectionLiterals.<IErlSource>newArrayList();
     for (final IResource file : members) {
       if ((file instanceof IFile)) {
-        final IErlSource source = this.createInstance(((IFile)file));
+        final IErlSource source = this.createSourceFile(((IFile)file));
         boolean _tripleNotEquals = (source != null);
         if (_tripleNotEquals) {
           erlFiles.add(source);
@@ -124,8 +125,8 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     body.setChildren(((IHandle[])Conversions.unwrapArray(erlFiles, IHandle.class)));
   }
   
-  private ErlSource createInstance(final IFile file) {
-    ErlSource _switchResult = null;
+  private IErlSource createSourceFile(final IFile file) {
+    IErlSource _switchResult = null;
     String _fileExtension = file.getFileExtension();
     boolean _matched = false;
     if (!_matched) {
@@ -149,15 +150,7 @@ public class ErlProject extends ErlLibrary implements IErlProject {
   public IResource[] getNonErlResources() {
     try {
       Body _body = this.getBody();
-      return ((ErlProjectBody) _body).getNonErlResources(this);
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
-    }
-  }
-  
-  public Iterable<IErlSource> getSourceFiles() {
-    try {
-      return (Iterable<IErlSource>)Conversions.doWrapArray(this.<IErlSource>getChildren(IErlSource.class));
+      return ((IResource[])Conversions.unwrapArray(((ErlProjectBody) _body).getNonErlResources(this), IResource.class));
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }
@@ -165,31 +158,25 @@ public class ErlProject extends ErlLibrary implements IErlProject {
   
   public IErlSource getSourceFile(final String name) {
     IFile _file = this.workspaceProject.getFile(name);
-    return this.createInstance(_file);
+    return this.createSourceFile(_file);
   }
   
   public Iterable<IErlModule> getModules() {
-    try {
-      return (Iterable<IErlModule>)Conversions.doWrapArray(this.<IErlModule>getChildren(IErlModule.class));
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
-    }
+    Iterable<IErlFolder> _sourceFolders = this.getSourceFolders();
+    return this.<IErlModule>getDeepChildren(_sourceFolders, IErlModule.class);
   }
   
   public Iterable<IErlHeader> getHeaders() {
-    try {
-      return (Iterable<IErlHeader>)Conversions.doWrapArray(this.<IErlHeader>getChildren(IErlHeader.class));
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
-    }
+    Iterable<IErlFolder> _includeFolders = this.getIncludeFolders();
+    return this.<IErlHeader>getDeepChildren(_includeFolders, IErlHeader.class);
   }
   
   public IErlOtpLibrary getOtpLibrary() {
-    throw new UnsupportedOperationException("auto-generated method stub");
+    return null;
   }
   
   public Iterable<IErlLibrary> getLibraries() {
-    throw new UnsupportedOperationException("auto-generated method stub");
+    return null;
   }
   
   protected void validateExistence() throws CoreException {
@@ -220,12 +207,28 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     return new ErlProjectBody();
   }
   
+  public <T extends IHandle> Iterable<T> getDeepChildren(final Iterable<IErlFolder> folders, final Class<T> clazz) {
+    try {
+      List<T> _xblockexpression = null;
+      {
+        final List<T> result = CollectionLiterals.<T>newArrayList();
+        for (final IErlFolder folder : folders) {
+          T[] _children = folder.<T>getChildren(clazz);
+          CollectionExtensions.<T>addAll(result, _children);
+        }
+        _xblockexpression = result;
+      }
+      return _xblockexpression;
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
+  }
+  
   @Override
   @Pure
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((this.workspaceProject== null) ? 0 : this.workspaceProject.hashCode());
     return result;
   }
   
@@ -241,11 +244,6 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     if (!super.equals(obj))
       return false;
     ErlProject other = (ErlProject) obj;
-    if (this.workspaceProject == null) {
-      if (other.workspaceProject != null)
-        return false;
-    } else if (!this.workspaceProject.equals(other.workspaceProject))
-      return false;
     return true;
   }
   
@@ -256,10 +254,5 @@ public class ErlProject extends ErlLibrary implements IErlProject {
     	.addAllFields()
     	.toString();
     return result;
-  }
-  
-  @Pure
-  public IProject getWorkspaceProject() {
-    return this.workspaceProject;
   }
 }

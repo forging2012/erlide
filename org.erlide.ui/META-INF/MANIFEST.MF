@@ -82,10 +82,13 @@ Require-Bundle: org.eclipse.compare;bundle-version="3.5.202",
  org.eclipse.jface.text;bundle-version="3.7.2",
  org.eclipse.search;bundle-version="3.7.0",
  org.eclipse.osgi.services;bundle-version="3.3.0",
+ org.eclipse.handly;bundle-version="0.3.0",
+ org.eclipse.handly.ui;bundle-version="0.3.0",
  org.erlide.core,
  org.erlide.backend,
  org.erlide.model.api,
  org.erlide.model,
+ org.erlide.model_new.api;bundle-version="0.30.0",
  org.erlide.runtime,
  org.erlide.util,
  org.erlide.libs,
@@ -96,10 +99,7 @@ Require-Bundle: org.eclipse.compare;bundle-version="3.5.202",
  org.eclipse.core.databinding.property;bundle-version="1.4.0",
  org.eclipse.jface.databinding,
  org.erlide.kernel.common,
- org.erlide.kernel.debugger.otp.r15,
- org.erlide.model_new.api;bundle-version="0.30.0",
- org.eclipse.handly;bundle-version="0.3.0",
- org.eclipse.handly.ui;bundle-version="0.3.0"
+ org.erlide.kernel.debugger.otp.r15
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-ExtensibleAPI: true

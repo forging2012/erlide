@@ -33,15 +33,14 @@ public class ErlNotificationTest extends WorkspaceTest {
     }
   }
   
-  private final IErlModel erlModel = ErlModelCore.getErlModel();
-  
   private final ErlNotificationTest.ErlModelListener listener = new ErlNotificationTest.ErlModelListener();
   
   @Before
   public void setup() {
     try {
       this.setUpProject("Test001");
-      this.erlModel.addElementChangeListener(this.listener);
+      final IErlModel erlModel = ErlModelCore.getErlModel();
+      erlModel.addElementChangeListener(this.listener);
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }
@@ -49,19 +48,16 @@ public class ErlNotificationTest extends WorkspaceTest {
   
   @After
   public void teardown() {
-    try {
-      this.erlModel.removeElementChangeListener(this.listener);
-      super.tearDown();
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
-    }
+    final IErlModel erlModel = ErlModelCore.getErlModel();
+    erlModel.removeElementChangeListener(this.listener);
   }
   
   @Test
   public void testErlModelNotification() {
     try {
-      final IErlProject erlProject1 = this.erlModel.getProject("Test001");
-      final IErlProject erlProject2 = this.erlModel.getProject("Test002");
+      final IErlModel erlModel = ErlModelCore.getErlModel();
+      final IErlProject erlProject1 = erlModel.getProject("Test001");
+      final IErlProject erlProject2 = erlModel.getProject("Test002");
       this.setUpProject("Test002");
       HandleDelta _newDelta = this.newDelta();
       HandleDelta _insertAdded = _newDelta.insertAdded(erlProject2);
@@ -122,9 +118,11 @@ public class ErlNotificationTest extends WorkspaceTest {
       IProject _workspaceProject_5 = erlProject1.getWorkspaceProject();
       _workspaceProject_5.setDescription(description, null);
       HandleDelta _newDelta_9 = this.newDelta();
-      HandleDelta _insertAdded_3 = _newDelta_9.insertAdded(erlProject1, HandleDelta.F_DESCRIPTION);
-      ErlNotificationTest.assertEquality(_insertAdded_3, this.listener.delta);
-      final IErlProject movedErlProject1 = this.erlModel.getProject("Test");
+      int _bitwiseOr = (HandleDelta.F_DESCRIPTION | HandleDelta.F_CONTENT);
+      HandleDelta _insertChanged_1 = _newDelta_9.insertChanged(erlProject1, _bitwiseOr);
+      ErlNotificationTest.assertEquality(_insertChanged_1, 
+        this.listener.delta);
+      final IErlProject movedErlProject1 = erlModel.getProject("Test");
       IProject _workspaceProject_6 = erlProject1.getWorkspaceProject();
       Path _path_2 = new Path("Test");
       _workspaceProject_6.move(_path_2, true, null);
@@ -139,7 +137,8 @@ public class ErlNotificationTest extends WorkspaceTest {
   }
   
   private HandleDelta newDelta() {
-    return new HandleDelta(this.erlModel);
+    final IErlModel erlModel = ErlModelCore.getErlModel();
+    return new HandleDelta(erlModel);
   }
   
   private static void assertEquality(final IHandleDelta expected, final IHandleDelta actual) {

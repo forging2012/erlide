@@ -14,4 +14,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.erlide.engine.NewModelActivator
 Export-Package: org.erlide.engine,
  org.erlide.engine.new_model,
- org.erlide.engine.new_model.internal;x-internal:=true
+ org.erlide.engine.new_model.internal;x-friends:="org.erlide.testing.libs"

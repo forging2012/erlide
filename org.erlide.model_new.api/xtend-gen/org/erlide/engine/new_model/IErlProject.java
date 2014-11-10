@@ -58,9 +58,8 @@ public interface IErlProject extends IErlLibrary, IErlLibraryContainer {
    * <ul>
    * <li>the given project location</li>
    * <li>no references to other projects</li>
-   * <li>Xtext project nature and builder</li>
    * <li>Erlang project nature</li>
-   * <li>UTF-8 as the default charset</li>
+   * <li>charset based on the default Erlang target</li>
    * </ul>
    * </p><p>
    * This method changes resources; these changes will be reported
@@ -101,15 +100,13 @@ public interface IErlProject extends IErlLibrary, IErlLibraryContainer {
    * @throws CoreException if this element does not exist or if an exception
    *  occurs while accessing its corresponding resource
    */
-  public abstract IResource[] getNonErlResources();
-  
-  public abstract Iterable<IErlSource> getSourceFiles();
+  public abstract IResource[] getNonErlResources() throws CoreException;
   
   public abstract IErlSource getSourceFile(final String name);
   
-  public abstract Iterable<IErlModule> getModules();
+  public abstract Iterable<IErlModule> getModules() throws CoreException;
   
-  public abstract Iterable<IErlHeader> getHeaders();
+  public abstract Iterable<IErlHeader> getHeaders() throws CoreException;
   
   public abstract IErlOtpLibrary getOtpLibrary();
 }

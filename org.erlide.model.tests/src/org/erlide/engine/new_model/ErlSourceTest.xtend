@@ -8,33 +8,33 @@ import static org.hamcrest.MatcherAssert.*
 import static org.hamcrest.Matchers.*
 
 class ErlSourceTest extends WorkspaceTest {
-	private IErlSource erlFile
+    private IErlSource erlFile
 
-	@Before
-	def void setup() throws Exception
+    @Before
+    def void setup() throws Exception
     {
-		val IErlProject erlProject = ErlModelCore.create(setUpProject("Test002"))
-		erlFile = erlProject.getSourceFile("nop.erl")
-	}
+        val IErlProject erlProject = ErlModelCore.create(setUpProject("Test002"))
+        erlFile = erlProject.getSourceFile("src/nop.erl")
+    }
 
-	@Test
-	def void testErlFile() {
-		assertThat(erlFile.exists(), is(true))
+    @Test
+    def void testErlFile() {
+        assertThat(erlFile.exists(), is(true))
 
-		assertThat(erlFile.forms.length, is(erlFile.children.length))
-		assertThat(erlFile.children.length, is(5))
+        assertThat(erlFile.forms.length, is(erlFile.children.length))
+        assertThat(erlFile.children.length, is(5))
 
-		val attrs = erlFile.attributes
-		assertThat(attrs.length, is(2))
-		assertThat(erlFile.getAttributesWithTag("module"), contains(attrs.head))
-		assertThat(erlFile.getAttributesWithTag("export"), contains(attrs.tail.head))
+        val attrs = erlFile.attributes
+        assertThat(attrs.length, is(2))
+        assertThat(erlFile.getAttributesWithTag("module"), contains(attrs.head))
+        assertThat(erlFile.getAttributesWithTag("export"), contains(attrs.tail.head))
 
-		val funs = erlFile.functions
-		assertThat(funs.length, is(3))
-		assertThat(funs.head, is(erlFile.getFunction("a", 1)))
-		assertThat(funs.tail.head, is(erlFile.getFunction("b", 0)))
-		assertThat(funs.tail.tail.head, is(erlFile.getFunction("c", 3)))
+        val funs = erlFile.functions
+        assertThat(funs.length, is(3))
+        assertThat(funs.head, is(erlFile.getFunction("a", 1)))
+        assertThat(funs.tail.head, is(erlFile.getFunction("b", 0)))
+        assertThat(funs.tail.tail.head, is(erlFile.getFunction("c", 3)))
 
-	}
+    }
 
 }

@@ -17,6 +17,7 @@ import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
+import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.new_model.IErlModel;
 import org.erlide.engine.new_model.IErlProject;
 import org.erlide.engine.new_model.internal.ErlElement;
@@ -55,11 +56,16 @@ public class ErlModel extends ErlElement implements IErlModel {
         _and = _hasNature;
       }
       if (_and) {
-        ErlProject _erlProject = new ErlProject(this, project, null);
+        ErlangProjectProperties _projectProperties = this.getProjectProperties(project);
+        ErlProject _erlProject = new ErlProject(this, project, _projectProperties);
         erlProjects.add(_erlProject);
       }
     }
     body.setChildren(((IHandle[])Conversions.unwrapArray(erlProjects, IHandle.class)));
+  }
+  
+  public ErlangProjectProperties getProjectProperties(final IProject project) {
+    return new ErlangProjectProperties();
   }
   
   public Iterable<IErlProject> getProjects() {
@@ -73,7 +79,8 @@ public class ErlModel extends ErlElement implements IErlModel {
   public IErlProject getProject(final String name) {
     IWorkspaceRoot _root = this.workspace.getRoot();
     IProject _project = _root.getProject(name);
-    return new ErlProject(this, _project, null);
+    ErlangProjectProperties _erlangProjectProperties = new ErlangProjectProperties();
+    return new ErlProject(this, _project, _erlangProjectProperties);
   }
   
   public void addElementChangeListener(final IElementChangeListener listener) {

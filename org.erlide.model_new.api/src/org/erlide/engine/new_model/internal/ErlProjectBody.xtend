@@ -1,7 +1,7 @@
 package org.erlide.engine.new_model.internal
 
-import java.util.ArrayList
 import java.util.List
+import org.eclipse.core.resources.IContainer
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.CoreException
@@ -12,10 +12,12 @@ import org.erlide.engine.new_model.IErlProject
 class ErlProjectBody extends Body {
     var IResource[] nonErlResources
 
-    def IResource[] getNonErlResources(IErlProject erlProject) throws CoreException
+    def Iterable<IResource> getNonErlResources(IErlProject erlProject) throws CoreException
     {
-        if (nonErlResources === null)
-            nonErlResources = computeNonErlResources(erlProject)
+        if (nonErlResources === null) {
+            val resource = erlProject.getWorkspaceProject()
+            nonErlResources = computeNonErlResources(resource)
+        }
         nonErlResources
     }
 
@@ -23,16 +25,17 @@ class ErlProjectBody extends Body {
         this.nonErlResources = resources
     }
 
-    def private IResource[] computeNonErlResources(IErlProject erlProject) throws CoreException
+    def private List<IResource> computeNonErlResources(IContainer resource) throws CoreException
     {
-        val List<IResource> result = new ArrayList<IResource>()
-        val IResource[] members = erlProject.getWorkspaceProject().members()
+        val List<IResource> result = newArrayList()
+        val members = resource.members()
         for (member : members) {
-            if (!(member instanceof IFile))
-                result.add(member)
-            else {
-                if (ErlModelCore.create(member as IFile) === null)
+            if (member instanceof IFile) {
+                if (ErlModelCore.create(member) === null) {
                     result.add(member)
+                }
+            } else if(member instanceof IContainer) {
+                result.addAll(computeNonErlResources(member))
             }
         }
         result

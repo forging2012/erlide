@@ -26,7 +26,7 @@ public class ErlSourceTest extends WorkspaceTest {
   public void setup() throws Exception {
     IProject _setUpProject = this.setUpProject("Test002");
     final IErlProject erlProject = ErlModelCore.create(_setUpProject);
-    IErlSource _sourceFile = erlProject.getSourceFile("nop.erl");
+    IErlSource _sourceFile = erlProject.getSourceFile("src/nop.erl");
     this.erlFile = _sourceFile;
   }
   

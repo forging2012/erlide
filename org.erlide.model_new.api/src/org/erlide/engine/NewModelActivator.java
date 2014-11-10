@@ -5,7 +5,6 @@ import java.io.File;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.erlide.engine.IErlangEngine;
 import org.erlide.engine.new_model.internal.ErlModelManager;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.services.ExtensionUtils;
@@ -19,7 +18,7 @@ public class NewModelActivator implements BundleActivator {
 
     @Override
     public void start(final BundleContext context) throws Exception {
-        ErlLogger.debug("Starting Erlang model api");
+        ErlLogger.debug("Starting new Erlang model api");
 
         ErlModelManager.INSTANCE.startup();
 
@@ -32,7 +31,7 @@ public class NewModelActivator implements BundleActivator {
             throw new CoreException(status);
         }
 
-        ErlLogger.debug("Started model api");
+        ErlLogger.debug("Started new model api");
     }
 
     @Override
