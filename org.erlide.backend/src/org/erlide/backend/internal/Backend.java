@@ -387,10 +387,9 @@ public abstract class Backend implements IStreamListener, IBackend {
 
     public void handleCrash(final IBackendManager backendManager) {
         if (isCrashed()) {
-            ErlLogger.debug("Backend " + getName() + " crashed");
+            ErlLogger.warn("Backend " + getName() + " crashed");
             if (shouldRestart()) {
-                // TODO keep track of how many restarts?
-                ErlLogger.debug("Restarting backend " + getName());
+                ErlLogger.warn("Restarting backend " + getName());
                 erts.shutDown();
                 erts.startUp();
                 if (nodeProxy.connect()) {

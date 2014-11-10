@@ -54,12 +54,9 @@ class RebarConfigurationSerializer implements ProjectConfigurationSerializer {
             }
         ]
 
-        println("DECODE 0 " + result)
         if (result.sourceDirs.empty && result.includeDirs.empty) {
-            println("DECODE 1")
             result.copyFrom(ErlangProjectProperties.DEFAULT)
         }
-        println("DECODE 2 " + result)
         result
     }
 

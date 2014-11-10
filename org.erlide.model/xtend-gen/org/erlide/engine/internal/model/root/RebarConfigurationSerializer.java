@@ -11,7 +11,6 @@ import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import org.erlide.engine.ErlangEngine;
@@ -73,7 +72,6 @@ public class RebarConfigurationSerializer implements ProjectConfigurationSeriali
         }
       };
       IterableExtensions.<OtpErlangObject>forEach(content, _function);
-      InputOutput.<String>println(("DECODE 0 " + result));
       boolean _and = false;
       Collection<IPath> _sourceDirs = result.getSourceDirs();
       boolean _isEmpty_1 = _sourceDirs.isEmpty();
@@ -85,10 +83,8 @@ public class RebarConfigurationSerializer implements ProjectConfigurationSeriali
         _and = _isEmpty_2;
       }
       if (_and) {
-        InputOutput.<String>println("DECODE 1");
         result.copyFrom(ErlangProjectProperties.DEFAULT);
       }
-      InputOutput.<String>println(("DECODE 2 " + result));
       _xblockexpression = result;
     }
     return _xblockexpression;
