@@ -11,7 +11,6 @@ import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.erlang.IErlPreprocessorDef;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
-import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.services.ErlangService;
 
@@ -42,7 +41,7 @@ public interface ModelUtilService extends ErlangService {
     IErlModule getModuleFromExternalModulePath(final IErlModel model,
             final String modulePath) throws ErlModelException;
 
-    String getExternalModulePath(final IErlElementLocator model, final IErlModule module);
+    String getExternalModulePath(final IErlModule module);
 
     String getModuleInfo(IErlModule module);
 

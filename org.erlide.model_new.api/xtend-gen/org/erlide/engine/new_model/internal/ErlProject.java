@@ -39,7 +39,6 @@ import org.erlide.engine.new_model.internal.ErlLibrary;
 import org.erlide.engine.new_model.internal.ErlModel;
 import org.erlide.engine.new_model.internal.ErlModule;
 import org.erlide.engine.new_model.internal.ErlProjectBody;
-import org.erlide.engine.new_model.internal.ErlSource;
 
 @Data
 @SuppressWarnings("all")
@@ -126,7 +125,7 @@ public class ErlProject extends ErlLibrary implements IErlProject {
   }
   
   private IErlSource createSourceFile(final IFile file) {
-    ErlSource _switchResult = null;
+    IErlSource _switchResult = null;
     String _fileExtension = file.getFileExtension();
     boolean _matched = false;
     if (!_matched) {

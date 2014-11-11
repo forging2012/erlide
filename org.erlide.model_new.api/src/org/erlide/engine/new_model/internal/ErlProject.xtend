@@ -20,7 +20,6 @@ import org.erlide.engine.NewModelActivator
 import org.erlide.engine.model.root.ErlangLibraryProperties
 import org.erlide.engine.model.root.ErlangProjectProperties
 import org.erlide.engine.new_model.IErlFolder
-import org.erlide.engine.new_model.IErlHeader
 import org.erlide.engine.new_model.IErlModule
 import org.erlide.engine.new_model.IErlProject
 import org.erlide.engine.new_model.IErlSource

@@ -397,7 +397,7 @@ public class ModelUtilsTests extends WorkspaceTest {
                     absolutePath, IErlElementLocator.Scope.ALL_PROJECTS);
             assertNotNull(module);
             final String externalModulePath = ErlangEngine.getInstance()
-                    .getModelUtilService().getExternalModulePath(model, module);
+                    .getModelUtilService().getExternalModulePath(module);
             ErlLogger.debug(" >> %s", externalModulePath);
             final IErlModule module2 = modelUtilService.getModuleFromExternalModulePath(
                     model, externalModulePath);

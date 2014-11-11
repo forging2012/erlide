@@ -29,7 +29,6 @@ import org.erlide.engine.model.erlang.IErlModule;
 import org.erlide.engine.model.erlang.IErlPreprocessorDef;
 import org.erlide.engine.model.root.ErlElementKind;
 import org.erlide.engine.model.root.IErlElement;
-import org.erlide.engine.model.root.IErlElementLocator;
 import org.erlide.engine.model.root.IErlExternal;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.engine.services.search.ModelUtilService;
@@ -57,11 +56,10 @@ public class ModelInternalUtils implements ModelUtilService {
     private static final String DELIMITER = "<>";
 
     @Override
-    public String getExternalModulePath(final IErlElementLocator model,
-            final IErlModule module) {
+    public String getExternalModulePath(final IErlModule module) {
         final List<String> result = Lists.newArrayList();
         IErlElement element = module;
-        while (element != model) {
+        while (element != null) {
             if (element instanceof IErlExternal) {
                 final IErlExternal external = (IErlExternal) element;
                 result.add(external.getName());
