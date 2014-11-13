@@ -156,7 +156,7 @@ public final class BindingsImpl implements Bindings {
     @Override
     public String getAsString(final String name) {
         final OtpErlangObject r = get(name);
-        return ErlUtils.asString(r);
+        return OtpErlang.asString(r);
     }
 
     @Override

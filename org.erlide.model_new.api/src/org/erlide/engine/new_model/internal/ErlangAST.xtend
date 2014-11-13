@@ -8,7 +8,7 @@ import com.ericsson.otp.erlang.OtpErlangTuple
 import java.util.List
 import org.eclipse.handly.util.TextRange
 import org.eclipse.xtend.lib.annotations.Accessors
-import org.erlide.util.erlang.ErlUtils
+import org.erlide.util.erlang.OtpErlang
 
 @Accessors
 class ErlangAST {
@@ -43,7 +43,7 @@ class ASTNode {
 	}
 
 	def TextRange getPos() {
-		val pos = ErlUtils.match("{{Line,Offset,FileOffset},Len}", items.tail.head)
+		val pos = OtpErlang.match("{{Line,Offset,FileOffset},Len}", items.tail.head)
 		new TextRange(pos.getInt("FileOffset"), pos.getInt("Len"))
 	}
 

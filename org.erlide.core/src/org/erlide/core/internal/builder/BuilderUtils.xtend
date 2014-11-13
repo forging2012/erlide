@@ -6,7 +6,7 @@ import com.google.common.io.Files
 import java.util.Collection
 import org.erlide.core.builder.CompilerOptions
 import org.erlide.engine.model.root.IErlProject
-import org.erlide.util.erlang.ErlUtils
+import org.erlide.util.erlang.OtpErlang
 
 class BuilderUtils {
     def static OtpErlangObject createProjectInfo(IErlProject project) {
@@ -23,7 +23,7 @@ class BuilderUtils {
         val Collection<String> libIncs = newArrayList // TODO get lib incs from externalIncludes
         val String tmpDir = Files.createTempDir.absolutePath
 
-        ErlUtils.format(
+        OtpErlang.format(
             "{project_info,~s,~ls,~ls,~s,~x,~s,~ls,~s}",
             rootDir,
             srcDirs.map[new OtpErlangString(it.toPortableString)],

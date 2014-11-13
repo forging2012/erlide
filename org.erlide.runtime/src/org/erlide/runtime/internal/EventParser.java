@@ -4,7 +4,7 @@ import org.erlide.runtime.api.IOtpNodeProxy;
 import org.erlide.runtime.events.ErlEvent;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.erlang.Bindings;
-import org.erlide.util.erlang.ErlUtils;
+import org.erlide.util.erlang.OtpErlang;
 import org.erlide.util.erlang.TermParserException;
 
 import com.ericsson.otp.erlang.OtpErlangException;
@@ -18,7 +18,7 @@ public class EventParser {
             return null;
         }
         try {
-            final Bindings b = ErlUtils.match("{event,Topic,Event,Sender}", msg);
+            final Bindings b = OtpErlang.match("{event,Topic,Event,Sender}", msg);
             if (b == null) {
                 return null;
             }

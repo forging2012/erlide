@@ -31,7 +31,7 @@ import org.erlide.runtime.events.ErlEvent;
 import org.erlide.runtime.events.ErlangEventHandler;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.erlang.Bindings;
-import org.erlide.util.erlang.ErlUtils;
+import org.erlide.util.erlang.OtpErlang;
 
 @SuppressWarnings("all")
 public class BuilderEventHandler extends ErlangEventHandler {
@@ -90,7 +90,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
     try {
       Boolean _xblockexpression = null;
       {
-        final Bindings b = ErlUtils.match(template, data);
+        final Bindings b = OtpErlang.match(template, data);
         boolean _tripleEquals = (b == null);
         if (_tripleEquals) {
           return false;
@@ -236,7 +236,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
           try {
             OtpErlangObject _xblockexpression = null;
             {
-              final Bindings b = ErlUtils.match("{project,N,Msg,error}", it);
+              final Bindings b = OtpErlang.match("{project,N,Msg,error}", it);
               boolean _tripleEquals = (b == null);
               if (_tripleEquals) {
                 return it;
@@ -269,7 +269,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
               }
               String _substring = last.substring((ix + 1));
               final String newMessage = (((HDR + newFile) + ": ") + _substring);
-              _xblockexpression = ErlUtils.format("{project,~i,~s,error}", Long.valueOf(n), newMessage);
+              _xblockexpression = OtpErlang.format("{project,~i,~s,error}", Long.valueOf(n), newMessage);
             }
             return _xblockexpression;
           } catch (Throwable _e) {

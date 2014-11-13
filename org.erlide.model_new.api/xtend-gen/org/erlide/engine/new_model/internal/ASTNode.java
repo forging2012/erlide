@@ -12,7 +12,7 @@ import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.erlide.util.erlang.Bindings;
-import org.erlide.util.erlang.ErlUtils;
+import org.erlide.util.erlang.OtpErlang;
 
 @Accessors
 @SuppressWarnings("all")
@@ -35,7 +35,7 @@ public class ASTNode {
       {
         Iterable<OtpErlangObject> _tail = IterableExtensions.<OtpErlangObject>tail(this.items);
         OtpErlangObject _head = IterableExtensions.<OtpErlangObject>head(_tail);
-        final Bindings pos = ErlUtils.match("{{Line,Offset,FileOffset},Len}", _head);
+        final Bindings pos = OtpErlang.match("{{Line,Offset,FileOffset},Len}", _head);
         int _int = pos.getInt("FileOffset");
         int _int_1 = pos.getInt("Len");
         _xblockexpression = new TextRange(_int, _int_1);

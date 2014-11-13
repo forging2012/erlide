@@ -25,7 +25,7 @@ import org.erlide.engine.util.ResourceUtil;
 import org.erlide.util.ErlLogger;
 import org.erlide.util.SystemConfiguration;
 import org.erlide.util.SystemConfiguration.Features;
-import org.erlide.util.erlang.ErlUtils;
+import org.erlide.util.erlang.OtpErlang;
 
 import com.ericsson.otp.erlang.OtpErlangAtom;
 import com.ericsson.otp.erlang.OtpErlangList;
@@ -82,7 +82,7 @@ public final class MarkerUtils {
         for (final OtpErlangObject entry : messages) {
             final OtpErlangTuple message = (OtpErlangTuple) entry;
 
-            final String fileName = ErlUtils.asString(message.elementAt(1));
+            final String fileName = OtpErlang.asString(message.elementAt(1));
             final IResource res = findResourceForFileName(fileName, resource);
             addAnnotationForMessage(fileName, res, message);
         }
@@ -344,7 +344,7 @@ public final class MarkerUtils {
         }
 
         private static String getMessage(final OtpErlangTuple data) {
-            return ErlUtils.asString(data.elementAt(2));
+            return OtpErlang.asString(data.elementAt(2));
         }
 
         private static int getSeverity(final OtpErlangTuple data) {

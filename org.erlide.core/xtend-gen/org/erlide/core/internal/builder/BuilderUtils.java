@@ -17,7 +17,7 @@ import org.erlide.core.builder.CompilerOptions;
 import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.model.root.IErlProject;
 import org.erlide.runtime.runtimeinfo.RuntimeVersion;
-import org.erlide.util.erlang.ErlUtils;
+import org.erlide.util.erlang.OtpErlang;
 
 @SuppressWarnings("all")
 public class BuilderUtils {
@@ -69,7 +69,7 @@ public class BuilderUtils {
           }
         };
         Iterable<OtpErlangString> _map_3 = IterableExtensions.<String, OtpErlangString>map(libs, _function_3);
-        _xblockexpression = ErlUtils.format(
+        _xblockexpression = OtpErlang.format(
           "{project_info,~s,~ls,~ls,~s,~x,~s,~ls,~s}", rootDir, _map, _plus, _portableString, opts, _string, _map_3, tmpDir);
       }
       return _xblockexpression;

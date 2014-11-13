@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.erlide.util.ErlLogger;
 import org.erlide.util.erlang.Bindings;
-import org.erlide.util.erlang.ErlUtils;
 import org.erlide.util.erlang.OtpErlang;
 import org.erlide.util.erlang.TermParserException;
 
@@ -113,7 +112,7 @@ public class TestCaseData {
         @Override
         public String toString() {
             try {
-                final Bindings b = ErlUtils.match("{M:a, F:a, A}", item);
+                final Bindings b = OtpErlang.match("{M:a, F:a, A}", item);
                 m = b.getQuotedAtom("M");
                 f = b.getQuotedAtom("F");
                 a = b.get("A");
@@ -181,7 +180,7 @@ public class TestCaseData {
     private FailReason parseReason(final OtpErlangObject reason) {
         Bindings b;
         try {
-            b = ErlUtils.match("{Cause, Stack}", reason);
+            b = OtpErlang.match("{Cause, Stack}", reason);
             if (b == null) {
                 return new FailReason("internal error: " + reason.toString(), NO_STACK);
             }

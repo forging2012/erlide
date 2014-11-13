@@ -17,7 +17,7 @@ import org.erlide.engine.model.root.ErlangProjectProperties;
 import org.erlide.engine.model.root.ProjectConfigurationSerializer;
 import org.erlide.engine.services.parsing.SimpleParserService;
 import org.erlide.util.erlang.Bindings;
-import org.erlide.util.erlang.ErlUtils;
+import org.erlide.util.erlang.OtpErlang;
 
 @SuppressWarnings("all")
 public class EmakeConfigurationSerializer implements ProjectConfigurationSerializer {
@@ -42,7 +42,7 @@ public class EmakeConfigurationSerializer implements ProjectConfigurationSeriali
       final Procedure1<OtpErlangObject> _function = new Procedure1<OtpErlangObject>() {
         public void apply(final OtpErlangObject erl_opts) {
           try {
-            final Bindings bindings = ErlUtils.match("{Src,Opts}", erl_opts);
+            final Bindings bindings = OtpErlang.match("{Src,Opts}", erl_opts);
             boolean _tripleNotEquals = (bindings != null);
             if (_tripleNotEquals) {
               final String src = bindings.getAtom("Src");
@@ -66,7 +66,7 @@ public class EmakeConfigurationSerializer implements ProjectConfigurationSeriali
                 final Procedure1<OtpErlangObject> _function = new Procedure1<OtpErlangObject>() {
                   public void apply(final OtpErlangObject opt) {
                     try {
-                      final Bindings b = ErlUtils.match("{Tag,Arg}", opt);
+                      final Bindings b = OtpErlang.match("{Tag,Arg}", opt);
                       boolean _tripleNotEquals = (b != null);
                       if (_tripleNotEquals) {
                         EmakeConfigurationSerializer.this.parseOption(b, result);

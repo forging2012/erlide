@@ -1,7 +1,7 @@
 package org.erlide.engine.model.erlang;
 
 import org.erlide.util.erlang.Bindings;
-import org.erlide.util.erlang.ErlUtils;
+import org.erlide.util.erlang.OtpErlang;
 
 import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangTuple;
@@ -22,7 +22,7 @@ public class FunctionRef {
         if (e instanceof OtpErlangTuple) {
             final OtpErlangTuple t = (OtpErlangTuple) e;
             try {
-                final Bindings bb = ErlUtils.match("{M:a, F:a, A:i}", t);
+                final Bindings bb = OtpErlang.match("{M:a, F:a, A:i}", t);
                 final String m = bb.getAs("M", String.class);
                 final String f = bb.getAs("F", String.class);
                 final int a = bb.getAs("A", Integer.class);

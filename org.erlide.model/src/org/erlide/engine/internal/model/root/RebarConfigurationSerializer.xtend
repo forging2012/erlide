@@ -8,7 +8,7 @@ import org.erlide.engine.ErlangEngine
 import org.erlide.engine.model.root.ErlangProjectProperties
 import org.erlide.engine.model.root.ProjectConfigurationSerializer
 import org.erlide.util.erlang.Bindings
-import org.erlide.util.erlang.ErlUtils
+import org.erlide.util.erlang.OtpErlang
 
 class RebarConfigurationSerializer implements ProjectConfigurationSerializer {
 
@@ -42,12 +42,12 @@ class RebarConfigurationSerializer implements ProjectConfigurationSerializer {
         }
 
         content.forEach [ erl_opts |
-            val bindings = ErlUtils.match("{erl_opts,Opts}", erl_opts)
+            val bindings = OtpErlang.match("{erl_opts,Opts}", erl_opts)
             if (bindings !== null) {
                 val opts = bindings.getList("Opts")
                 if (opts !== null)
                     opts.forEach [ opt |
-                        val b = ErlUtils.match("{Tag,Arg}", opt)
+                        val b = OtpErlang.match("{Tag,Arg}", opt)
                         if (b !== null)
                             result.parseOption(b)
                     ]

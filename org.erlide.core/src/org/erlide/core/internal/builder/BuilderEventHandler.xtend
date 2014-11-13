@@ -14,7 +14,7 @@ import org.erlide.runtime.events.ErlEvent
 import org.erlide.runtime.events.ErlangEventHandler
 import org.erlide.util.ErlLogger
 import org.erlide.util.erlang.Bindings
-import org.erlide.util.erlang.ErlUtils
+import org.erlide.util.erlang.OtpErlang
 
 public class BuilderEventHandler extends ErlangEventHandler {
 
@@ -52,7 +52,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
 
     def static boolean match(String template, OtpErlangObject data, (Bindings)=>boolean callback) {
         try {
-            val b = ErlUtils.match(template, data)
+            val b = OtpErlang.match(template, data)
             if (b === null) {
                 return false
             }
@@ -128,7 +128,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
     def Iterable<OtpErlangObject> cleanup(Collection<OtpErlangObject> objects) {
         println("cleanup")
         objects.map [
-            val b = ErlUtils.match("{project,N,Msg,error}", it)
+            val b = OtpErlang.match("{project,N,Msg,error}", it)
             if (b === null) {
                 return it
             }
@@ -150,7 +150,7 @@ public class BuilderEventHandler extends ErlangEventHandler {
                 return it
             }
             val newMessage = HDR + newFile + ": " + last.substring(ix + 1)
-            ErlUtils.format("{project,~i,~s,error}", n, newMessage)
+            OtpErlang.format("{project,~i,~s,error}", n, newMessage)
         ]
     }
 
