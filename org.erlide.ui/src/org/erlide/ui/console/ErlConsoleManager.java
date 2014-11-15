@@ -90,9 +90,9 @@ public class ErlConsoleManager implements IDisposable, IBackendListener, IConsol
     }
 
     @Override
-    public void consolesAdded(final IConsole[] cons) {
+    public void consolesAdded(final IConsole[] newConsoles) {
         boolean erl = false;
-        for (final IConsole con : cons) {
+        for (final IConsole con : newConsoles) {
             if (con instanceof IErlangConsole) {
                 erl = true;
                 break;
@@ -102,11 +102,13 @@ public class ErlConsoleManager implements IDisposable, IBackendListener, IConsol
             final IWorkbench workbench = PlatformUI.getWorkbench();
             final IWorkbenchWindow activeWorkbenchWindow = workbench
                     .getActiveWorkbenchWindow();
-            final IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
-            try {
-                activePage.showView(CONSOLE_VIEW_ID);
-            } catch (final PartInitException e) {
-                // ignore
+            if (activeWorkbenchWindow != null) {
+                final IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
+                try {
+                    activePage.showView(CONSOLE_VIEW_ID);
+                } catch (final PartInitException e) {
+                    // ignore
+                }
             }
         }
     }
