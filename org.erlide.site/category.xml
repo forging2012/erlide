@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <category-def name="org.erlide.erlide" label="Erlang Development Tools"/>
+   <!-- repository-reference location="http://https://hudson.eclipse.org/handly/job/0.3.x/lastSuccessfulBuild/artifact/build/repository/" enabled="true" / -->
+ </site>

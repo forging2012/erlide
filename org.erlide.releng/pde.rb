@@ -83,4 +83,11 @@ module PDE
     system "bash org.erlide.releng/comp-repo.sh #{container} --eclipse #{tools_dir}/buckminster/ remove #{child}"
   end
 
+   def PDE.p2_categorize(child, container, tools_dir="#{ENV['HOME']}/erlide_tools")
+    #     eclipse -application -application org.eclipse.equinox.p2.publisher.CategoryPublisher
+    #        -metadataRepository file:/<some location>/repository
+    #        -categoryDefinition file:/<some location>/category.xml
+    #        -compress
+   end
+
 end
