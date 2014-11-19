@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="erlide" uid="org.erlide.product" id="org.erlide.branding.product" application="org.eclipse.ui.ide.workbench" version="0.23.1" useFeatures="true" includeLaunchers="true">
+<product name="erlide" uid="org.erlide.product" id="org.erlide.branding.product" application="org.eclipse.ui.ide.workbench" version="0.30.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.erlide.branding/images/erl-zen-badge-160.png"/>
       <text>
-         %aboutText
+         Erlang IDE support for Eclipse
+
+Copyright (c) 2004-2014 Vlad Dumitrescu, Jakob Cederlund, Eric Merritt and others.
+
+All rights reserved. This program and the accompanying materials are made available under the terms of the 
+Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+
+This offering is based on technology from the Eclipse Project (&lt;a href=&quot;http://www.eclipse.org&quot;&gt;http://www.eclipse.org&lt;/a&gt;)
       </text>
    </aboutInfo>
 
@@ -14,10 +21,11 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
-   <windowImages i16="/org.erlide.branding/images/erlang-16.gif" i32="/org.erlide.branding/images/erlang-32.gif" i48="/org.erlide.branding/images/erlang-48.gif" i64="/org.erlide.branding/images/erlang-64.gif" i128="/org.erlide.branding/images/erlang-128.gif"/>
+   <windowImages i16="/org.erlide.branding/images/erlide-16.gif" i32="/org.erlide.branding/images/erlide-32.gif" i48="/org.erlide.branding/images/erlide-48.gif" i64="/org.erlide.branding/images/erlide-64.gif" i128="/org.erlide.branding/images/erlide-128.gif"/>
 
    <splash
       location="org.erlide.branding"
@@ -55,5 +63,9 @@ Vlad Dumitrescu, Jakob Cederlund and others
       <feature id="org.erlide.product.feature" version="0.23.2.qualifier"/>
    </features>
 
+
+   <repositories>
+      <repository location="http://download.erlide.org/update" enabled="true" />
+   </repositories>
 
 </product>

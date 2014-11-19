@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<introContent>
+    <extensionContent id="erlide-new-project" style="css/style.css" name="New Erlang Project" path="overview/@">
+        <group style-id="content-group" id="erlide-new-project-group">
+            <link label="New Erlang Project"
+                  url="http://org.eclipse.ui.intro/newErlangProject"
+                  id="erlide-new-project-link"
+                  style-id="content-link">
+                <text>Create a new Erlang Project</text>
+            </link>
+        </group>
+    </extensionContent>
+
+    <extensionContent id="erlide-doc" style="css/style.css"
+        name="Erlide Documentation" path="overview/@">
+        <group style-id="content-group" id="erlide-doc-group">
+            <link label="Erlide documentation"
+                url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.erlide.help/html/index.html"
+                id="erlide-doc-link" style-id="content-link">
+                <text>Consult the Erlide documentation</text>
+            </link>
+        </group>
+    </extensionContent>
+
+    <extensionContent id="erlide-erlang-doc" style="css/style.css"
+        name="Erlang Documentation" path="overview/@">
+        <group style-id="content-group" id="erlide-erlang-doc-group">
+            <link label="Erlang documentation" url="http://org.eclipse.ui.intro/openBrowser?url=http://www.erlang.org/erldoc"
+                id="erlide-erlang-doc-link" style-id="content-link">
+                <text>Consult the Erlang online documentation</text>
+            </link>
+        </group>
+    </extensionContent>
+
+    <extensionContent id="erlide-tuts" style="css/style.css"
+        name="Erlide tutorial" path="tutorials/@">
+        <group style-id="content-group" id="erlide-tuts-group">
+            <link label="Erlide tutorials"
+                url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.erlide.help/html/tutorials.html"
+                id="erlide-tuts-link" style-id="content-link">
+                <text>Check out the tutorials to get started quickly</text>
+            </link>
+        </group>
+    </extensionContent>
+
+
+</introContent>
