@@ -100,8 +100,8 @@ public class ExternalLibrariesHelper {
       if (_isNullOrEmpty) {
         return CollectionLiterals.<String>newArrayList();
       }
-      final Function1<String, List<String>> _function = new Function1<String, List<String>>() {
-        public List<String> apply(final String it) {
+      final Function1<String, Collection<String>> _function = new Function1<String, Collection<String>>() {
+        public Collection<String> apply(final String it) {
           try {
             List<String> _xblockexpression = null;
             {

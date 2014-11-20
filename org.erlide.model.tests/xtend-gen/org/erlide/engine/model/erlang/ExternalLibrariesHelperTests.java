@@ -44,8 +44,8 @@ public class ExternalLibrariesHelperTests {
     final Map<String, List<String>> xmap = Collections.<String, List<String>>unmodifiableMap(CollectionLiterals.<String, List<String>>newHashMap(_mappedTo));
     final Set<String> expected = Collections.<String>unmodifiableSet(CollectionLiterals.<String>newHashSet("a", "b"));
     Path _path = new Path("");
-    final Function1<String, List<String>> _function = new Function1<String, List<String>>() {
-      public List<String> apply(final String it) {
+    final Function1<String, Collection<String>> _function = new Function1<String, Collection<String>>() {
+      public Collection<String> apply(final String it) {
         return xmap.get(it);
       }
     };
@@ -60,8 +60,8 @@ public class ExternalLibrariesHelperTests {
     final Map<String, List<String>> xmap = Collections.<String, List<String>>unmodifiableMap(CollectionLiterals.<String, List<String>>newHashMap(_mappedTo, _mappedTo_1));
     final Set<String> expected = Collections.<String>unmodifiableSet(CollectionLiterals.<String>newHashSet("a", "z", "y", "c"));
     Path _path = new Path("");
-    final Function1<String, List<String>> _function = new Function1<String, List<String>>() {
-      public List<String> apply(final String it) {
+    final Function1<String, Collection<String>> _function = new Function1<String, Collection<String>>() {
+      public Collection<String> apply(final String it) {
         return xmap.get(it);
       }
     };
@@ -75,8 +75,8 @@ public class ExternalLibrariesHelperTests {
     final Map<String, List<String>> xmap = Collections.<String, List<String>>unmodifiableMap(CollectionLiterals.<String, List<String>>newHashMap(_mappedTo));
     final Set<String> expected = Collections.<String>unmodifiableSet(CollectionLiterals.<String>newHashSet("a", "b"));
     Path _path = new Path("");
-    final Function1<String, List<String>> _function = new Function1<String, List<String>>() {
-      public List<String> apply(final String it) {
+    final Function1<String, Collection<String>> _function = new Function1<String, Collection<String>>() {
+      public Collection<String> apply(final String it) {
         return xmap.get(it);
       }
     };
