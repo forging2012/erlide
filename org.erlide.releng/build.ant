@@ -51,76 +51,39 @@
         <run_buckminster commandsfile="${projects.location}/org.erlide.releng/commands/build-product.txt" propertiesfile="${build.properties}" />
     </target>
 
+  <macrodef name="rebar_k">
+    <attribute name="dir"/>
+    <attribute name="otp"/>
+    <attribute name="target"/>
+    <sequential>
+          <exec executable="${tool.rebar_k}" dir="@{dir}" failifexecutionfails="true" failonerror="true">
+              <arg value="@{otp}" />
+              <arg value="@{target}" />
+              <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
+          </exec>
+    </sequential>
+  </macrodef>
+
     <target name="erlang.compile">
-        <echo message="Running EUnit..." />
+        <echo message="Compiling Erlang projects..." />
 
-        <exec executable="${tool.rebar_k}" dir="${projects.location}/org.erlide.kernel.common" failifexecutionfails="true" failonerror="true">
-            <arg value="otp15" />
-            <arg value="compile" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
-        <exec executable="${tool.rebar_k}" dir="${projects.location}/org.erlide.kernel.ide" failifexecutionfails="true" failonerror="true">
-            <arg value="otp16" />
-            <arg value="compile" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
-
-        <exec executable="${tool.rebar_k}" failonerror="true" dir="${projects.location}/org.erlide.kernel.debugger">
-            <arg value="otp15" />
-            <arg value="compile" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
-        <exec executable="${tool.rebar_k}" failonerror="true" dir="${projects.location}/org.erlide.kernel.debugger.otp.r15">
-            <arg value="otp15" />
-            <arg value="compile" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
-        <exec executable="${tool.rebar_k}" failonerror="true" dir="${projects.location}/org.erlide.kernel.debugger.otp.r16">
-            <arg value="otp16" />
-            <arg value="compile" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
-        <exec executable="${tool.rebar_k}" failonerror="true" dir="${projects.location}/org.erlide.kernel.debugger.otp.17">
-            <arg value="otp17" />
-            <arg value="compile" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.common" otp="otp15" target="compile"/>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.ide" otp="otp16" target="compile"/>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.debugger" otp="otp15" target="compile"/>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.debugger.otp.r15" otp="otp15" target="compile"/>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.debugger.otp.r16" otp="otp16" target="compile"/>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.debugger.otp.17" otp="otp17" target="compile"/>
     </target>
 
     <target name="eunit.tests">
         <echo message="Running EUnit..." />
 
-        <exec executable="${tool.rebar_k}" dir="${projects.location}/org.erlide.kernel.common" failifexecutionfails="true" failonerror="true">
-            <arg value="otp15" />
-            <arg value="eunit" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
-        <exec executable="${tool.rebar_k}" dir="${projects.location}/org.erlide.kernel.ide" failifexecutionfails="true" failonerror="true">
-            <arg value="otp16" />
-            <arg value="eunit" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
-
-        <exec executable="${tool.rebar_k}" failonerror="true" dir="${projects.location}/org.erlide.kernel.debugger">
-            <arg value="otp15" />
-            <arg value="eunit" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
-        <exec executable="${tool.rebar_k}" failonerror="true" dir="${projects.location}/org.erlide.kernel.debugger.otp.r15">
-            <arg value="otp15" />
-            <arg value="eunit" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
-        <exec executable="${tool.rebar_k}" failonerror="true" dir="${projects.location}/org.erlide.kernel.debugger.otp.r16">
-            <arg value="otp16" />
-            <arg value="eunit" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
-        <exec executable="${tool.rebar_k}" failonerror="true" dir="${projects.location}/org.erlide.kernel.debugger.otp.17">
-            <arg value="otp17" />
-            <arg value="eunit" />
-            <env key="ERL_LIBS" path="${user.home}/erlide_tools:${projects.location}" />
-        </exec>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.common" otp="otp15" target="eunit"/>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.ide" otp="otp16" target="eunit"/>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.debugger" otp="otp15" target="eunit"/>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.debugger.otp.r15" otp="otp15" target="eunit"/>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.debugger.otp.r16" otp="otp16" target="eunit"/>
+        <rebar_k dir="${projects.location}/org.erlide.kernel.debugger.otp.17" otp="otp17" target="eunit"/>
     </target>
 
     <target name="build.releng.tools">
